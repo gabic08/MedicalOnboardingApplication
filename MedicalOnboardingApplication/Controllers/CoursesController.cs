@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using MedicalOnboardingApplication.Data;
+﻿using MedicalOnboardingApplication.Data;
 using MedicalOnboardingApplication.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace MedicalOnboardingApplication.Controllers
 {
@@ -20,9 +15,28 @@ namespace MedicalOnboardingApplication.Controllers
         }
 
         // GET: Courses
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? employeeTypeId)
         {
-            return View(await _context.Course.OrderBy(c => c.Order).ToListAsync());
+            var coursesQuery = _context.Courses
+                .OrderBy(c => c.Order)
+                .Include(c => c.CourseEmployeeTypes)
+                .ThenInclude(cet => cet.EmployeeType)
+                .AsQueryable();
+
+            if (employeeTypeId.HasValue)
+            {
+                coursesQuery = coursesQuery
+                    .Where(c => c.CourseEmployeeTypes
+                        .Any(cet => cet.EmployeeTypeId == employeeTypeId.Value));
+            }
+
+            var courses = await coursesQuery.ToListAsync();
+
+            // Employee types for the filter dropdown
+            ViewBag.EmployeeTypes = await _context.EmployeeTypes.ToListAsync();
+            ViewBag.SelectedEmployeeTypeId = employeeTypeId;
+
+            return View(courses);
         }
 
         // GET: Courses/Details/5
@@ -33,7 +47,7 @@ namespace MedicalOnboardingApplication.Controllers
                 return NotFound();
             }
 
-            var course = await _context.Course
+            var course = await _context.Courses
                 .Include(c => c.Chapters)
                 .Include(c => c.Tests)
                     .ThenInclude(t => t.Questions)
@@ -73,16 +87,34 @@ namespace MedicalOnboardingApplication.Controllers
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
-            var course = await _context.Course.FindAsync(id);
+            var course = await _context.Courses
+                .Include(c => c.CourseEmployeeTypes)
+                .ThenInclude(cet => cet.EmployeeType)
+                .FirstOrDefaultAsync(c => c.Id == id);
+
             if (course == null)
-            {
                 return NotFound();
-            }
-            return View(course);
+
+            // Map to CourseViewModel
+            var allEmployeeTypes = await _context.EmployeeTypes.ToListAsync();
+
+            var viewModel = new CourseViewModel
+            {
+                Id = course.Id,
+                Title = course.Title,
+                Description = course.Description,
+                Order = course.Order,
+                EmployeeTypes = allEmployeeTypes.Select(et => new EmployeeTypeCheckbox
+                {
+                    Id = et.Id,
+                    Name = et.Name,
+                    IsSelected = course.CourseEmployeeTypes.Any(cet => cet.EmployeeTypeId == et.Id)
+                }).ToList()
+            };
+
+            return View(viewModel);
         }
 
         // POST: Courses/Edit/5
@@ -90,34 +122,40 @@ namespace MedicalOnboardingApplication.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Description,Order")] Course course)
+        public async Task<IActionResult> Edit(int id, CourseViewModel model)
         {
-            if (id != course.Id)
-            {
+            if (id != model.Id)
                 return NotFound();
+
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var course = await _context.Courses
+                .Include(c => c.CourseEmployeeTypes)
+                .FirstOrDefaultAsync(c => c.Id == id);
+
+            if (course == null)
+                return NotFound();
+
+            // Update basic properties
+            course.Title = model.Title;
+            course.Description = model.Description;
+            course.Order = model.Order;
+
+            // Update employee type associations
+            course.CourseEmployeeTypes.Clear();
+
+            foreach (var et in model.EmployeeTypes.Where(e => e.IsSelected))
+            {
+                course.CourseEmployeeTypes.Add(new CourseEmployeeType
+                {
+                    CourseId = course.Id,
+                    EmployeeTypeId = et.Id
+                });
             }
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(course);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!CourseExists(course.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            return View(course);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Courses/Delete/5
@@ -128,7 +166,7 @@ namespace MedicalOnboardingApplication.Controllers
                 return NotFound();
             }
 
-            var course = await _context.Course
+            var course = await _context.Courses
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (course == null)
             {
@@ -143,10 +181,10 @@ namespace MedicalOnboardingApplication.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var course = await _context.Course.FindAsync(id);
+            var course = await _context.Courses.FindAsync(id);
             if (course != null)
             {
-                _context.Course.Remove(course);
+                _context.Courses.Remove(course);
             }
 
             await _context.SaveChangesAsync();
@@ -155,7 +193,7 @@ namespace MedicalOnboardingApplication.Controllers
 
         private bool CourseExists(int id)
         {
-            return _context.Course.Any(e => e.Id == id);
+            return _context.Courses.Any(e => e.Id == id);
         }
     }
 }

@@ -1,6 +1,4 @@
-﻿using static System.Net.Mime.MediaTypeNames;
-
-namespace MedicalOnboardingApplication.Models;
+﻿namespace MedicalOnboardingApplication.Models;
 
 public class Course
 {
@@ -10,5 +8,6 @@ public class Course
     public int Order { get; set; }
     public ICollection<Chapter> Chapters { get; set; }
     public ICollection<Test> Tests { get; set; }
+    public ICollection<CourseEmployeeType> CourseEmployeeTypes { get; set; }
 }
 

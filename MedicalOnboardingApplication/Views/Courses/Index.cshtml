@@ -2,49 +2,58 @@
 
 @{
     ViewData["Title"] = "Courses";
+    var employeeTypes = ViewBag.EmployeeTypes as List<MedicalOnboardingApplication.Models.EmployeeType>;
+    var selectedTypeId = ViewBag.SelectedEmployeeTypeId as int?;
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="mb-0">Courses</h1>
-    <a asp-action="Create" class="btn btn-primary btn-lg">
-        <i class="bi bi-plus-circle"></i> Add New Course
+<h1>Courses</h1>
+
+<div class="mb-3 d-flex align-items-center">
+    <form method="get" class="d-flex align-items-center">
+        <label class="me-2">Filter by Employee Type:</label>
+        <select name="employeeTypeId" class="form-select me-2">
+            <option value="">All</option>
+            @foreach (var type in employeeTypes)
+            {
+                <option value="@type.Id" selected="@(selectedTypeId == type.Id)">
+                    @type.Name
+                </option>
+            }
+        </select>
+        <button type="submit" class="btn btn-primary">Filter</button>
+    </form>
+
+    <a asp-action="Create" class="btn btn-success ms-auto">
+        <i class="bi bi-plus-circle"></i> Create New Course
     </a>
 </div>
 
-@if (!Model.Any())
-{
-    <div class="alert alert-info">
-        No courses available. Click "Add New Course" to create one.
-    </div>
-}
-else
-{
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-        @foreach (var course in Model)
-        {
-            <div class="col">
-                <div class="card h-100 shadow-sm">
-                    <div class="card-body d-flex flex-column">
-                        <h5 class="card-title">@course.Title</h5>
-                        <p class="card-text text-truncate">
-                            @course.Description
-                        </p>
-                        <p class="text-muted mb-3"><strong>Order:</strong> @course.Order</p>
-
-                        <div class="mt-auto d-flex justify-content-between">
-                            <a asp-action="Details" asp-route-id="@course.Id" class="btn btn-sm btn-outline-primary">
-                                View
-                            </a>
-                            <a asp-action="Edit" asp-route-id="@course.Id" class="btn btn-sm btn-outline-secondary">
-                                Edit
-                            </a>
-                            <a asp-action="Delete" asp-route-id="@course.Id" class="btn btn-sm btn-outline-danger">
-                                Delete
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        }
-    </div>
-}
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Order</th>
+            <th>Employee Types</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var course in Model)
+    {
+        <tr>
+            <td>@course.Title</td>
+            <td>@course.Description</td>
+            <td>@course.Order</td>
+            <td>
+                @string.Join(", ", course.CourseEmployeeTypes.Select(cet => cet.EmployeeType.Name))
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@course.Id" class="btn btn-sm btn-outline-secondary me-1">Edit</a>
+                <a asp-action="Details" asp-route-id="@course.Id" class="btn btn-sm btn-outline-primary me-1">Details</a>
+                <a asp-action="Delete" asp-route-id="@course.Id" class="btn btn-sm btn-outline-danger">Delete</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
