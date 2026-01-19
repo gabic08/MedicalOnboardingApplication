@@ -1,0 +1,35 @@
+﻿@model IEnumerable<MedicalOnboardingApplication.Models.Test>
+
+@{
+    ViewData["Title"] = "Tests";
+    var courseId = ViewBag.CourseId;
+}
+
+<div class="d-flex justify-content-between mb-3">
+    <h1>Tests</h1>
+    <a asp-action="Create" asp-route-courseId="@courseId" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Add Test
+    </a>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Questions</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var test in Model)
+        {
+            <tr>
+                <td>@test.Title</td>
+                <td>@test.Questions?.Count ?? 0</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@test.Id" class="btn btn-sm btn-outline-primary">Manage</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

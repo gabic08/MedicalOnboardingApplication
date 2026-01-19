@@ -1,0 +1,50 @@
+﻿@model IEnumerable<MedicalOnboardingApplication.Models.Course>
+
+@{
+    ViewData["Title"] = "Courses";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="mb-0">Courses</h1>
+    <a asp-action="Create" class="btn btn-primary btn-lg">
+        <i class="bi bi-plus-circle"></i> Add New Course
+    </a>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        No courses available. Click "Add New Course" to create one.
+    </div>
+}
+else
+{
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        @foreach (var course in Model)
+        {
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">@course.Title</h5>
+                        <p class="card-text text-truncate">
+                            @course.Description
+                        </p>
+                        <p class="text-muted mb-3"><strong>Order:</strong> @course.Order</p>
+
+                        <div class="mt-auto d-flex justify-content-between">
+                            <a asp-action="Details" asp-route-id="@course.Id" class="btn btn-sm btn-outline-primary">
+                                View
+                            </a>
+                            <a asp-action="Edit" asp-route-id="@course.Id" class="btn btn-sm btn-outline-secondary">
+                                Edit
+                            </a>
+                            <a asp-action="Delete" asp-route-id="@course.Id" class="btn btn-sm btn-outline-danger">
+                                Delete
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

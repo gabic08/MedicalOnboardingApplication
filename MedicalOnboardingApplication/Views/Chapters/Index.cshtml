@@ -1,0 +1,36 @@
+﻿@model IEnumerable<MedicalOnboardingApplication.Models.Chapter>
+
+@{
+    ViewData["Title"] = "Chapters";
+    var courseId = ViewBag.CourseId;
+}
+
+<div class="d-flex justify-content-between mb-3">
+    <h1>Chapters</h1>
+    <a asp-action="Create" asp-route-courseId="@courseId" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Add Chapter
+    </a>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Order</th>
+            <th>Title</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var chapter in Model)
+        {
+            <tr>
+                <td>@chapter.Order</td>
+                <td>@chapter.Title</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@chapter.Id" class="btn btn-sm btn-outline-secondary">Edit</a>
+                    <a asp-action="Delete" asp-route-id="@chapter.Id" class="btn btn-sm btn-outline-danger">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
