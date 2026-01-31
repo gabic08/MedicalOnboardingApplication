@@ -1,0 +1,68 @@
+﻿@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h1 class="fw-bold">Admin Dashboard</h1>
+        <p class="text-muted">Manage your onboarding system from one place</p>
+    </div>
+
+    <div class="row justify-content-center g-4">
+        <!-- Courses Card -->
+        <div class="col-md-5 col-lg-4">
+            <a asp-controller="Courses" asp-action="Index" class="text-decoration-none">
+                <div class="card shadow-lg border-0 h-100 admin-card">
+                    <div class="card-body text-center p-5">
+                        <div class="mb-4 text-primary">
+                            <i class="bi bi-journal-text display-3"></i>
+                        </div>
+                        <h3 class="fw-bold mb-2">Courses</h3>
+                        <p class="text-muted">
+                            Create, edit, and organize onboarding courses for employees
+                        </p>
+                        <div class="mt-4">
+                            <span class="btn btn-primary px-4">
+                                Manage Courses
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Employee Types Card -->
+        <div class="col-md-5 col-lg-4">
+            <a asp-controller="EmployeeTypes" asp-action="Index" class="text-decoration-none">
+                <div class="card shadow-lg border-0 h-100 admin-card">
+                    <div class="card-body text-center p-5">
+                        <div class="mb-4 text-success">
+                            <i class="bi bi-people-fill display-3"></i>
+                        </div>
+                        <h3 class="fw-bold mb-2">Employee Types</h3>
+                        <p class="text-muted">
+                            Manage roles and assign which courses each role must complete
+                        </p>
+                        <div class="mt-4">
+                            <span class="btn btn-success px-4">
+                                Manage Employee Types
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .admin-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        border-radius: 1rem;
+    }
+
+    .admin-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.15);
+    }
+</style>

@@ -1,6 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using MedicalOnboardingApplication.Data;
+﻿using MedicalOnboardingApplication.Data;
+using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<MedicalOnboardingApplicationContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("MedicalOnboardingApplicationContext") ?? throw new InvalidOperationException("Connection string 'MedicalOnboardingApplicationContext' not found.")));

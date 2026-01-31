@@ -1,6 +1,6 @@
-using System.Diagnostics;
 using MedicalOnboardingApplication.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 
 namespace MedicalOnboardingApplication.Controllers
 {
@@ -8,7 +8,7 @@ namespace MedicalOnboardingApplication.Controllers
     {
         public IActionResult Index()
         {
-            return View();
+            return RedirectToAction("Index", "Admin");
         }
 
         public IActionResult Privacy()

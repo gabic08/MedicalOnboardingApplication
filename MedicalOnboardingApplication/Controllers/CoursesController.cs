@@ -62,9 +62,27 @@ namespace MedicalOnboardingApplication.Controllers
         }
 
         // GET: Courses/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            return View();
+            var lastOrder = await _context.Courses
+                .OrderByDescending(c => c.Order)
+                .Select(c => c.Order)
+                .FirstOrDefaultAsync();
+
+            var allEmployeeTypes = await _context.EmployeeTypes.ToListAsync();
+
+            var model = new CourseViewModel
+            {
+                Order = lastOrder + 1,
+                EmployeeTypes = allEmployeeTypes.Select(et => new EmployeeTypeCheckbox
+                {
+                    Id = et.Id,
+                    Name = et.Name,
+                    IsSelected = false
+                }).ToList()
+            };
+
+            return View(model);
         }
 
         // POST: Courses/Create
@@ -72,15 +90,45 @@ namespace MedicalOnboardingApplication.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Title,Description,Order")] Course course)
+        public async Task<IActionResult> Create(CourseViewModel model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                _context.Add(course);
-                await _context.SaveChangesAsync();
-                return RedirectToAction("Details", "Courses", new { id = course.Id });
+                // Reload employee types if validation fails
+                var allEmployeeTypes = await _context.EmployeeTypes.ToListAsync();
+                model.EmployeeTypes = allEmployeeTypes.Select(et => new EmployeeTypeCheckbox
+                {
+                    Id = et.Id,
+                    Name = et.Name,
+                    IsSelected = model.EmployeeTypes?.Any(e => e.Id == et.Id && e.IsSelected) == true
+                }).ToList();
+
+                return View(model);
             }
-            return View(course);
+
+            var course = new Course
+            {
+                Title = model.Title,
+                Description = model.Description,
+                Order = model.Order
+            };
+
+            _context.Courses.Add(course);
+            await _context.SaveChangesAsync();
+
+            // Save employee type relationships
+            foreach (var et in model.EmployeeTypes.Where(e => e.IsSelected))
+            {
+                _context.CourseEmployeeTypes.Add(new CourseEmployeeType
+                {
+                    CourseId = course.Id,
+                    EmployeeTypeId = et.Id
+                });
+            }
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Courses/Edit/5
