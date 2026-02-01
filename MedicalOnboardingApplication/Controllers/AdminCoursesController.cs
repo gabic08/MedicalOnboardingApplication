@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MedicalOnboardingApplication.Controllers
 {
-    public class CoursesController : Controller
+    public class AdminCoursesController : Controller
     {
         private readonly MedicalOnboardingApplicationContext _context;
 
-        public CoursesController(MedicalOnboardingApplicationContext context)
+        public AdminCoursesController(MedicalOnboardingApplicationContext context)
         {
             _context = context;
         }
@@ -49,6 +49,7 @@ namespace MedicalOnboardingApplication.Controllers
 
             var course = await _context.Courses
                 .Include(c => c.Chapters)
+                    .ThenInclude(ch => ch.Attachments)
                 .Include(c => c.Tests)
                     .ThenInclude(t => t.Questions)
                         .ThenInclude(q => q.Answers)

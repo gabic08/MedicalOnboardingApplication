@@ -17,7 +17,7 @@ namespace MedicalOnboardingApplication.Data
         public DbSet<Answer> Answers { get; set; }
         public DbSet<EmployeeType> EmployeeTypes { get; set; }
         public DbSet<CourseEmployeeType> CourseEmployeeTypes { get; set; }
-
+        public DbSet<ChapterAttachment> ChapterAttachments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

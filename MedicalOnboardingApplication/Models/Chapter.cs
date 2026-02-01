@@ -10,4 +10,6 @@ public class Chapter
     public string Title { get; set; }
     public string Content { get; set; }
     public int Order { get; set; }
+
+    public List<ChapterAttachment> Attachments { get; set; } = new();
 }

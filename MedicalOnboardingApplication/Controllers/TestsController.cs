@@ -55,4 +55,63 @@ public class TestsController : Controller
 
         return View(test);
     }
+
+    // GET: Tests/Edit/5
+    public async Task<IActionResult> Edit(int id)
+    {
+        var test = await _context.Tests.FindAsync(id);
+        if (test == null)
+            return NotFound();
+
+        return View(test);
+    }
+
+    // POST: Tests/Edit/5
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(int id, Test test)
+    {
+        if (id != test.Id)
+            return NotFound();
+
+        if (!ModelState.IsValid)
+            return View(test);
+
+        _context.Update(test);
+        await _context.SaveChangesAsync();
+
+        return RedirectToAction("Details", new { id = test.Id });
+    }
+
+    // GET: Tests/Delete/5
+    public async Task<IActionResult> Delete(int id)
+    {
+        var test = await _context.Tests
+            .Include(t => t.Questions)
+            .FirstOrDefaultAsync(t => t.Id == id);
+
+        if (test == null)
+            return NotFound();
+
+        return View(test);
+    }
+
+    // POST: Tests/Delete/5
+    [HttpPost, ActionName("Delete")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteConfirmed(int id)
+    {
+        var test = await _context.Tests
+            .Include(t => t.Questions)
+                .ThenInclude(q => q.Answers)
+            .FirstOrDefaultAsync(t => t.Id == id);
+
+        if (test != null)
+        {
+            _context.Tests.Remove(test);
+            await _context.SaveChangesAsync();
+        }
+
+        return RedirectToAction("Details", "AdminCourses", new { id = test.CourseId });
+    }
 }
