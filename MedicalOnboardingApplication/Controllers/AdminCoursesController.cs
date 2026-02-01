@@ -15,12 +15,11 @@ namespace MedicalOnboardingApplication.Controllers
         }
 
         // GET: Courses
-        public async Task<IActionResult> Index(int? employeeTypeId)
+        public async Task<IActionResult> Index(int? employeeTypeId, string search)
         {
             var coursesQuery = _context.Courses
-                .OrderBy(c => c.Order)
                 .Include(c => c.CourseEmployeeTypes)
-                .ThenInclude(cet => cet.EmployeeType)
+                    .ThenInclude(cet => cet.EmployeeType)
                 .AsQueryable();
 
             if (employeeTypeId.HasValue)
@@ -30,14 +29,26 @@ namespace MedicalOnboardingApplication.Controllers
                         .Any(cet => cet.EmployeeTypeId == employeeTypeId.Value));
             }
 
-            var courses = await coursesQuery.ToListAsync();
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var term = search.Trim();
 
-            // Employee types for the filter dropdown
+                coursesQuery = coursesQuery.Where(c =>
+                    c.Title.Contains(term) ||
+                    (c.Description != null && c.Description.Contains(term)));
+            }
+
+            var courses = await coursesQuery
+                .OrderBy(c => c.Order)
+                .ToListAsync();
+
             ViewBag.EmployeeTypes = await _context.EmployeeTypes.ToListAsync();
             ViewBag.SelectedEmployeeTypeId = employeeTypeId;
+            ViewBag.Search = search;
 
             return View(courses);
         }
+
 
         // GET: Courses/Details/5
         public async Task<IActionResult> Details(int? id)
@@ -95,7 +106,6 @@ namespace MedicalOnboardingApplication.Controllers
         {
             if (!ModelState.IsValid)
             {
-                // Reload employee types if validation fails
                 var allEmployeeTypes = await _context.EmployeeTypes.ToListAsync();
                 model.EmployeeTypes = allEmployeeTypes.Select(et => new EmployeeTypeCheckbox
                 {
@@ -107,11 +117,31 @@ namespace MedicalOnboardingApplication.Controllers
                 return View(model);
             }
 
+            // Get max order
+            var maxOrder = await _context.Courses
+                .MaxAsync(c => (int?)c.Order) ?? 0;
+
+            // Normalize requested order
+            var requestedOrder = model.Order < 1 ? 1 :
+                                 model.Order > maxOrder + 1 ? maxOrder + 1 :
+                                 model.Order;
+
+            // Shift existing courses down
+            var coursesToShift = await _context.Courses
+                .Where(c => c.Order >= requestedOrder)
+                .OrderBy(c => c.Order)
+                .ToListAsync();
+
+            foreach (var c in coursesToShift)
+            {
+                c.Order++;
+            }
+
             var course = new Course
             {
                 Title = model.Title,
                 Description = model.Description,
-                Order = await NormalizeOrderAsync(model.Order)
+                Order = requestedOrder
             };
 
             _context.Courses.Add(course);
@@ -186,10 +216,51 @@ namespace MedicalOnboardingApplication.Controllers
             if (course == null)
                 return NotFound();
 
-            // Update basic properties
+            var oldOrder = course.Order;
+
+            var maxOrder = await _context.Courses
+                .Where(c => c.Id != course.Id)
+                .MaxAsync(c => (int?)c.Order) ?? 0;
+
+            // Normalize requested order
+            var requestedOrder = model.Order < 1 ? 1 :
+                                 model.Order > maxOrder + 1 ? maxOrder + 1 :
+                                 model.Order;
+
+            // SHIFT LOGIC
+            if (requestedOrder < oldOrder)
+            {
+                // Moving UP → push others down
+                var coursesToShift = await _context.Courses
+                    .Where(c => c.Id != course.Id &&
+                                c.Order >= requestedOrder &&
+                                c.Order < oldOrder)
+                    .ToListAsync();
+
+                foreach (var c in coursesToShift)
+                {
+                    c.Order++;
+                }
+            }
+            else if (requestedOrder > oldOrder)
+            {
+                // Moving DOWN → pull others up
+                var coursesToShift = await _context.Courses
+                    .Where(c => c.Id != course.Id &&
+                                c.Order > oldOrder &&
+                                c.Order <= requestedOrder)
+                    .ToListAsync();
+
+                foreach (var c in coursesToShift)
+                {
+                    c.Order--;
+                }
+            }
+
+            // Update course
             course.Title = model.Title;
             course.Description = model.Description;
-            course.Order = await NormalizeOrderAsync(model.Order, course.Id);
+            course.Order = requestedOrder;
 
             // Update employee type associations
             course.CourseEmployeeTypes.Clear();
@@ -204,6 +275,7 @@ namespace MedicalOnboardingApplication.Controllers
             }
 
             await _context.SaveChangesAsync();
+
             return RedirectToAction(nameof(Index));
         }
 
@@ -255,5 +327,52 @@ namespace MedicalOnboardingApplication.Controllers
             return inputOrder;
         }
 
+        private async Task ShiftOrdersForCreateAsync(int newOrder)
+        {
+            var affectedCourses = await _context.Courses
+                .Where(c => c.Order >= newOrder)
+                .OrderBy(c => c.Order)
+                .ToListAsync();
+
+            foreach (var course in affectedCourses)
+            {
+                course.Order++;
+            }
+        }
+
+        private async Task ShiftOrdersForEditAsync(int courseId, int oldOrder, int newOrder)
+        {
+            if (oldOrder == newOrder)
+                return;
+
+            if (newOrder < oldOrder)
+            {
+                // Moving UP: shift down everything between newOrder and oldOrder
+                var coursesToShift = await _context.Courses
+                    .Where(c => c.Id != courseId &&
+                                c.Order >= newOrder &&
+                                c.Order < oldOrder)
+                    .ToListAsync();
+
+                foreach (var course in coursesToShift)
+                {
+                    course.Order++;
+                }
+            }
+            else
+            {
+                // Moving DOWN: shift up everything between oldOrder and newOrder
+                var coursesToShift = await _context.Courses
+                    .Where(c => c.Id != courseId &&
+                                c.Order > oldOrder &&
+                                c.Order <= newOrder)
+                    .ToListAsync();
+
+                foreach (var course in coursesToShift)
+                {
+                    course.Order--;
+                }
+            }
+        }
     }
 }
