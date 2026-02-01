@@ -9,6 +9,8 @@ public class CourseViewModel
     [Required(ErrorMessage = "Title is required")]
     public string Title { get; set; }
     public string Description { get; set; }
+
+    [Range(1, int.MaxValue, ErrorMessage = "Order must be greater than 0")]
     public int Order { get; set; }
 
     public List<EmployeeTypeCheckbox> EmployeeTypes { get; set; }

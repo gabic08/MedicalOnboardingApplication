@@ -111,7 +111,7 @@ namespace MedicalOnboardingApplication.Controllers
             {
                 Title = model.Title,
                 Description = model.Description,
-                Order = model.Order
+                Order = await NormalizeOrderAsync(model.Order)
             };
 
             _context.Courses.Add(course);
@@ -189,7 +189,7 @@ namespace MedicalOnboardingApplication.Controllers
             // Update basic properties
             course.Title = model.Title;
             course.Description = model.Description;
-            course.Order = model.Order;
+            course.Order = await NormalizeOrderAsync(model.Order, course.Id);
 
             // Update employee type associations
             course.CourseEmployeeTypes.Clear();
@@ -240,9 +240,20 @@ namespace MedicalOnboardingApplication.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        private bool CourseExists(int id)
+        private async Task<int> NormalizeOrderAsync(int inputOrder, int? courseId = null)
         {
-            return _context.Courses.Any(e => e.Id == id);
+            var maxOrder = await _context.Courses
+                .Where(c => courseId == null || c.Id != courseId.Value)
+                .MaxAsync(c => (int?)c.Order) ?? 0;
+
+            if (inputOrder < 1)
+                return 1;
+
+            if (inputOrder > maxOrder + 1)
+                return maxOrder + 1;
+
+            return inputOrder;
         }
+
     }
 }
