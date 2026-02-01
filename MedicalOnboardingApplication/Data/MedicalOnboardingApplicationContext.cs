@@ -34,6 +34,14 @@ namespace MedicalOnboardingApplication.Data
                 .HasOne(cet => cet.EmployeeType)
                 .WithMany(et => et.CourseEmployeeTypes)
                 .HasForeignKey(cet => cet.EmployeeTypeId);
+
+
+            // Delete cascade for Questions and Answers
+            modelBuilder.Entity<Answer>()
+                .HasOne(a => a.Question)
+                .WithMany(q => q.Answers)
+                .OnDelete(DeleteBehavior.Cascade);
+
         }
 
     }

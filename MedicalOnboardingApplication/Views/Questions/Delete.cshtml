@@ -1,0 +1,43 @@
+﻿@model MedicalOnboardingApplication.Models.Question
+
+@{
+    ViewData["Title"] = "Delete Question";
+}
+
+<div class="container">
+    <div class="card shadow-sm border-danger">
+        <div class="card-body">
+            <h4 class="text-danger">Delete Question</h4>
+
+            <p>
+                Are you sure you want to delete this question?
+            </p>
+
+            <blockquote class="blockquote">
+                @Model.Text
+            </blockquote>
+
+            <p class="text-muted">
+                This will permanently remove the question and its answers.
+            </p>
+
+            <form asp-action="Delete" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
+
+                <div class="d-flex justify-content-between mt-3">
+                    <a asp-controller="Tests"
+                       asp-action="Details"
+                       asp-route-id="@Model.TestId"
+                       class="btn btn-outline-secondary">
+                        Cancel
+                    </a>
+
+                    <button type="submit" class="btn btn-danger">
+                        Delete Question
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

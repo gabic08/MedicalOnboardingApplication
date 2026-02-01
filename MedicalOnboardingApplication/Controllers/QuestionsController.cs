@@ -102,4 +102,36 @@ public class QuestionsController : Controller
 
         return RedirectToAction("Details", "Tests", new { id = vm.TestId });
     }
+
+    // GET: Questions/Delete/5
+    public async Task<IActionResult> Delete(int id)
+    {
+        var question = await _context.Questions
+            .Include(q => q.Test)
+            .FirstOrDefaultAsync(q => q.Id == id);
+
+        if (question == null)
+            return NotFound();
+
+        return View(question);
+    }
+
+    // POST: Questions/Delete/5
+    [HttpPost, ActionName("Delete")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteConfirmed(int id)
+    {
+        var question = await _context.Questions.FindAsync(id);
+
+        if (question == null)
+            return NotFound();
+
+        var testId = question.TestId;
+
+        _context.Questions.Remove(question);
+        await _context.SaveChangesAsync();
+
+        return RedirectToAction("Details", "Tests", new { id = testId });
+    }
+
 }
