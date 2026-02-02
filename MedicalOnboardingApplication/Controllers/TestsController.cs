@@ -112,6 +112,6 @@ public class TestsController : Controller
             await _context.SaveChangesAsync();
         }
 
-        return RedirectToAction("Details", "AdminCourses", new { id = test.CourseId });
+        return RedirectToAction("Manage", "AdminCourses", new { id = test.CourseId });
     }
 }

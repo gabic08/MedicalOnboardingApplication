@@ -14,9 +14,23 @@ public class EmployeeTypesController : Controller
         _context = context;
     }
 
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(string search)
     {
-        return View(await _context.EmployeeTypes.ToListAsync());
+        var query = _context.EmployeeTypes.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = search.Trim();
+            query = query.Where(e => e.Name.Contains(term));
+        }
+
+        var types = await query
+            .OrderBy(e => e.Name)
+            .ToListAsync();
+
+        ViewBag.Search = search;
+
+        return View(types);
     }
 
     public IActionResult Create()
@@ -28,13 +42,30 @@ public class EmployeeTypesController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(EmployeeType employeeType)
     {
-        if (ModelState.IsValid)
+        if (string.IsNullOrWhiteSpace(employeeType.Name))
         {
-            _context.EmployeeTypes.Add(employeeType);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            ModelState.AddModelError("Name", "Name is required.");
         }
-        return View(employeeType);
+        else
+        {
+            var exists = await _context.EmployeeTypes
+                .AnyAsync(e => e.Name.ToLower() == employeeType.Name.Trim().ToLower());
+
+            if (exists)
+            {
+                ModelState.AddModelError("Name", "This employee type already exists.");
+            }
+        }
+
+        if (!ModelState.IsValid)
+            return View(employeeType);
+
+        employeeType.Name = employeeType.Name.Trim();
+
+        _context.EmployeeTypes.Add(employeeType);
+        await _context.SaveChangesAsync();
+
+        return RedirectToAction(nameof(Index));
     }
 
     public async Task<IActionResult> Edit(int? id)
@@ -49,15 +80,35 @@ public class EmployeeTypesController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, EmployeeType employeeType)
     {
-        if (id != employeeType.Id) return NotFound();
+        if (id != employeeType.Id)
+            return NotFound();
 
-        if (ModelState.IsValid)
+        if (string.IsNullOrWhiteSpace(employeeType.Name))
         {
-            _context.Update(employeeType);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            ModelState.AddModelError("Name", "Name is required.");
         }
-        return View(employeeType);
+        else
+        {
+            var exists = await _context.EmployeeTypes
+                .AnyAsync(e =>
+                    e.Id != employeeType.Id &&
+                    e.Name.ToLower() == employeeType.Name.Trim().ToLower());
+
+            if (exists)
+            {
+                ModelState.AddModelError("Name", "This employee type already exists.");
+            }
+        }
+
+        if (!ModelState.IsValid)
+            return View(employeeType);
+
+        employeeType.Name = employeeType.Name.Trim();
+
+        _context.Update(employeeType);
+        await _context.SaveChangesAsync();
+
+        return RedirectToAction(nameof(Index));
     }
 
     public async Task<IActionResult> Delete(int? id)

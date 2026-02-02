@@ -72,15 +72,10 @@
                     @string.Join(", ", course.CourseEmployeeTypes.Select(cet => cet.EmployeeType.Name))
                 </td>
                 <td class="text-end">
-                    <a asp-action="Edit"
-                       asp-route-id="@course.Id"
-                       class="btn btn-sm btn-outline-secondary me-1">
-                        Edit
-                    </a>
-                    <a asp-action="Details"
+                    <a asp-action="Manage"
                        asp-route-id="@course.Id"
                        class="btn btn-sm btn-outline-primary me-1">
-                        Details
+                        <i class="bi bi-sliders"></i> Manage
                     </a>
                     <a asp-action="Delete"
                        asp-route-id="@course.Id"

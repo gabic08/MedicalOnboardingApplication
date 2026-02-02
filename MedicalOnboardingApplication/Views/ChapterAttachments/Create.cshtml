@@ -5,7 +5,7 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="mb-0">Add Attachment</h1>
     <a asp-controller="AdminCourses"
-       asp-action="Details"
+       asp-action="Manage"
        asp-route-id="@ViewBag.CourseId"
        class="btn btn-outline-secondary">
         Back
@@ -44,7 +44,7 @@
 
                     <div class="d-flex justify-content-between">
                         <a asp-controller="AdminCourses"
-                           asp-action="Details"
+                           asp-action="Manage"
                            asp-route-id="@ViewBag.CourseId"
                            class="btn btn-outline-secondary">
                             Cancel

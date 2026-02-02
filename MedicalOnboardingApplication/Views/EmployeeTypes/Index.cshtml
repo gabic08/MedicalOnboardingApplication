@@ -2,21 +2,41 @@
 
 @{
     ViewData["Title"] = "Employee Types";
+    var search = ViewBag.Search as string;
 }
 
 <h1>Employee Types</h1>
 
-<p>
-    <a asp-action="Create" class="btn btn-primary">
-        <i class="bi bi-plus-circle"></i> Add Employee Type
-    </a>
-</p>
+<div class="mb-3">
+    <form method="get" class="row g-2 align-items-end">
+        <div class="col-md-6">
+            <label class="form-label">Search</label>
+            <input type="text"
+                   name="search"
+                   value="@search"
+                   class="form-control"
+                   placeholder="Search employee types..." />
+        </div>
 
-<table class="table table-striped">
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-primary w-100">
+                <i class="bi bi-search"></i> Search
+            </button>
+        </div>
+
+        <div class="col-md-3 text-end">
+            <a asp-action="Create" class="btn btn-success w-100">
+                <i class="bi bi-plus-circle"></i> Add Employee Type
+            </a>
+        </div>
+    </form>
+</div>
+
+<table class="table table-striped align-middle">
     <thead>
         <tr>
             <th>Name</th>
-            <th></th>
+            <th style="width: 180px;"></th>
         </tr>
     </thead>
     <tbody>
@@ -24,9 +44,17 @@
         {
             <tr>
                 <td>@type.Name</td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@type.Id" class="btn btn-sm btn-outline-secondary me-1">Edit</a>
-                    <a asp-action="Delete" asp-route-id="@type.Id" class="btn btn-sm btn-outline-danger">Delete</a>
+                <td class="text-end">
+                    <a asp-action="Edit"
+                       asp-route-id="@type.Id"
+                       class="btn btn-sm btn-outline-secondary me-1">
+                        Edit
+                    </a>
+                    <a asp-action="Delete"
+                       asp-route-id="@type.Id"
+                       class="btn btn-sm btn-outline-danger">
+                        Delete
+                    </a>
                 </td>
             </tr>
         }

@@ -1,6 +1,7 @@
 ﻿using MedicalOnboardingApplication.Data;
 using MedicalOnboardingApplication.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace MedicalOnboardingApplication.Controllers;
 
@@ -18,9 +19,13 @@ public class ChapterAttachmentsController : Controller
     }
 
     // GET
-    public IActionResult Create(int chapterId)
+    public async Task<IActionResult> Create(int chapterId)
     {
         ViewBag.ChapterId = chapterId;
+
+        var courseId = (await _context.Chapters.FirstOrDefaultAsync(c => c.Id == chapterId))?.CourseId;
+        ViewBag.CourseId = courseId;
+
         return View();
     }
 
@@ -85,6 +90,6 @@ public class ChapterAttachmentsController : Controller
         _context.ChapterAttachments.Add(attachment);
         await _context.SaveChangesAsync();
 
-        return RedirectToAction("Details", "AdminCourses", new { id = chapter.CourseId });
+        return RedirectToAction("Manage", "AdminCourses", new { id = chapter.CourseId });
     }
 }

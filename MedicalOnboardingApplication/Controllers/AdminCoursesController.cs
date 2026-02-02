@@ -50,27 +50,39 @@ namespace MedicalOnboardingApplication.Controllers
         }
 
 
-        // GET: Courses/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Manage(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
             var course = await _context.Courses
+                .Include(c => c.CourseEmployeeTypes)
+                    .ThenInclude(cet => cet.EmployeeType)
                 .Include(c => c.Chapters)
                     .ThenInclude(ch => ch.Attachments)
                 .Include(c => c.Tests)
                     .ThenInclude(t => t.Questions)
                         .ThenInclude(q => q.Answers)
                 .FirstOrDefaultAsync(c => c.Id == id);
-            if (course == null)
-            {
-                return NotFound();
-            }
 
-            return View(course);
+            if (course == null)
+                return NotFound();
+
+            var allEmployeeTypes = await _context.EmployeeTypes.ToListAsync();
+
+            var vm = new CourseViewModel
+            {
+                Id = course.Id,
+                Title = course.Title,
+                Description = course.Description,
+                Order = course.Order,
+                EmployeeTypes = allEmployeeTypes.Select(et => new EmployeeTypeCheckbox
+                {
+                    Id = et.Id,
+                    Name = et.Name,
+                    IsSelected = course.CourseEmployeeTypes.Any(cet => cet.EmployeeTypeId == et.Id)
+                }).ToList()
+            };
+
+            ViewBag.Course = course;
+            return View(vm);
         }
 
         // GET: Courses/Create
@@ -104,9 +116,30 @@ namespace MedicalOnboardingApplication.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CourseViewModel model)
         {
+            // Normalize title
+            model.Title = model.Title?.Trim();
+
+            // Title validation
+            if (string.IsNullOrWhiteSpace(model.Title))
+            {
+                ModelState.AddModelError("Title", "Title is required.");
+            }
+            else
+            {
+                var exists = await _context.Courses
+                    .AnyAsync(c => c.Title.ToLower() == model.Title.ToLower());
+
+                if (exists)
+                {
+                    ModelState.AddModelError("Title", "A course with this title already exists.");
+                }
+            }
+
+            // Reload employee types if validation fails
             if (!ModelState.IsValid)
             {
                 var allEmployeeTypes = await _context.EmployeeTypes.ToListAsync();
+
                 model.EmployeeTypes = allEmployeeTypes.Select(et => new EmployeeTypeCheckbox
                 {
                     Id = et.Id,
@@ -137,6 +170,7 @@ namespace MedicalOnboardingApplication.Controllers
                 c.Order++;
             }
 
+            // Create course
             var course = new Course
             {
                 Title = model.Title,
@@ -162,39 +196,6 @@ namespace MedicalOnboardingApplication.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: Courses/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-                return NotFound();
-
-            var course = await _context.Courses
-                .Include(c => c.CourseEmployeeTypes)
-                .ThenInclude(cet => cet.EmployeeType)
-                .FirstOrDefaultAsync(c => c.Id == id);
-
-            if (course == null)
-                return NotFound();
-
-            // Map to CourseViewModel
-            var allEmployeeTypes = await _context.EmployeeTypes.ToListAsync();
-
-            var viewModel = new CourseViewModel
-            {
-                Id = course.Id,
-                Title = course.Title,
-                Description = course.Description,
-                Order = course.Order,
-                EmployeeTypes = allEmployeeTypes.Select(et => new EmployeeTypeCheckbox
-                {
-                    Id = et.Id,
-                    Name = et.Name,
-                    IsSelected = course.CourseEmployeeTypes.Any(cet => cet.EmployeeTypeId == et.Id)
-                }).ToList()
-            };
-
-            return View(viewModel);
-        }
 
         // POST: Courses/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
@@ -206,8 +207,41 @@ namespace MedicalOnboardingApplication.Controllers
             if (id != model.Id)
                 return NotFound();
 
+            // Normalize title
+            model.Title = model.Title?.Trim();
+
+            // Title validation
+            if (string.IsNullOrWhiteSpace(model.Title))
+            {
+                ModelState.AddModelError("Title", "Title is required.");
+            }
+            else
+            {
+                var exists = await _context.Courses
+                    .AnyAsync(c =>
+                        c.Id != model.Id &&
+                        c.Title.ToLower() == model.Title.ToLower());
+
+                if (exists)
+                {
+                    ModelState.AddModelError("Title", "A course with this title already exists.");
+                }
+            }
+
+            // Reload form if validation fails
             if (!ModelState.IsValid)
+            {
+                var allEmployeeTypes = await _context.EmployeeTypes.ToListAsync();
+
+                model.EmployeeTypes = allEmployeeTypes.Select(et => new EmployeeTypeCheckbox
+                {
+                    Id = et.Id,
+                    Name = et.Name,
+                    IsSelected = model.EmployeeTypes?.Any(e => e.Id == et.Id && e.IsSelected) == true
+                }).ToList();
+
                 return View(model);
+            }
 
             var course = await _context.Courses
                 .Include(c => c.CourseEmployeeTypes)
@@ -227,10 +261,9 @@ namespace MedicalOnboardingApplication.Controllers
                                  model.Order > maxOrder + 1 ? maxOrder + 1 :
                                  model.Order;
 
-            // SHIFT LOGIC
+            // Shift orders
             if (requestedOrder < oldOrder)
             {
-                // Moving UP → push others down
                 var coursesToShift = await _context.Courses
                     .Where(c => c.Id != course.Id &&
                                 c.Order >= requestedOrder &&
@@ -244,7 +277,6 @@ namespace MedicalOnboardingApplication.Controllers
             }
             else if (requestedOrder > oldOrder)
             {
-                // Moving DOWN → pull others up
                 var coursesToShift = await _context.Courses
                     .Where(c => c.Id != course.Id &&
                                 c.Order > oldOrder &&
@@ -262,7 +294,7 @@ namespace MedicalOnboardingApplication.Controllers
             course.Description = model.Description;
             course.Order = requestedOrder;
 
-            // Update employee type associations
+            // Update employee type relationships
             course.CourseEmployeeTypes.Clear();
 
             foreach (var et in model.EmployeeTypes.Where(e => e.IsSelected))
@@ -302,13 +334,30 @@ namespace MedicalOnboardingApplication.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var course = await _context.Courses.FindAsync(id);
-            if (course != null)
+            var course = await _context.Courses
+                .FirstOrDefaultAsync(c => c.Id == id);
+
+            if (course == null)
+                return RedirectToAction(nameof(Index));
+
+            var deletedOrder = course.Order;
+
+            // Delete course
+            _context.Courses.Remove(course);
+
+            // Shift everything above it up
+            var coursesToShift = await _context.Courses
+                .Where(c => c.Order > deletedOrder)
+                .OrderBy(c => c.Order)
+                .ToListAsync();
+
+            foreach (var c in coursesToShift)
             {
-                _context.Courses.Remove(course);
+                c.Order--;
             }
 
             await _context.SaveChangesAsync();
+
             return RedirectToAction(nameof(Index));
         }
 

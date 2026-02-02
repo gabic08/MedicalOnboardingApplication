@@ -46,7 +46,7 @@ public class ChaptersController : Controller
         _context.Chapters.Add(chapter);
         await _context.SaveChangesAsync();
 
-        return RedirectToAction("Details", "AdminCourses", new { id = chapter.CourseId });
+        return RedirectToAction("Manage", "AdminCourses", new { id = chapter.CourseId });
     }
 
     // GET: Chapters/Edit/5
@@ -83,7 +83,7 @@ public class ChaptersController : Controller
                 throw;
         }
 
-        return RedirectToAction("Details", "AdminCourses", new { id = chapter.CourseId });
+        return RedirectToAction("Manage", "AdminCourses", new { id = chapter.CourseId });
     }
 
     // GET: Chapters/Delete/5
@@ -109,7 +109,7 @@ public class ChaptersController : Controller
         {
             _context.Chapters.Remove(chapter);
             await _context.SaveChangesAsync();
-            return RedirectToAction("Details", "AdminCourses", new { id = chapter.CourseId });
+            return RedirectToAction("Manage", "AdminCourses", new { id = chapter.CourseId });
         }
 
         return NotFound();
