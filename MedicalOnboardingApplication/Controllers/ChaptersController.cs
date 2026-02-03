@@ -14,24 +14,19 @@ public class ChaptersController : Controller
         _context = context;
     }
 
-    public async Task<IActionResult> Index(int courseId)
-    {
-        var chapters = await _context.Chapters
-            .Where(c => c.CourseId == courseId)
-            .OrderBy(c => c.Order)
-            .ToListAsync();
-
-        ViewBag.CourseId = courseId;
-        return View(chapters);
-    }
-
     // GET: Chapters/Create?courseId=1
-    public IActionResult Create(int courseId)
+    public async Task<IActionResult> Create(int courseId)
     {
+        var maxOrder = await _context.Chapters
+            .Where(c => c.CourseId == courseId)
+            .MaxAsync(c => (int?)c.Order) ?? 0;
+
         var chapter = new Chapter
         {
-            CourseId = courseId
+            CourseId = courseId,
+            Order = maxOrder + 1
         };
+
         return View(chapter);
     }
 
@@ -43,6 +38,30 @@ public class ChaptersController : Controller
         if (!ModelState.IsValid)
             return View(chapter);
 
+        // Get max order for this course
+        var maxOrder = await _context.Chapters
+            .Where(c => c.CourseId == chapter.CourseId)
+            .MaxAsync(c => (int?)c.Order) ?? 0;
+
+        // Normalize order
+        var requestedOrder = chapter.Order < 1 ? 1 :
+                             chapter.Order > maxOrder + 1 ? maxOrder + 1 :
+                             chapter.Order;
+
+        // Shift chapters DOWN
+        var chaptersToShift = await _context.Chapters
+            .Where(c => c.CourseId == chapter.CourseId &&
+                        c.Order >= requestedOrder)
+            .OrderBy(c => c.Order)
+            .ToListAsync();
+
+        foreach (var c in chaptersToShift)
+        {
+            c.Order++;
+        }
+
+        chapter.Order = requestedOrder;
+
         _context.Chapters.Add(chapter);
         await _context.SaveChangesAsync();
 
@@ -52,10 +71,15 @@ public class ChaptersController : Controller
     // GET: Chapters/Edit/5
     public async Task<IActionResult> Edit(int? id)
     {
-        if (id == null) return NotFound();
+        if (id == null)
+            return NotFound();
 
-        var chapter = await _context.Chapters.FindAsync(id);
-        if (chapter == null) return NotFound();
+        var chapter = await _context.Chapters
+            .Include(c => c.Attachments)
+            .FirstOrDefaultAsync(c => c.Id == id);
+
+        if (chapter == null)
+            return NotFound();
 
         return View(chapter);
     }
@@ -65,23 +89,68 @@ public class ChaptersController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Content,Order,CourseId")] Chapter chapter)
     {
-        if (id != chapter.Id) return NotFound();
+        if (id != chapter.Id)
+            return NotFound();
 
         if (!ModelState.IsValid)
             return View(chapter);
 
-        try
+        var existing = await _context.Chapters
+            .FirstOrDefaultAsync(c => c.Id == id);
+
+        if (existing == null)
+            return NotFound();
+
+        var oldOrder = existing.Order;
+
+        var maxOrder = await _context.Chapters
+            .Where(c => c.CourseId == chapter.CourseId &&
+                        c.Id != chapter.Id)
+            .MaxAsync(c => (int?)c.Order) ?? 0;
+
+        // Normalize order
+        var requestedOrder = chapter.Order < 1 ? 1 :
+                             chapter.Order > maxOrder + 1 ? maxOrder + 1 :
+                             chapter.Order;
+
+        // SHIFT LOGIC
+        if (requestedOrder < oldOrder)
         {
-            _context.Update(chapter);
-            await _context.SaveChangesAsync();
+            // Moving UP → push others down
+            var chaptersToShift = await _context.Chapters
+                .Where(c => c.CourseId == chapter.CourseId &&
+                            c.Id != chapter.Id &&
+                            c.Order >= requestedOrder &&
+                            c.Order < oldOrder)
+                .ToListAsync();
+
+            foreach (var c in chaptersToShift)
+            {
+                c.Order++;
+            }
         }
-        catch (DbUpdateConcurrencyException)
+        else if (requestedOrder > oldOrder)
         {
-            if (!ChapterExists(chapter.Id))
-                return NotFound();
-            else
-                throw;
+            // Moving DOWN → pull others up
+            var chaptersToShift = await _context.Chapters
+                .Where(c => c.CourseId == chapter.CourseId &&
+                            c.Id != chapter.Id &&
+                            c.Order > oldOrder &&
+                            c.Order <= requestedOrder)
+                .ToListAsync();
+
+            foreach (var c in chaptersToShift)
+            {
+                c.Order--;
+            }
         }
+
+        // Update chapter
+        existing.Title = chapter.Title;
+        existing.Content = chapter.Content;
+        existing.Order = requestedOrder;
+
+        await _context.SaveChangesAsync();
 
         return RedirectToAction("Manage", "AdminCourses", new { id = chapter.CourseId });
     }
@@ -89,12 +158,14 @@ public class ChaptersController : Controller
     // GET: Chapters/Delete/5
     public async Task<IActionResult> Delete(int? id)
     {
-        if (id == null) return NotFound();
+        if (id == null)
+            return NotFound();
 
         var chapter = await _context.Chapters
             .FirstOrDefaultAsync(c => c.Id == id);
 
-        if (chapter == null) return NotFound();
+        if (chapter == null)
+            return NotFound();
 
         return View(chapter);
     }
@@ -104,17 +175,35 @@ public class ChaptersController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        var chapter = await _context.Chapters.FindAsync(id);
-        if (chapter != null)
+        var chapter = await _context.Chapters
+            .FirstOrDefaultAsync(c => c.Id == id);
+
+        if (chapter == null)
+            return NotFound();
+
+        var deletedOrder = chapter.Order;
+        var courseId = chapter.CourseId;
+
+        _context.Chapters.Remove(chapter);
+
+        // Shift everything ABOVE it UP
+        var chaptersToShift = await _context.Chapters
+            .Where(c => c.CourseId == courseId &&
+                        c.Order > deletedOrder)
+            .OrderBy(c => c.Order)
+            .ToListAsync();
+
+        foreach (var c in chaptersToShift)
         {
-            _context.Chapters.Remove(chapter);
-            await _context.SaveChangesAsync();
-            return RedirectToAction("Manage", "AdminCourses", new { id = chapter.CourseId });
+            c.Order--;
         }
 
-        return NotFound();
+        await _context.SaveChangesAsync();
+
+        return RedirectToAction("Manage", "AdminCourses", new { id = courseId });
     }
 
+    // Safety check
     private bool ChapterExists(int id)
     {
         return _context.Chapters.Any(c => c.Id == id);

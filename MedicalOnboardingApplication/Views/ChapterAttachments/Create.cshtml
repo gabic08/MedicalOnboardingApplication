@@ -22,24 +22,18 @@
 
                     <input type="hidden" name="chapterId" value="@ViewBag.ChapterId" />
 
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
                     <div class="mb-3">
-                        <label class="form-label">Attachment Type</label>
-                        <select name="type" class="form-select" id="typeSelect">
-                            <option value="Image">Image</option>
-                            <option value="Video">Video</option>
-                            <option value="Pdf">PDF</option>
-                            <option value="Link">External Link</option>
-                        </select>
-                    </div>
-
-                    <div class="mb-3" id="fileInput">
                         <label class="form-label">File</label>
-                        <input type="file" name="file" class="form-control" />
-                    </div>
-
-                    <div class="mb-3 d-none" id="urlInput">
-                        <label class="form-label">URL</label>
-                        <input type="url" name="url" class="form-control" />
+                        <input type="file"
+                               name="file"
+                               class="form-control"
+                               accept=".jpg,.jpeg,.png,.gif,.webp,.mp4,.webm,.mov,.pdf"
+                               required />
+                        <div class="form-text">
+                            Allowed: Images, Videos, PDFs
+                        </div>
                     </div>
 
                     <div class="d-flex justify-content-between">
@@ -51,7 +45,7 @@
                         </a>
 
                         <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-upload"></i> Add Attachment
+                            <i class="bi bi-upload"></i> Upload File
                         </button>
                     </div>
                 </form>
@@ -60,19 +54,3 @@
         </div>
     </div>
 </div>
-
-<script>
-    const typeSelect = document.getElementById("typeSelect");
-    const fileInput = document.getElementById("fileInput");
-    const urlInput = document.getElementById("urlInput");
-
-    typeSelect.addEventListener("change", () => {
-        if (typeSelect.value === "Link") {
-            fileInput.classList.add("d-none");
-            urlInput.classList.remove("d-none");
-        } else {
-            fileInput.classList.remove("d-none");
-            urlInput.classList.add("d-none");
-        }
-    });
-</script>

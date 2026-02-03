@@ -21,10 +21,14 @@ public class ChapterAttachmentsController : Controller
     // GET
     public async Task<IActionResult> Create(int chapterId)
     {
-        ViewBag.ChapterId = chapterId;
+        var chapter = await _context.Chapters
+            .FirstOrDefaultAsync(c => c.Id == chapterId);
 
-        var courseId = (await _context.Chapters.FirstOrDefaultAsync(c => c.Id == chapterId))?.CourseId;
-        ViewBag.CourseId = courseId;
+        if (chapter == null)
+            return NotFound();
+
+        ViewBag.ChapterId = chapterId;
+        ViewBag.CourseId = chapter.CourseId;
 
         return View();
     }
@@ -32,64 +36,121 @@ public class ChapterAttachmentsController : Controller
     // POST
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(
-        int chapterId,
-        AttachmentType type,
-        IFormFile file,
-        string url)
+    public async Task<IActionResult> Create(int chapterId, IFormFile file)
     {
-        var chapter = await _context.Chapters.FindAsync(chapterId);
+        var chapter = await _context.Chapters
+            .FirstOrDefaultAsync(c => c.Id == chapterId);
+
         if (chapter == null)
             return NotFound();
 
-        if (type == AttachmentType.Link && string.IsNullOrWhiteSpace(url))
+        if (file == null || file.Length == 0)
         {
-            ModelState.AddModelError("", "URL is required for link attachments");
+            ModelState.AddModelError("", "Please select a file to upload.");
             ViewBag.ChapterId = chapterId;
+            ViewBag.CourseId = chapter.CourseId;
             return View();
         }
 
-        if (type != AttachmentType.Link && (file == null || file.Length == 0))
+        // Validate and detect type
+        var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+
+        var allowedTypes = new Dictionary<string, AttachmentType>
         {
-            ModelState.AddModelError("", "Please select a file to upload");
+            [".jpg"] = AttachmentType.Image,
+            [".jpeg"] = AttachmentType.Image,
+            [".png"] = AttachmentType.Image,
+            [".gif"] = AttachmentType.Image,
+            [".webp"] = AttachmentType.Image,
+
+            [".mp4"] = AttachmentType.Video,
+            [".webm"] = AttachmentType.Video,
+            [".mov"] = AttachmentType.Video,
+
+            [".pdf"] = AttachmentType.Pdf
+        };
+
+        if (!allowedTypes.ContainsKey(extension))
+        {
+            ModelState.AddModelError("", "Only images, videos, and PDF files are allowed.");
             ViewBag.ChapterId = chapterId;
+            ViewBag.CourseId = chapter.CourseId;
             return View();
         }
 
-        string filePath = null;
-        string fileName = null;
+        var attachmentType = allowedTypes[extension];
 
-        if (file != null)
+        // Storage path
+        var uploadsRoot = Path.Combine(
+            _env.WebRootPath,
+            "uploads",
+            "chapters",
+            chapterId.ToString());
+
+        Directory.CreateDirectory(uploadsRoot);
+
+        // Prevent filename collisions
+        var safeFileName = $"{Guid.NewGuid()}{extension}";
+        var fullPath = Path.Combine(uploadsRoot, safeFileName);
+
+        using (var stream = new FileStream(fullPath, FileMode.Create))
         {
-            var uploadsRoot = Path.Combine(
-                _env.WebRootPath,
-                "uploads",
-                "chapters",
-                chapterId.ToString());
-
-            Directory.CreateDirectory(uploadsRoot);
-
-            fileName = Path.GetFileName(file.FileName);
-            var fullPath = Path.Combine(uploadsRoot, fileName);
-
-            using var stream = new FileStream(fullPath, FileMode.Create);
             await file.CopyToAsync(stream);
-
-            filePath = $"/uploads/chapters/{chapterId}/{fileName}";
         }
+
+        var filePath = $"/uploads/chapters/{chapterId}/{safeFileName}";
 
         var attachment = new ChapterAttachment
         {
             ChapterId = chapterId,
-            FileName = fileName,
+            FileName = Path.GetFileName(file.FileName),
             FilePath = filePath,
-            Url = url,
-            Type = type
+            Type = attachmentType
         };
 
         _context.ChapterAttachments.Add(attachment);
         await _context.SaveChangesAsync();
 
         return RedirectToAction("Manage", "AdminCourses", new { id = chapter.CourseId });
+    }
+
+    // DELETE
+    public async Task<IActionResult> Delete(int id)
+    {
+        var attachment = await _context.ChapterAttachments
+            .Include(a => a.Chapter)
+            .FirstOrDefaultAsync(a => a.Id == id);
+
+        if (attachment == null)
+            return NotFound();
+
+        return View(attachment);
+    }
+
+    [HttpPost, ActionName("Delete")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteConfirmed(int id)
+    {
+        var attachment = await _context.ChapterAttachments
+            .Include(a => a.Chapter)
+            .FirstOrDefaultAsync(a => a.Id == id);
+
+        if (attachment == null)
+            return NotFound();
+
+        // Delete file from disk
+        if (!string.IsNullOrWhiteSpace(attachment.FilePath))
+        {
+            var fullPath = Path.Combine(_env.WebRootPath, attachment.FilePath.TrimStart('/'));
+            if (System.IO.File.Exists(fullPath))
+            {
+                System.IO.File.Delete(fullPath);
+            }
+        }
+
+        _context.ChapterAttachments.Remove(attachment);
+        await _context.SaveChangesAsync();
+
+        return RedirectToAction("Manage", "AdminCourses", new { id = attachment.Chapter.CourseId });
     }
 }

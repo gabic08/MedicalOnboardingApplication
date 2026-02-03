@@ -141,14 +141,20 @@
                                         {
                                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                                 <span>
-                                                    @if (att.Type == AttachmentType.Link)
+                                                    @if (att.Type == AttachmentType.Image)
                                                     {
-                                                        @att.Url
+                                                        <i class="bi bi-image me-1"></i>
                                                     }
-                                                    else
+                                                    else if (att.Type == AttachmentType.Video)
                                                     {
-                                                        @att.FileName
+                                                        <i class="bi bi-camera-video me-1"></i>
                                                     }
+                                                    else if (att.Type == AttachmentType.Pdf)
+                                                    {
+                                                        <i class="bi bi-file-earmark-pdf me-1"></i>
+                                                    }
+
+                                                    <span class="ms-1">@att.FileName</span>
                                                 </span>
 
                                                 <a href="@(att.Type == AttachmentType.Link ? att.Url : att.FilePath)"
