@@ -114,4 +114,26 @@ public class TestsController : Controller
 
         return RedirectToAction("Manage", "AdminCourses", new { id = test.CourseId });
     }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdateDetails(int id, string title, string description)
+    {
+        var test = await _context.Tests.FindAsync(id);
+        if (test == null)
+            return NotFound();
+
+        if (string.IsNullOrWhiteSpace(title))
+        {
+            ModelState.AddModelError("Title", "Title is required.");
+            return await Details(id);
+        }
+
+        test.Title = title.Trim();
+        test.Description = description?.Trim();
+
+        await _context.SaveChangesAsync();
+
+        return RedirectToAction(nameof(Details), new { id });
+    }
 }
