@@ -57,9 +57,8 @@ namespace MedicalOnboardingApplication.Controllers
                     .ThenInclude(cet => cet.EmployeeType)
                 .Include(c => c.Chapters)
                     .ThenInclude(ch => ch.Attachments)
-                .Include(c => c.Tests)
-                    .ThenInclude(t => t.Questions)
-                        .ThenInclude(q => q.Answers)
+                .Include(t => t.Questions)
+                    .ThenInclude(q => q.Answers)
                 .FirstOrDefaultAsync(c => c.Id == id);
 
             if (course == null)
@@ -359,69 +358,6 @@ namespace MedicalOnboardingApplication.Controllers
             await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
-        }
-
-        private async Task<int> NormalizeOrderAsync(int inputOrder, int? courseId = null)
-        {
-            var maxOrder = await _context.Courses
-                .Where(c => courseId == null || c.Id != courseId.Value)
-                .MaxAsync(c => (int?)c.Order) ?? 0;
-
-            if (inputOrder < 1)
-                return 1;
-
-            if (inputOrder > maxOrder + 1)
-                return maxOrder + 1;
-
-            return inputOrder;
-        }
-
-        private async Task ShiftOrdersForCreateAsync(int newOrder)
-        {
-            var affectedCourses = await _context.Courses
-                .Where(c => c.Order >= newOrder)
-                .OrderBy(c => c.Order)
-                .ToListAsync();
-
-            foreach (var course in affectedCourses)
-            {
-                course.Order++;
-            }
-        }
-
-        private async Task ShiftOrdersForEditAsync(int courseId, int oldOrder, int newOrder)
-        {
-            if (oldOrder == newOrder)
-                return;
-
-            if (newOrder < oldOrder)
-            {
-                // Moving UP: shift down everything between newOrder and oldOrder
-                var coursesToShift = await _context.Courses
-                    .Where(c => c.Id != courseId &&
-                                c.Order >= newOrder &&
-                                c.Order < oldOrder)
-                    .ToListAsync();
-
-                foreach (var course in coursesToShift)
-                {
-                    course.Order++;
-                }
-            }
-            else
-            {
-                // Moving DOWN: shift up everything between oldOrder and newOrder
-                var coursesToShift = await _context.Courses
-                    .Where(c => c.Id != courseId &&
-                                c.Order > oldOrder &&
-                                c.Order <= newOrder)
-                    .ToListAsync();
-
-                foreach (var course in coursesToShift)
-                {
-                    course.Order--;
-                }
-            }
         }
     }
 }

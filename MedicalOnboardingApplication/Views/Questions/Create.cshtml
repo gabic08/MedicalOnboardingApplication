@@ -1,4 +1,5 @@
-﻿@model CreateQuestionViewModel
+﻿@using MedicalOnboardingApplication.Data
+@model MedicalOnboardingApplication.Models.CreateQuestionViewModel
 
 @{
     ViewData["Title"] = "Add Question";
@@ -6,54 +7,81 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="mb-0">Add Question</h1>
-    <a asp-controller="Tests"
-       asp-action="Details"
-       asp-route-id="@Model.TestId"
+    <a asp-controller="AdminCourses"
+       asp-action="Manage"
+       asp-route-id="@Model.CourseId"
        class="btn btn-outline-secondary">
-        <i class="bi bi-arrow-left"></i> Back to Test
+        <i class="bi bi-arrow-left"></i> Back to Course
     </a>
 </div>
 
 <div class="row justify-content-center">
-    <div class="col-md-8 col-lg-6">
+    <div class="col-md-9 col-lg-7">
         <div class="card shadow-sm">
             <div class="card-body">
+
                 <form asp-action="Create" method="post">
                     @Html.AntiForgeryToken()
-                    <input type="hidden" asp-for="TestId" />
+                    <input type="hidden" asp-for="CourseId" />
 
                     <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-                    <!-- Question Text -->
+                    <!-- Question -->
                     <div class="mb-4">
                         <label asp-for="QuestionText" class="form-label">Question</label>
-                        <input asp-for="QuestionText" class="form-control" placeholder="Enter the question" />
+                        <textarea asp-for="QuestionText"
+                                  class="form-control"
+                                  rows="3"
+                                  placeholder="Enter the question..."></textarea>
                         <span asp-validation-for="QuestionText" class="text-danger"></span>
                     </div>
 
-                    <!-- Answers -->
-                    <h5>Answers</h5>
-                    @for (int i = 0; i < 4; i++)
-                    {
-                        <div class="mb-2 d-flex align-items-center">
-                            <input type="radio"
-                                   name="CorrectAnswerIndex"
-                                   value="@i"
-                                   class="form-check-input me-2"
-                                   @(Model.CorrectAnswerIndex == i ? "checked" : "") />
+                    <!-- Difficulty -->
+                    <div class="mb-4">
+                        <label asp-for="Difficulty" class="form-label">Difficulty</label>
+                        <select asp-for="Difficulty"
+                                asp-items="Html.GetEnumSelectList<QuestionDifficulty>()"
+                                class="form-select">
+                        </select>
+                    </div>
 
-                            <input name="Answers[@i]"
-                                   value="@Model.Answers[i]"
-                                   class="form-control"
-                                   placeholder="Answer @(i + 1)" />
-                        </div>
-                    }
+                    <!-- Answers -->
+                    <h5 class="mt-4">Answers</h5>
+
+                    <div id="answers-container">
+                        @for (int i = 0; i < Model.Answers.Count; i++)
+                        {
+                            <div class="d-flex align-items-center mb-2">
+                                <input type="radio"
+                                       name="CorrectAnswerIndex"
+                                       value="@i"
+                                       class="form-check-input me-2"
+                                       @(Model.CorrectAnswerIndex == i ? "checked" : "") />
+
+                                <input name="Answers[@i]"
+                                       value="@Model.Answers[i]"
+                                       class="form-control"
+                                       placeholder="Answer @(i + 1)" />
+                            </div>
+                        }
+                    </div>
+
+                    <button type="button"
+                            id="add-answer-btn"
+                            class="btn btn-sm btn-outline-secondary mt-2">
+                        <i class="bi bi-plus-circle"></i> Add answer
+                    </button>
+
+                    <div class="text-muted mt-2">
+                        Minimum 2 answers required. One must be marked correct.
+                    </div>
 
                     <div class="d-flex justify-content-end mt-4">
                         <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-save-fill"></i> Save Question
+                            <i class="bi bi-save"></i> Save Question
                         </button>
                     </div>
+
                 </form>
             </div>
         </div>
@@ -64,4 +92,27 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
+    <script>
+        document.getElementById("add-answer-btn").addEventListener("click", function () {
+            const container = document.getElementById("answers-container");
+            const index = container.children.length;
+
+            const row = document.createElement("div");
+            row.className = "d-flex align-items-center mb-2";
+
+            row.innerHTML = `
+                <input type="radio"
+                       name="CorrectAnswerIndex"
+                       value="${index}"
+                       class="form-check-input me-2" />
+
+                <input name="Answers[${index}]"
+                       class="form-control"
+                       placeholder="Answer ${index + 1}" />
+            `;
+
+            container.appendChild(row);
+        });
+    </script>
 }

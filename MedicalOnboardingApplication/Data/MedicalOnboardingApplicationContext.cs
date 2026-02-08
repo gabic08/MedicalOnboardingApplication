@@ -12,7 +12,6 @@ namespace MedicalOnboardingApplication.Data
 
         public DbSet<Course> Courses { get; set; }
         public DbSet<Chapter> Chapters { get; set; }
-        public DbSet<Test> Tests { get; set; }
         public DbSet<Question> Questions { get; set; }
         public DbSet<Answer> Answers { get; set; }
         public DbSet<EmployeeType> EmployeeTypes { get; set; }

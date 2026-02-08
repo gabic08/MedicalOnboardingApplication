@@ -14,18 +14,35 @@ public class QuestionsController : Controller
         _context = context;
     }
 
-    public IActionResult Create(int testId)
+    // GET: Questions/Create?courseId=5
+    public IActionResult Create(int courseId)
     {
-        return View(new CreateQuestionViewModel { TestId = testId });
+        return View(new CreateQuestionViewModel
+        {
+            CourseId = courseId,
+            Difficulty = QuestionDifficulty.Easy
+        });
     }
 
+    // POST: Questions/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(CreateQuestionViewModel vm)
     {
-        if (vm.Answers.Count != 4 || vm.Answers.Any(a => string.IsNullOrWhiteSpace(a)))
+        var validAnswers = vm.Answers
+            .Where(a => !string.IsNullOrWhiteSpace(a))
+            .ToList();
+
+        if (validAnswers.Count < 2)
         {
-            ModelState.AddModelError("", "All four answers must be filled in.");
+            ModelState.AddModelError("", "A question must have at least 2 answers.");
+        }
+
+        if (vm.CorrectAnswerIndex < 0 ||
+            vm.CorrectAnswerIndex >= vm.Answers.Count ||
+            string.IsNullOrWhiteSpace(vm.Answers[vm.CorrectAnswerIndex]))
+        {
+            ModelState.AddModelError("", "Please select a valid correct answer.");
         }
 
         if (!ModelState.IsValid)
@@ -33,21 +50,25 @@ public class QuestionsController : Controller
 
         var question = new Question
         {
-            TestId = vm.TestId,
+            CourseId = vm.CourseId,
             Text = vm.QuestionText,
-            Answers = vm.Answers.Select((text, index) => new Answer
-            {
-                Text = text,
-                IsCorrect = index == vm.CorrectAnswerIndex
-            }).ToList()
+            Difficulty = vm.Difficulty,
+            Answers = vm.Answers
+                .Select((text, index) => new Answer
+                {
+                    Text = text,
+                    IsCorrect = index == vm.CorrectAnswerIndex
+                })
+                .ToList()
         };
 
         _context.Questions.Add(question);
         await _context.SaveChangesAsync();
 
-        return RedirectToAction("Details", "Tests", new { id = vm.TestId });
+        return RedirectToAction("Manage", "AdminCourses", new { id = vm.CourseId });
     }
 
+    // GET: Questions/Edit/5
     public async Task<IActionResult> Edit(int id)
     {
         var question = await _context.Questions
@@ -57,28 +78,44 @@ public class QuestionsController : Controller
         if (question == null)
             return NotFound();
 
+        var orderedAnswers = question.Answers
+                                     .OrderBy(a => a.Id)
+                                     .ToList();
+
         var vm = new EditQuestionViewModel
         {
             Id = question.Id,
-            TestId = question.TestId,
+            CourseId = question.CourseId,
             QuestionText = question.Text,
-            Answers = question.Answers
-                             .OrderBy(a => a.Id) // optional: maintain consistent order
-                             .Select(a => a.Text)
-                             .ToList(),
-            CorrectAnswerIndex = question.Answers
-                                 .OrderBy(a => a.Id)
-                                 .ToList()
-                                 .FindIndex(a => a.IsCorrect)
+            Difficulty = question.Difficulty,
+            Answers = orderedAnswers
+                        .Select(a => new AnswerEditVm
+                        {
+                            Id = a.Id,
+                            Text = a.Text
+                        })
+                        .ToList(),
+            CorrectAnswerIndex = orderedAnswers.FindIndex(a => a.IsCorrect)
         };
 
         return View(vm);
     }
 
+    // POST: Questions/Edit
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(EditQuestionViewModel vm)
     {
+        // Remove any empty answers
+        vm.Answers = vm.Answers
+                       .Where(a => !string.IsNullOrWhiteSpace(a.Text))
+                       .ToList();
+
+        if (vm.Answers.Count < 2)
+        {
+            ModelState.AddModelError("", "A question must have at least two answers.");
+        }
+
         if (!ModelState.IsValid)
             return View(vm);
 
@@ -90,24 +127,31 @@ public class QuestionsController : Controller
             return NotFound();
 
         question.Text = vm.QuestionText;
+        question.Difficulty = vm.Difficulty;
 
-        for (int i = 0; i < 4; i++)
-        {
-            question.Answers.ElementAt(i).Text = vm.Answers[i];
-            question.Answers.ElementAt(i).IsCorrect = (i == vm.CorrectAnswerIndex);
-        }
+        // Remove old answers
+        _context.Answers.RemoveRange(question.Answers);
 
-        _context.Questions.Update(question);
+        // Map new answers from AnswerEditVm
+        question.Answers = vm.Answers
+                             .Select((a, index) => new Answer
+                             {
+                                 Id = a.Id, // keep Id if exists, 0 for new
+                                 Text = a.Text,
+                                 IsCorrect = index == vm.CorrectAnswerIndex
+                             })
+                             .ToList();
+
         await _context.SaveChangesAsync();
 
-        return RedirectToAction("Details", "Tests", new { id = vm.TestId });
+        return RedirectToAction("Manage", "AdminCourses", new { id = vm.CourseId });
     }
 
     // GET: Questions/Delete/5
     public async Task<IActionResult> Delete(int id)
     {
         var question = await _context.Questions
-            .Include(q => q.Test)
+            .Include(q => q.Course)
             .FirstOrDefaultAsync(q => q.Id == id);
 
         if (question == null)
@@ -116,22 +160,22 @@ public class QuestionsController : Controller
         return View(question);
     }
 
-    // POST: Questions/Delete/5
+    // POST: Questions/Delete
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(int id)
+    public async Task<IActionResult> DeleteConfirmed(int id, int courseId)
     {
-        var question = await _context.Questions.FindAsync(id);
+        var question = await _context.Questions
+            .Include(q => q.Answers)
+            .FirstOrDefaultAsync(q => q.Id == id);
 
-        if (question == null)
-            return NotFound();
+        if (question != null)
+        {
+            _context.Questions.Remove(question);
+            await _context.SaveChangesAsync();
+        }
 
-        var testId = question.TestId;
-
-        _context.Questions.Remove(question);
-        await _context.SaveChangesAsync();
-
-        return RedirectToAction("Details", "Tests", new { id = testId });
+        return RedirectToAction("Manage", "AdminCourses", new { id = courseId });
     }
 
 }

@@ -151,6 +151,6 @@ public class ChapterAttachmentsController : Controller
         _context.ChapterAttachments.Remove(attachment);
         await _context.SaveChangesAsync();
 
-        return RedirectToAction("Manage", "AdminCourses", new { id = attachment.Chapter.CourseId });
+        return RedirectToAction("Edit", "Chapters", new { id = attachment.Chapter.Id });
     }
 }

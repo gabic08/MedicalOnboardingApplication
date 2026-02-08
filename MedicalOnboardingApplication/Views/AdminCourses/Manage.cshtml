@@ -208,53 +208,60 @@
     </div>
 </div>
 
+
+
 <!-- ===================== -->
-<!-- TESTS SECTION -->
+<!-- QUESTIONS SECTION -->
 <!-- ===================== -->
 <div class="card shadow-sm">
     <div class="card-body">
 
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="mb-0">Tests</h5>
+            <h5 class="mb-0">Questions</h5>
 
-            <a asp-controller="Tests"
+            <a asp-controller="Questions"
                asp-action="Create"
                asp-route-courseId="@course.Id"
                class="btn btn-warning btn-sm">
-                <i class="bi bi-plus-circle"></i> Add Test
+                <i class="bi bi-plus-circle"></i> Add Question
             </a>
         </div>
 
-        @if (course.Tests == null || !course.Tests.Any())
+        @if (course.Questions == null || !course.Questions.Any())
         {
             <div class="alert alert-info">
-                No tests yet.
+                No questions added yet.
             </div>
         }
         else
         {
             <div class="list-group">
-                @foreach (var test in course.Tests)
+                @foreach (var q in course.Questions.OrderBy(q => q.Difficulty))
                 {
                     <div class="list-group-item d-flex justify-content-between align-items-center">
-                        <div>
-                            <strong>@test.Title</strong>
-                            <div class="small text-muted">
-                                Questions: @(test.Questions?.Count ?? 0)
+                        <div class="me-3">
+                            <strong>@q.Text</strong>
+
+                            <div class="small text-muted mt-1">
+                                Difficulty:
+                                <span class="badge bg-secondary">
+                                    @q.Difficulty
+                                </span>
+                                • Answers: @(q.Answers?.Count ?? 0)
                             </div>
                         </div>
 
                         <div class="d-flex gap-2">
-                            <a asp-controller="Tests"
-                               asp-action="Details"
-                               asp-route-id="@test.Id"
+                            <a asp-controller="Questions"
+                               asp-action="Edit"
+                               asp-route-id="@q.Id"
                                class="btn btn-sm btn-outline-primary">
-                                View
+                                Edit
                             </a>
 
-                            <a asp-controller="Tests"
+                            <a asp-controller="Questions"
                                asp-action="Delete"
-                               asp-route-id="@test.Id"
+                               asp-route-id="@q.Id"
                                class="btn btn-sm btn-outline-danger">
                                 Delete
                             </a>
@@ -265,6 +272,10 @@
         }
     </div>
 </div>
+
+
+
+
 
 @section Scripts {
     @{

@@ -1,15 +1,23 @@
-﻿namespace MedicalOnboardingApplication.Models;
+﻿using MedicalOnboardingApplication.Data;
+
+namespace MedicalOnboardingApplication.Models;
 
 public class EditQuestionViewModel
 {
-    public int Id { get; set; } // Question ID
-    public int TestId { get; set; } // Parent Test ID
+    public int Id { get; set; }
+    public int CourseId { get; set; }
 
     public string QuestionText { get; set; }
 
-    // Exactly 4 answers
-    public List<string> Answers { get; set; } = new() { "", "", "", "" };
+    public QuestionDifficulty Difficulty { get; set; }
 
-    // Index of the correct answer (0–3)
+    public List<AnswerEditVm> Answers { get; set; } = new();
+
     public int CorrectAnswerIndex { get; set; }
+}
+
+public class AnswerEditVm
+{
+    public int Id { get; set; } // existing answer ID
+    public string Text { get; set; }
 }

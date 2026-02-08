@@ -7,7 +7,14 @@
     var search = ViewBag.Search as string;
 }
 
-<h1>Courses</h1>
+<h1 class="mb-4 d-flex justify-content-between align-items-center">
+    <span>Courses</span>
+    <a asp-controller="Admin"
+       asp-action="Index"
+       class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Back to Dashboard
+    </a>
+</h1>
 
 <div class="mb-3">
     <form method="get" class="row g-2 align-items-end">
@@ -51,8 +58,7 @@
     <thead>
         <tr>
             <th style="width: 80px;">Order</th>
-            <th>Title</th>
-            <th>Description</th>
+            <th style="width: 20%;">Title</th> <!-- Reduced width -->
             <th>Employee Types</th>
             <th style="width: 220px;"></th>
         </tr>
@@ -64,10 +70,8 @@
                 <td>
                     <span class="badge bg-secondary">@course.Order</span>
                 </td>
-                <td>@course.Title</td>
-                <td class="text-muted">
-                    @course.Description
-                </td>
+                <td style="width: 20%;">@course.Title</td> <!-- Match reduced width -->
+
                 <td>
                     @string.Join(", ", course.CourseEmployeeTypes.Select(cet => cet.EmployeeType.Name))
                 </td>

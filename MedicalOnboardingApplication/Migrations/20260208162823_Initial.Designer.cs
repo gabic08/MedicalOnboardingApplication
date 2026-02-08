@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MedicalOnboardingApplication.Migrations
 {
     [DbContext(typeof(MedicalOnboardingApplicationContext))]
-    [Migration("20260204165147_TestDescription")]
-    partial class TestDescription
+    [Migration("20260208162823_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -170,7 +170,10 @@ namespace MedicalOnboardingApplication.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("TestId")
+                    b.Property<int>("CourseId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Difficulty")
                         .HasColumnType("integer");
 
                     b.Property<string>("Text")
@@ -178,33 +181,9 @@ namespace MedicalOnboardingApplication.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TestId");
-
-                    b.ToTable("Questions");
-                });
-
-            modelBuilder.Entity("MedicalOnboardingApplication.Models.Test", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CourseId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Title")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
                     b.HasIndex("CourseId");
 
-                    b.ToTable("Tests");
+                    b.ToTable("Questions");
                 });
 
             modelBuilder.Entity("MedicalOnboardingApplication.Models.Answer", b =>
@@ -261,19 +240,8 @@ namespace MedicalOnboardingApplication.Migrations
 
             modelBuilder.Entity("MedicalOnboardingApplication.Models.Question", b =>
                 {
-                    b.HasOne("MedicalOnboardingApplication.Models.Test", "Test")
-                        .WithMany("Questions")
-                        .HasForeignKey("TestId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Test");
-                });
-
-            modelBuilder.Entity("MedicalOnboardingApplication.Models.Test", b =>
-                {
                     b.HasOne("MedicalOnboardingApplication.Models.Course", "Course")
-                        .WithMany("Tests")
+                        .WithMany("Questions")
                         .HasForeignKey("CourseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -292,7 +260,7 @@ namespace MedicalOnboardingApplication.Migrations
 
                     b.Navigation("CourseEmployeeTypes");
 
-                    b.Navigation("Tests");
+                    b.Navigation("Questions");
                 });
 
             modelBuilder.Entity("MedicalOnboardingApplication.Models.EmployeeType", b =>
@@ -303,11 +271,6 @@ namespace MedicalOnboardingApplication.Migrations
             modelBuilder.Entity("MedicalOnboardingApplication.Models.Question", b =>
                 {
                     b.Navigation("Answers");
-                });
-
-            modelBuilder.Entity("MedicalOnboardingApplication.Models.Test", b =>
-                {
-                    b.Navigation("Questions");
                 });
 #pragma warning restore 612, 618
         }

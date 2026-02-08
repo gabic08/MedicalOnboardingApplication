@@ -7,7 +7,7 @@ public class Course
     public string Description { get; set; }
     public int Order { get; set; }
     public ICollection<Chapter> Chapters { get; set; }
-    public ICollection<Test> Tests { get; set; }
+    public ICollection<Question> Questions { get; set; }
     public ICollection<CourseEmployeeType> CourseEmployeeTypes { get; set; }
 }
 
