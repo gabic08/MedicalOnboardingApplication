@@ -1,4 +1,7 @@
-﻿using MedicalOnboardingApplication.Data;
+﻿using MedicalOnboardingApplication;
+using MedicalOnboardingApplication.Data;
+using MedicalOnboardingApplication.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<MedicalOnboardingApplicationContext>(options =>
@@ -6,6 +9,20 @@ builder.Services.AddDbContext<MedicalOnboardingApplicationContext>(options =>
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+{
+    options.Password.RequireDigit = true;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireLowercase = false;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequiredLength = 6;
+
+    options.User.RequireUniqueEmail = true;
+})
+.AddEntityFrameworkStores<MedicalOnboardingApplicationContext>()
+.AddDefaultTokenProviders();
 
 var app = builder.Build();
 
@@ -20,6 +37,7 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();
@@ -29,5 +47,9 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 
+using (var scope = app.Services.CreateScope())
+{
+    await IdentitySeeder.SeedAsync(scope.ServiceProvider);
+}
 
 app.Run();

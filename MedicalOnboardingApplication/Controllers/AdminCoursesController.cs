@@ -1,10 +1,12 @@
 ﻿using MedicalOnboardingApplication.Data;
 using MedicalOnboardingApplication.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace MedicalOnboardingApplication.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class AdminCoursesController : Controller
     {
         private readonly MedicalOnboardingApplicationContext _context;

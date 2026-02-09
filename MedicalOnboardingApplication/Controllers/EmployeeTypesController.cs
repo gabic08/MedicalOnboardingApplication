@@ -1,8 +1,10 @@
 ﻿using MedicalOnboardingApplication.Data;
 using MedicalOnboardingApplication.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
+[Authorize(Roles = "Admin")]
 public class EmployeeTypesController : Controller
 {
     private readonly MedicalOnboardingApplicationContext _context;
