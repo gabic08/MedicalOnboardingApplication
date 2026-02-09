@@ -1,9 +1,10 @@
 ﻿using MedicalOnboardingApplication.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace MedicalOnboardingApplication.Data
 {
-    public class MedicalOnboardingApplicationContext : DbContext
+    public class MedicalOnboardingApplicationContext : IdentityDbContext<ApplicationUser>
     {
         public MedicalOnboardingApplicationContext(DbContextOptions<MedicalOnboardingApplicationContext> options)
             : base(options)
@@ -20,6 +21,8 @@ namespace MedicalOnboardingApplication.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
             // Configure many-to-many
             modelBuilder.Entity<CourseEmployeeType>()
                 .HasKey(cet => new { cet.CourseId, cet.EmployeeTypeId });
