@@ -18,6 +18,7 @@ namespace MedicalOnboardingApplication.Data
         public DbSet<EmployeeType> EmployeeTypes { get; set; }
         public DbSet<CourseEmployeeType> CourseEmployeeTypes { get; set; }
         public DbSet<ChapterAttachment> ChapterAttachments { get; set; }
+        public DbSet<Clinic> Clinics { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

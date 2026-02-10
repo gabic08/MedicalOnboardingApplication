@@ -8,4 +8,6 @@ public class ApplicationUser : IdentityUser
     public EmployeeType EmployeeType { get; set; }
     public string FirstName { get; set; }
     public string LastName { get; set; }
+    public int? ClinicId { get; set; }
+    public Clinic Clinic { get; set; }
 }

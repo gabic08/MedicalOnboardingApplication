@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/MedicalOnboardingApplication.styles.css" asp-append-version="true" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 </head>
 <body>
     <header>
@@ -16,24 +17,12 @@
             <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">MedicalOnboardingApplication</a>
 
+                
                 @if (User.Identity?.IsAuthenticated == true)
                 {
-                    if (User.IsInRole("Admin"))
-                    {
-                        <a asp-controller="Admin" asp-action="Index">Admin Dashboard</a>
-                    }
-                    else
-                    {
-                        <a asp-controller="Courses" asp-action="Index">My Courses</a>
-                    }
-
                     <form asp-controller="Account" asp-action="Logout" method="post">
                         <button class="btn btn-link">Logout</button>
                     </form>
-                }
-                else
-                {
-                    <a asp-area="Identity" asp-page="/Account/Login">Login</a>
                 }
 
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"

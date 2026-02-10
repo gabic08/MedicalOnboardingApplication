@@ -1,4 +1,5 @@
-﻿using MedicalOnboardingApplication.Models;
+﻿using MedicalOnboardingApplication.Data;
+using MedicalOnboardingApplication.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,17 +9,20 @@ namespace MedicalOnboardingApplication.Controllers
     {
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly MedicalOnboardingApplicationContext _context;
 
         public AccountController(
             SignInManager<ApplicationUser> signInManager,
-            UserManager<ApplicationUser> userManager)
+            UserManager<ApplicationUser> userManager,
+            MedicalOnboardingApplicationContext context)
         {
             _signInManager = signInManager;
             _userManager = userManager;
+            _context = context;
         }
 
         [HttpGet]
-        public IActionResult Login(string? returnUrl = null)
+        public IActionResult Login(string returnUrl = null)
         {
             return View(new LoginViewModel
             {
@@ -69,6 +73,46 @@ namespace MedicalOnboardingApplication.Controllers
         {
             await _signInManager.SignOutAsync();
             return RedirectToAction("Login");
+        }
+
+        [HttpGet]
+        public IActionResult RegisterClinicAdmin(string returnUrl = null)
+        {
+            return View(new RegisterAdminViewModel
+            {
+                ReturnUrl = returnUrl
+            });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RegisterClinicAdmin(RegisterAdminViewModel vm)
+        {
+            if (!ModelState.IsValid)
+                return View(vm);
+
+            var user = new ApplicationUser
+            {
+                UserName = vm.Email,
+                Email = vm.Email,
+                FirstName = vm.FirstName,
+                LastName = vm.LastName,
+                EmailConfirmed = true
+            };
+
+            var result = await _userManager.CreateAsync(user, vm.Password);
+
+            if (!result.Succeeded)
+            {
+                foreach (var error in result.Errors)
+                    ModelState.AddModelError("", error.Description);
+
+                return View(vm);
+            }
+
+            await _userManager.AddToRoleAsync(user, "Admin");
+
+            return LocalRedirect(vm.ReturnUrl ?? Url.Action("Login", "Account")!);
         }
     }
 }
