@@ -1,7 +1,7 @@
 ﻿using MedicalOnboardingApplication.Data;
 using System.ComponentModel.DataAnnotations;
 
-namespace MedicalOnboardingApplication.Models;
+namespace MedicalOnboardingApplication.ViewModels;
 
 public class CreateQuestionViewModel
 {

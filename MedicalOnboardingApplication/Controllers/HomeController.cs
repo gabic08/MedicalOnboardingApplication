@@ -1,4 +1,4 @@
-using MedicalOnboardingApplication.Models;
+using MedicalOnboardingApplication.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 

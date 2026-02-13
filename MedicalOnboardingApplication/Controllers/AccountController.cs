@@ -1,5 +1,6 @@
 ﻿using MedicalOnboardingApplication.Data;
 using MedicalOnboardingApplication.Models;
+using MedicalOnboardingApplication.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 

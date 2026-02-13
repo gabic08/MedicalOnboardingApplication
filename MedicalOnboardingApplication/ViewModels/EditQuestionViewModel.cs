@@ -1,6 +1,6 @@
 ﻿using MedicalOnboardingApplication.Data;
 
-namespace MedicalOnboardingApplication.Models;
+namespace MedicalOnboardingApplication.ViewModels;
 
 public class EditQuestionViewModel
 {

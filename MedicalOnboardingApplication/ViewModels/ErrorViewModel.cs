@@ -1,4 +1,4 @@
-namespace MedicalOnboardingApplication.Models
+namespace MedicalOnboardingApplication.ViewModels
 {
     public class ErrorViewModel
     {

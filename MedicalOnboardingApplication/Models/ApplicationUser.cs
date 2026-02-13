@@ -10,4 +10,5 @@ public class ApplicationUser : IdentityUser
     public string LastName { get; set; }
     public int? ClinicId { get; set; }
     public Clinic Clinic { get; set; }
+    public string ProfileImagePath { get; set; }
 }
