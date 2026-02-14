@@ -8,22 +8,40 @@
         : Url.Action("Index", "Courses");
 }
 
-<h2 class="mb-3">@Model.Title</h2>
+<!-- ========================= -->
+<!-- BACK BUTTON -->
+<!-- ========================= -->
+<div class="mb-4">
+    <a href="@backUrl" class="btn btn-outline-secondary btn-lg">
+        <i class="bi bi-arrow-left"></i> Back
+        @(isAdmin ? "to Admin Courses" : "to Courses")
+    </a>
+</div>
 
-<p class="text-muted mb-4">@Model.Description</p>
+<!-- ========================= -->
+<!-- COURSE HEADER -->
+<!-- ========================= -->
+<div class="card mb-4 shadow-sm border-0 rounded-3">
+    <div class="card-body">
+        <h1 class="display-6 fw-bold">@Model.Title</h1>
+        <p class="text-muted fs-5">@Model.Description</p>
+    </div>
+</div>
 
+<!-- ========================= -->
+<!-- CHAPTERS LIST -->
+<!-- ========================= -->
 @if (Model.Chapters == null || !Model.Chapters.Any())
 {
-    <div class="alert alert-info">
+    <div class="alert alert-info rounded-3 shadow-sm">
         No chapters available.
     </div>
 }
 else
 {
-    <div class="card shadow-sm">
+    <div class="card shadow-sm rounded-3 border-0">
         <div class="card-body">
-
-            <h5 class="mb-3">Chapters</h5>
+            <h5 class="fw-semibold mb-3">Chapters</h5>
 
             <div class="list-group">
                 @foreach (var chapter in Model.Chapters.OrderBy(c => c.Order))
@@ -31,27 +49,34 @@ else
                     <a asp-controller="Chapters"
                        asp-action="Details"
                        asp-route-id="@chapter.Id"
-                       class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                       class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-3 px-4 mb-2 rounded shadow-sm border-0"
+                       style="transition: all 0.2s ease-in-out;">
 
-                        <div>
-                            <span class="badge bg-secondary me-2">
-                                @chapter.Order
-                            </span>
-                            @chapter.Title
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="badge bg-primary fs-6">@chapter.Order</span>
+                            <span class="fw-medium fs-6">@chapter.Title</span>
                         </div>
 
-                        <i class="bi bi-chevron-right"></i>
+                        <i class="bi bi-chevron-right fs-5 text-secondary"></i>
                     </a>
                 }
             </div>
-
         </div>
     </div>
 }
 
-<div class="mt-4">
-    <a href="@backUrl" class="btn btn-outline-secondary">
-        <i class="bi bi-arrow-left"></i> Back
-        @(isAdmin ? "to Admin Courses" : "to Courses")
-    </a>
-</div>
+<!-- ========================= -->
+<!-- OPTIONAL STYLING SCRIPT -->
+<!-- ========================= -->
+
+<style>
+    .list-group-item:hover {
+        transform: translateX(5px);
+        box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+        background-color: #f8f9fa;
+    }
+
+    .badge-primary {
+        background-color: #0d6efd;
+    }
+</style>
