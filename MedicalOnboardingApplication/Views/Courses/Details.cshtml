@@ -1,0 +1,57 @@
+﻿@model MedicalOnboardingApplication.Models.Course
+
+@{
+    ViewData["Title"] = Model.Title;
+    bool isAdmin = User.IsInRole("Admin");
+    string backUrl = isAdmin
+        ? Url.Action("Index", "AdminCourses")
+        : Url.Action("Index", "Courses");
+}
+
+<h2 class="mb-3">@Model.Title</h2>
+
+<p class="text-muted mb-4">@Model.Description</p>
+
+@if (Model.Chapters == null || !Model.Chapters.Any())
+{
+    <div class="alert alert-info">
+        No chapters available.
+    </div>
+}
+else
+{
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <h5 class="mb-3">Chapters</h5>
+
+            <div class="list-group">
+                @foreach (var chapter in Model.Chapters.OrderBy(c => c.Order))
+                {
+                    <a asp-controller="Chapters"
+                       asp-action="Details"
+                       asp-route-id="@chapter.Id"
+                       class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+
+                        <div>
+                            <span class="badge bg-secondary me-2">
+                                @chapter.Order
+                            </span>
+                            @chapter.Title
+                        </div>
+
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                }
+            </div>
+
+        </div>
+    </div>
+}
+
+<div class="mt-4">
+    <a href="@backUrl" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Back
+        @(isAdmin ? "to Admin Courses" : "to Courses")
+    </a>
+</div>

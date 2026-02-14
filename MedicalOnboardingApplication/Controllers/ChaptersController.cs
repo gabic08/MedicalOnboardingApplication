@@ -204,9 +204,21 @@ public class ChaptersController : Controller
         return RedirectToAction("Manage", "AdminCourses", new { id = courseId });
     }
 
-    // Safety check
-    private bool ChapterExists(int id)
+    // GET: Chapters/Details/5
+    public async Task<IActionResult> Details(int? id)
     {
-        return _context.Chapters.Any(c => c.Id == id);
+        if (id == null)
+            return NotFound();
+
+        var chapter = await _context.Chapters
+            .Include(c => c.Attachments)
+            .Include(c => c.Course)
+                .ThenInclude(c => c.Chapters)
+            .FirstOrDefaultAsync(c => c.Id == id);
+
+        if (chapter == null)
+            return NotFound();
+
+        return View(chapter);
     }
 }

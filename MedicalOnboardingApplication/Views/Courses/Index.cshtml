@@ -1,0 +1,38 @@
+﻿@model IEnumerable<MedicalOnboardingApplication.Models.Course>
+
+@{
+    ViewData["Title"] = "Courses";
+}
+
+<h2 class="mb-4">Available Courses</h2>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        No courses available.
+    </div>
+}
+else
+{
+    <div class="row">
+        @foreach (var course in Model)
+        {
+            <div class="col-md-4 mb-3">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <h5>@course.Title</h5>
+                        <p class="text-muted">
+                            @course.Description
+                        </p>
+
+                        <a asp-action="Details"
+                           asp-route-id="@course.Id"
+                           class="btn btn-primary btn-sm">
+                            View Course
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

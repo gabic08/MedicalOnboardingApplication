@@ -42,6 +42,15 @@ app.UseAuthorization();
 
 app.MapStaticAssets();
 
+app.UseStaticFiles(new StaticFileOptions
+{
+    ServeUnknownFileTypes = true,
+    OnPrepareResponse = ctx =>
+    {
+        ctx.Context.Response.Headers["Accept-Ranges"] = "bytes";
+    }
+});
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}")
