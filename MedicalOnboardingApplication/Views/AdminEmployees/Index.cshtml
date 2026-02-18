@@ -1,0 +1,46 @@
+﻿@model IEnumerable<MedicalOnboardingApplication.Models.ApplicationUser>
+
+<h2 class="mb-4">Employees</h2>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+
+    <div>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus"></i> Add Employee
+        </a>
+    </div>
+
+    <div>
+        <a asp-controller="EmployeeTypes"
+           asp-action="Index"
+           class="btn btn-outline-secondary">
+            <i class="bi bi-briefcase"></i> Manage Employee Types
+        </a>
+    </div>
+
+</div>
+
+<table class="table table-striped shadow-sm">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Employee Type</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var emp in Model)
+        {
+            <tr>
+                <td>@emp.FirstName @emp.LastName</td>
+                <td>@emp.Email</td>
+                <td>@emp.EmployeeType?.Name</td>
+                <td class="text-end">
+                    <a asp-action="Edit" asp-route-id="@emp.Id" class="btn btn-sm btn-warning">Edit</a>
+                    <a asp-action="Delete" asp-route-id="@emp.Id" class="btn btn-sm btn-danger">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

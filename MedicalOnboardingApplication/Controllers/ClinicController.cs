@@ -21,8 +21,10 @@ public class ClinicController : Controller
         _userManager = userManager;
     }
 
-    // GET: Clinic/Edit
-    public async Task<IActionResult> Edit()
+    // ===============================
+    // GET: Clinic/Details
+    // ===============================
+    public async Task<IActionResult> Details()
     {
         var user = await _userManager.Users
             .Include(u => u.Clinic)
@@ -31,16 +33,13 @@ public class ClinicController : Controller
         if (user == null)
             return NotFound();
 
-        // If clinic doesn't exist yet → create empty model
-        if (user.Clinic == null)
-        {
-            return View(new Clinic());
-        }
-
-        return View(user.Clinic);
+        // If clinic doesn't exist yet, send empty model
+        return View(user.Clinic ?? new Clinic());
     }
 
-    // POST: Clinic/Edit
+    // ===============================
+    // POST: Clinic/Edit (Save)
+    // ===============================
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(Clinic clinic)
@@ -53,7 +52,7 @@ public class ClinicController : Controller
             return NotFound();
 
         if (!ModelState.IsValid)
-            return View(clinic);
+            return View("Details", clinic);
 
         if (user.ClinicId == null)
         {
@@ -81,23 +80,8 @@ public class ClinicController : Controller
         }
 
         TempData["Success"] = "Clinic information saved successfully.";
-        return RedirectToAction(nameof(Edit));
+
+        // Redirect back to Details (main page)
+        return RedirectToAction(nameof(Details));
     }
-
-    // GET: Clinic/Details
-    public async Task<IActionResult> Details()
-    {
-        var user = await _userManager.Users
-            .Include(u => u.Clinic)
-            .FirstOrDefaultAsync(u => u.UserName == User.Identity.Name);
-
-        if (user == null)
-            return NotFound();
-
-        if (user.Clinic == null)
-            return RedirectToAction(nameof(Edit));
-
-        return View(user.Clinic);
-    }
-
 }

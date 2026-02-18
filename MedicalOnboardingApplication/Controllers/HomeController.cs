@@ -1,25 +1,48 @@
+﻿using MedicalOnboardingApplication.Models;
 using MedicalOnboardingApplication.ViewModels;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
-namespace MedicalOnboardingApplication.Controllers
+public class HomeController : Controller
 {
-    public class HomeController : Controller
+    private readonly UserManager<ApplicationUser> _userManager;
+
+    public HomeController(UserManager<ApplicationUser> userManager)
     {
-        public IActionResult Index()
+        _userManager = userManager;
+    }
+
+    public async Task<IActionResult> Index()
+    {
+        if (User.Identity.IsAuthenticated)
         {
-            return RedirectToAction("Index", "Admin");
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user != null && await _userManager.IsInRoleAsync(user, "Admin"))
+            {
+                // Admin goes to admin dashboard
+                return RedirectToAction("Index", "Admin");
+            }
+            else
+            {
+                // Regular user goes to normal courses page
+                return RedirectToAction("Index", "Courses");
+            }
         }
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
+        // Not logged in → maybe show public home page
+        return View();
+    }
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
+    public IActionResult Privacy()
+    {
+        return View();
+    }
+
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    public IActionResult Error()
+    {
+        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
 }

@@ -1,0 +1,48 @@
+﻿@model MedicalOnboardingApplication.Models.ApplicationUser
+
+@{
+    ViewData["Title"] = "Delete Employee";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-lg border-0">
+        <div class="card-header bg-danger text-white">
+            <h4 class="mb-0">
+                <i class="bi bi-trash"></i> Delete Employee
+            </h4>
+        </div>
+
+        <div class="card-body p-4">
+
+            <div class="alert alert-danger">
+                <strong>Warning:</strong> This action cannot be undone.
+            </div>
+
+            <dl class="row">
+                <dt class="col-sm-3">Name</dt>
+                <dd class="col-sm-9">@Model.FirstName @Model.LastName</dd>
+
+                <dt class="col-sm-3">Email</dt>
+                <dd class="col-sm-9">@Model.Email</dd>
+
+                <dt class="col-sm-3">Employee Type</dt>
+                <dd class="col-sm-9">@Model.EmployeeType?.Name</dd>
+            </dl>
+
+            <form asp-action="Delete" method="post">
+                <input type="hidden" asp-for="Id" />
+
+                <div class="d-flex justify-content-between mt-4">
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        Cancel
+                    </a>
+
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash"></i> Confirm Delete
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>

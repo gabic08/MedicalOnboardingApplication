@@ -55,7 +55,7 @@ namespace MedicalOnboardingApplication.Controllers
 
             if (result.Succeeded)
             {
-                return LocalRedirect(vm.ReturnUrl ?? "/");
+                return LocalRedirect("/");
             }
 
             if (result.IsLockedOut)
