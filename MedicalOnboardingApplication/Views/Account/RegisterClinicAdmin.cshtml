@@ -35,41 +35,40 @@
                         <span asp-validation-for="Email" class="text-danger"></span>
                     </div>
 
-                    <div class="form-floating mb-3 d-flex align-items-center">
+
+                    <label asp-for="Password" class="form-label"></label>
+                    <div class="mb-3 d-flex align-items-center">
                         <input asp-for="Password"
                                id="passwordField"
                                class="form-control"
                                type="password"
                                autocomplete="new-password" />
-
-                        <label asp-for="Password"></label>
-
                         <button type="button"
-                                class="btn btn-sm toggle-password"
+                                class="btn btn-outline-secondary ms-2 toggle-password"
                                 data-target="passwordField"
                                 tabindex="-1">
                             <i class="fas fa-eye"></i>
                         </button>
                     </div>
-
                     <span asp-validation-for="Password" class="text-danger"></span>
 
-
-                    <div class="form-floating mb-3 d-flex align-items-center">
-                        <input asp-for="ConfirmPassword" id="confirmPasswordField" class="form-control" type="password" autocomplete="new-password" />
-
-                        <label asp-for="ConfirmPassword"></label>
-
+                    <label asp-for="ConfirmPassword" class="form-label"></label>
+                    <div class="mb-3 d-flex align-items-center">
+                        <input asp-for="ConfirmPassword"
+                               id="confirmPasswordField"
+                               class="form-control"
+                               type="password"
+                               autocomplete="new-password" />
                         <button type="button"
-                                class="btn btn-sm toggle-password"
+                                class="btn btn-outline-secondary ms-2 toggle-password"
                                 data-target="confirmPasswordField"
                                 tabindex="-1">
                             <i class="fas fa-eye"></i>
                         </button>
                     </div>
-
                     <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
 
+ 
                     <button class="btn btn-success w-100" type="submit">
                         Create Admin Account
                     </button>
