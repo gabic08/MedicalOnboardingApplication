@@ -53,6 +53,14 @@
             </div>
         </nav>
     </header>
+    
+    <form id="logoutForm"
+          asp-controller="Account"
+          asp-action="Logout"
+          method="post"
+          class="d-none">
+        @Html.AntiForgeryToken()
+    </form>
 
     <div class="modal fade" id="logoutModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
