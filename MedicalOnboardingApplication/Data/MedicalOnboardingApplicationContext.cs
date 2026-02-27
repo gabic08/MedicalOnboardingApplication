@@ -1,10 +1,14 @@
 ﻿using MedicalOnboardingApplication.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace MedicalOnboardingApplication.Data
 {
-    public class MedicalOnboardingApplicationContext : IdentityDbContext<ApplicationUser>
+    public class MedicalOnboardingApplicationContext
+    : IdentityDbContext<ApplicationUser, ApplicationRole, int,
+        IdentityUserClaim<int>, ApplicationUserRole, IdentityUserLogin<int>,
+        IdentityRoleClaim<int>, IdentityUserToken<int>>
     {
         public MedicalOnboardingApplicationContext(DbContextOptions<MedicalOnboardingApplicationContext> options)
             : base(options)
@@ -45,7 +49,18 @@ namespace MedicalOnboardingApplication.Data
                 .WithMany(q => q.Answers)
                 .OnDelete(DeleteBehavior.Cascade);
 
-        }
+            modelBuilder.Entity<ApplicationUserRole>(userRole =>
+            {
+                userRole.HasKey(ur => new { ur.UserId, ur.RoleId });
 
+                userRole.HasOne(ur => ur.User)
+                    .WithMany(u => u.UserRoles)
+                    .HasForeignKey(ur => ur.UserId);
+
+                userRole.HasOne(ur => ur.Role)
+                    .WithMany(r => r.UserRoles)
+                    .HasForeignKey(ur => ur.RoleId);
+            });
+        }
     }
 }

@@ -1,9 +1,11 @@
 ﻿using MedicalOnboardingApplication.Models;
 using MedicalOnboardingApplication.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
+[Authorize]
 public class HomeController : Controller
 {
     private readonly UserManager<ApplicationUser> _userManager;

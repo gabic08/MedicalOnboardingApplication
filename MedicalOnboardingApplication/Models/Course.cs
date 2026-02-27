@@ -9,5 +9,8 @@ public class Course
     public ICollection<Chapter> Chapters { get; set; }
     public ICollection<Question> Questions { get; set; }
     public ICollection<CourseEmployeeType> CourseEmployeeTypes { get; set; }
+
+    public int ClinicId { get; set; }
+    public Clinic Clinic { get; set; }
 }
 

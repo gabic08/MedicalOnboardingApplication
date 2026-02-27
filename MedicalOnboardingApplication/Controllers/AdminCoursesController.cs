@@ -2,25 +2,35 @@
 using MedicalOnboardingApplication.Models;
 using MedicalOnboardingApplication.ViewModels;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace MedicalOnboardingApplication.Controllers
 {
     [Authorize(Roles = "Admin")]
+    [RequireClinic]
     public class AdminCoursesController : Controller
     {
         private readonly MedicalOnboardingApplicationContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public AdminCoursesController(MedicalOnboardingApplicationContext context)
+        public AdminCoursesController(MedicalOnboardingApplicationContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: Courses
         public async Task<IActionResult> Index(int? employeeTypeId, string search)
         {
+            var clinicId = await GetCurrentClinicId();
+
+            if (clinicId == null)
+                return Forbid();
+
             var coursesQuery = _context.Courses
+                .Where(c => c.ClinicId == clinicId)
                 .Include(c => c.CourseEmployeeTypes)
                     .ThenInclude(cet => cet.EmployeeType)
                 .AsQueryable();
@@ -55,6 +65,10 @@ namespace MedicalOnboardingApplication.Controllers
 
         public async Task<IActionResult> Manage(int id)
         {
+            var clinicId = await GetCurrentClinicId();
+            if (clinicId == null)
+                return Forbid();
+
             var course = await _context.Courses
                 .Include(c => c.CourseEmployeeTypes)
                     .ThenInclude(cet => cet.EmployeeType)
@@ -62,7 +76,7 @@ namespace MedicalOnboardingApplication.Controllers
                     .ThenInclude(ch => ch.Attachments)
                 .Include(t => t.Questions)
                     .ThenInclude(q => q.Answers)
-                .FirstOrDefaultAsync(c => c.Id == id);
+                .FirstOrDefaultAsync(c => c.Id == id && c.ClinicId == clinicId);
 
             if (course == null)
                 return NotFound();
@@ -90,6 +104,10 @@ namespace MedicalOnboardingApplication.Controllers
         // GET: Courses/Create
         public async Task<IActionResult> Create()
         {
+            var clinicId = await GetCurrentClinicId();
+            if (clinicId == null)
+                return Forbid();
+
             var lastOrder = await _context.Courses
                 .OrderByDescending(c => c.Order)
                 .Select(c => c.Order)
@@ -118,6 +136,10 @@ namespace MedicalOnboardingApplication.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CourseViewModel model)
         {
+            var clinicId = await GetCurrentClinicId();
+            if (clinicId == null)
+                return Forbid();
+
             // Normalize title
             model.Title = model.Title?.Trim();
 
@@ -177,7 +199,8 @@ namespace MedicalOnboardingApplication.Controllers
             {
                 Title = model.Title,
                 Description = model.Description,
-                Order = requestedOrder
+                Order = requestedOrder,
+                ClinicId = clinicId.Value
             };
 
             _context.Courses.Add(course);
@@ -244,10 +267,13 @@ namespace MedicalOnboardingApplication.Controllers
 
                 return View(model);
             }
+            var clinicId = await GetCurrentClinicId();
+            if (clinicId == null)
+                return Forbid();
 
             var course = await _context.Courses
                 .Include(c => c.CourseEmployeeTypes)
-                .FirstOrDefaultAsync(c => c.Id == id);
+                .FirstOrDefaultAsync(c => c.Id == id && c.ClinicId == clinicId);
 
             if (course == null)
                 return NotFound();
@@ -320,9 +346,13 @@ namespace MedicalOnboardingApplication.Controllers
             {
                 return NotFound();
             }
+            var clinicId = await GetCurrentClinicId();
+            if (clinicId == null)
+                return Forbid();
+
 
             var course = await _context.Courses
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Id == id && m.ClinicId == clinicId);
             if (course == null)
             {
                 return NotFound();
@@ -336,8 +366,12 @@ namespace MedicalOnboardingApplication.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            var clinicId = await GetCurrentClinicId();
+            if (clinicId == null)
+                return Forbid();
+
             var course = await _context.Courses
-                .FirstOrDefaultAsync(c => c.Id == id);
+                .FirstOrDefaultAsync(c => c.Id == id && c.ClinicId == clinicId);
 
             if (course == null)
                 return RedirectToAction(nameof(Index));
@@ -361,6 +395,14 @@ namespace MedicalOnboardingApplication.Controllers
             await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
+        }
+
+        private async Task<int?> GetCurrentClinicId()
+        {
+            var currentAdmin = await _userManager.Users
+                .FirstOrDefaultAsync(u => u.UserName == User.Identity.Name);
+
+            return currentAdmin?.ClinicId;
         }
     }
 }

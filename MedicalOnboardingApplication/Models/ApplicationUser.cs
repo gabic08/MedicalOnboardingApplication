@@ -2,7 +2,7 @@
 
 namespace MedicalOnboardingApplication.Models;
 
-public class ApplicationUser : IdentityUser
+public class ApplicationUser : IdentityUser<int>
 {
     public int? EmployeeTypeId { get; set; }
     public EmployeeType EmployeeType { get; set; }
@@ -11,4 +11,5 @@ public class ApplicationUser : IdentityUser
     public int? ClinicId { get; set; }
     public Clinic Clinic { get; set; }
     public string ProfileImagePath { get; set; }
+    public List<ApplicationUserRole> UserRoles { get; set; } = new();
 }

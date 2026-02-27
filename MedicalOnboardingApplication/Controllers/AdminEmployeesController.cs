@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 namespace MedicalOnboardingApplication.Controllers;
 
 [Authorize(Roles = "Admin")]
+[RequireClinic]
 public class AdminEmployeesController : Controller
 {
     private readonly UserManager<ApplicationUser> _userManager;
@@ -32,9 +33,10 @@ public class AdminEmployeesController : Controller
             .FirstOrDefaultAsync(u => u.UserName == User.Identity.Name);
 
         var employees = await _userManager.Users
-            .Include(u => u.EmployeeType)
-            .Where(u => u.ClinicId == currentAdmin.ClinicId)
-            .ToListAsync();
+             .Include(u => u.EmployeeType)
+             .Where(u => u.ClinicId == currentAdmin.ClinicId
+                      && u.UserRoles.Any(ur => ur.Role.Name != "Admin"))
+             .ToListAsync();
 
         return View(employees);
     }
@@ -92,7 +94,7 @@ public class AdminEmployeesController : Controller
     // ============================
     // EDIT
     // ============================
-    public async Task<IActionResult> Edit(string id)
+    public async Task<IActionResult> Edit(int id)
     {
         var user = await _userManager.Users
             .FirstOrDefaultAsync(u => u.Id == id);
@@ -131,7 +133,7 @@ public class AdminEmployeesController : Controller
     // ============================
     // DELETE
     // ============================
-    public async Task<IActionResult> Delete(string id)
+    public async Task<IActionResult> Delete(int id)
     {
         var user = await _userManager.Users
             .Include(u => u.EmployeeType)
