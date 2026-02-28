@@ -33,7 +33,8 @@ public class ClinicController : Controller
         if (user == null)
             return NotFound();
 
-        // If clinic doesn't exist yet, send empty model
+        ViewBag.AutoEdit = user.Clinic == null;
+
         return View(user.Clinic ?? new Clinic());
     }
 

@@ -96,4 +96,9 @@
         document.getElementById('saveSection').classList.remove('d-none');
         document.getElementById('editButton').classList.add('d-none');
     }
+
+    // Auto-enable edit if no clinic exists yet
+    if (@Json.Serialize(ViewBag.AutoEdit)) {
+        enableEdit();
+    }
 </script>
