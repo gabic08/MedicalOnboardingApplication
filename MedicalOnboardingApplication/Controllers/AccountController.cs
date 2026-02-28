@@ -23,12 +23,14 @@ namespace MedicalOnboardingApplication.Controllers
         }
 
         [HttpGet]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Login(string returnUrl = null)
         {
-            return View(new LoginViewModel
-            {
-                ReturnUrl = returnUrl
-            });
+            // Redirect already-authenticated users away from login page
+            if (User.Identity?.IsAuthenticated == true)
+                return LocalRedirect("/");
+
+            return View(new LoginViewModel { ReturnUrl = returnUrl });
         }
 
         [HttpPost]

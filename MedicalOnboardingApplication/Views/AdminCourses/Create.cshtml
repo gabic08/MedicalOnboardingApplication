@@ -5,7 +5,12 @@
     ViewData["Title"] = "Create Course";
 }
 
-<h1>Create Course</h1>
+<div class="mb-4">
+    <a asp-action="Index" class="btn btn-outline-secondary mb-2">
+        <i class="bi bi-arrow-left"></i> Back to Courses
+    </a>
+    <h1 class="mb-0">Create Course</h1>
+</div>
 
 <form asp-action="Create" method="post">
     @Html.AntiForgeryToken()

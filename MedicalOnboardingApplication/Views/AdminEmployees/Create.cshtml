@@ -1,24 +1,25 @@
 ﻿@model MedicalOnboardingApplication.Models.ApplicationUser
 
-<h2 class="mb-4">Create Employee</h2>
+<div class="mb-4">
+    <a asp-controller="AdminEmployees" asp-action="Index" class="btn btn-outline-secondary mb-2">
+        <i class="bi bi-arrow-left"></i> Back to Employees
+    </a>
+    <h2 class="mb-0">Create Employee</h2>
+</div>
 
 <form asp-action="Create" method="post">
-
     <div class="mb-3">
         <label>Email</label>
         <input asp-for="Email" class="form-control" />
     </div>
-
     <div class="mb-3">
         <label>First Name</label>
         <input asp-for="FirstName" class="form-control" />
     </div>
-
     <div class="mb-3">
         <label>Last Name</label>
         <input asp-for="LastName" class="form-control" />
     </div>
-
     <div class="mb-3">
         <label>Employee Type</label>
         <select asp-for="EmployeeTypeId"
@@ -26,13 +27,10 @@
                 class="form-select">
         </select>
     </div>
-
     <div class="alert alert-info">
         Default password will be: <strong>P@ssw0rd</strong>
     </div>
-
     <button type="submit" class="btn btn-primary">
         Create Employee
     </button>
-
 </form>

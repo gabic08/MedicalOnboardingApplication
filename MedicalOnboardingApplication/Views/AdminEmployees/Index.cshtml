@@ -1,15 +1,18 @@
 ﻿@model IEnumerable<MedicalOnboardingApplication.Models.ApplicationUser>
 
-<h2 class="mb-4">Employees</h2>
+<div class="mb-4">
+    <a asp-controller="Admin" asp-action="Index" class="btn btn-outline-secondary mb-2">
+        <i class="bi bi-arrow-left"></i> Back to Dashboard
+    </a>
+    <h2 class="mb-0">Employees</h2>
+</div>
 
 <div class="d-flex justify-content-between align-items-center mb-3">
-
-    <div>
+    <div class="d-flex gap-2">
         <a asp-action="Create" class="btn btn-primary">
             <i class="bi bi-plus"></i> Add Employee
         </a>
     </div>
-
     <div>
         <a asp-controller="EmployeeTypes"
            asp-action="Index"
@@ -17,7 +20,6 @@
             <i class="bi bi-briefcase"></i> Manage Employee Types
         </a>
     </div>
-
 </div>
 
 <table class="table table-striped shadow-sm">
