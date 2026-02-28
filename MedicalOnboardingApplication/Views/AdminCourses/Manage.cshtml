@@ -155,21 +155,21 @@
                                     }
                                 </p>
 
-                                <div class="mb-2">
-                                    <a asp-controller="Chapters"
-                                       asp-action="Edit"
-                                       asp-route-id="@chapter.Id"
-                                       class="btn btn-sm btn-outline-primary me-1">
-                                        Edit
-                                    </a>
+                                <a asp-controller="Chapters"
+                                   asp-action="Edit"
+                                   asp-route-id="@chapter.Id"
+                                   class="btn btn-sm btn-outline-primary me-1">
+                                    Edit
+                                </a>
 
-                                    <a asp-controller="Chapters"
-                                       asp-action="Delete"
-                                       asp-route-id="@chapter.Id"
-                                       class="btn btn-sm btn-outline-danger">
-                                        Delete
-                                    </a>
-                                </div>
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-danger"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#deleteChapterModal"
+                                        data-chapter-id="@chapter.Id"
+                                        data-chapter-title="@chapter.Title">
+                                    Delete
+                                </button>
 
                                 <!-- Attachments -->
                                 <h6 class="mt-3">Attachments</h6>
@@ -273,12 +273,14 @@
                                 Edit
                             </a>
 
-                            <a asp-controller="Questions"
-                               asp-action="Delete"
-                               asp-route-id="@q.Id"
-                               class="btn btn-sm btn-outline-danger">
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-danger"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#deleteQuestionModal"
+                                    data-question-id="@q.Id"
+                                    data-question-text="@q.Text">
                                 Delete
-                            </a>
+                            </button>
                         </div>
                     </div>
                 }
@@ -296,6 +298,99 @@
       class="d-none">
     @Html.AntiForgeryToken()
 </form>
+
+<form id="deleteChapterForm"
+      asp-controller="Chapters"
+      asp-action="DeleteConfirmed"
+      method="post"
+      class="d-none">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="id" id="deleteChapterId" />
+</form>
+
+<form id="deleteQuestionForm"
+      asp-controller="Questions"
+      asp-action="Delete"
+      method="post"
+      class="d-none">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="id" id="deleteQuestionId" />
+</form>
+
+<div class="modal fade" id="deleteQuestionModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-danger">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    Confirm Question Deletion
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete <strong id="deleteQuestionText"></strong>?</p>
+                <div class="alert alert-warning mb-0">
+                    This will also delete all answers associated with it.
+                    This action cannot be undone.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button"
+                        class="btn btn-danger"
+                        onclick="document.getElementById('deleteQuestionForm').submit();">
+                    Yes, Delete
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade"
+     id="deleteChapterModal"
+     tabindex="-1"
+     aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title text-danger">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    Confirm Chapter Deletion
+                </h5>
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal">
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <p>
+                    Are you sure you want to delete
+                    <strong id="deleteChapterTitle"></strong>?
+                </p>
+                <div class="alert alert-warning mb-0">
+                    This will also delete all attachments associated with it.
+                    This action cannot be undone.
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+                    Cancel
+                </button>
+                <button type="button"
+                        class="btn btn-danger"
+                        onclick="document.getElementById('deleteChapterForm').submit();">
+                    Yes, Delete
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
 
 <div class="modal fade"
      id="deleteCourseModal"
@@ -351,12 +446,10 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-
     <script>
         function toggleContent(id, link) {
             const shortEl = document.getElementById(id + "_short");
             const fullEl = document.getElementById(id + "_full");
-
             if (fullEl.classList.contains("d-none")) {
                 shortEl.classList.add("d-none");
                 fullEl.classList.remove("d-none");
@@ -367,6 +460,17 @@
                 link.innerText = "See more";
             }
         }
-    </script>
 
+        document.getElementById('deleteChapterModal').addEventListener('show.bs.modal', function (e) {
+            const btn = e.relatedTarget;
+            document.getElementById('deleteChapterId').value = btn.getAttribute('data-chapter-id');
+            document.getElementById('deleteChapterTitle').innerText = btn.getAttribute('data-chapter-title');
+        });
+
+        document.getElementById('deleteQuestionModal').addEventListener('show.bs.modal', function (e) {
+            const btn = e.relatedTarget;
+            document.getElementById('deleteQuestionId').value = btn.getAttribute('data-question-id');
+            document.getElementById('deleteQuestionText').innerText = btn.getAttribute('data-question-text');
+        });
+    </script>
 }

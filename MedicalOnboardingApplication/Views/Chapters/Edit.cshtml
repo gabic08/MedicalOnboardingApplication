@@ -6,15 +6,23 @@
     ViewData["Title"] = "Edit Chapter";
 }
 
-<h1 class="mb-4">Edit Chapter</h1>
+<div class="mb-3">
+    <a asp-controller="AdminCourses"
+       asp-action="Manage"
+       asp-route-id="@Model.CourseId"
+       class="btn btn-outline-secondary mb-2">
+        <i class="bi bi-arrow-left"></i> Back to Course
+    </a>
+    <h1 class="mb-0">Edit Chapter</h1>
+</div>
 
-<div class="row">
-    <div class="col-lg-7">
+<div class="row g-3" style="height: calc(100vh - 180px);">
 
-        <!-- CHAPTER FORM -->
-        <div class="card shadow-sm mb-4">
-            <div class="card-body">
-                <form asp-action="Edit" method="post">
+    <!-- CHAPTER FORM -->
+    <div class="col-lg-6 h-100">
+        <div class="card shadow-sm h-100">
+            <div class="card-body d-flex flex-column">
+                <form asp-action="Edit" method="post" class="d-flex flex-column flex-grow-1">
                     @Html.AntiForgeryToken()
 
                     <input type="hidden" asp-for="Id" />
@@ -34,23 +42,16 @@
                         <span asp-validation-for="Order" class="text-danger"></span>
                     </div>
 
-                    <div class="mb-3">
+                    <div class="mb-3 flex-grow-1 d-flex flex-column">
                         <label asp-for="Content" class="form-label"></label>
                         <textarea asp-for="Content"
-                                  class="form-control"
-                                  rows="18"
+                                  class="form-control flex-grow-1"
+                                  style="resize: none; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.6;"
                                   placeholder="Write your chapter content here..."></textarea>
                         <span asp-validation-for="Content" class="text-danger"></span>
                     </div>
 
-                    <div class="d-flex justify-content-between">
-                        <a asp-controller="AdminCourses"
-                           asp-action="Manage"
-                           asp-route-id="@Model.CourseId"
-                           class="btn btn-outline-secondary">
-                            Back to Course
-                        </a>
-
+                    <div class="d-flex justify-content-end">
                         <button type="submit" class="btn btn-primary">
                             <i class="bi bi-save"></i> Save Changes
                         </button>
@@ -61,9 +62,9 @@
     </div>
 
     <!-- ATTACHMENTS PANEL -->
-    <div class="col-lg-5">
-        <div class="card shadow-sm">
-            <div class="card-body">
+    <div class="col-lg-6 h-100">
+        <div class="card shadow-sm h-100">
+            <div class="card-body d-flex flex-column">
 
                 <h5 class="mb-3">Attachments</h5>
 
@@ -73,7 +74,6 @@
                       method="post"
                       enctype="multipart/form-data"
                       class="mb-3">
-
                     @Html.AntiForgeryToken()
                     <input type="hidden" name="chapterId" value="@Model.Id" />
 
@@ -83,72 +83,66 @@
                                class="form-control"
                                accept=".jpg,.jpeg,.png,.gif,.webp,.mp4,.webm,.mov,.pdf"
                                required />
-
                         <button class="btn btn-success" type="submit">
                             <i class="bi bi-upload"></i>
                         </button>
                     </div>
-
-                    <small class="text-muted">
-                        Allowed: Images, Videos, PDF
-                    </small>
+                    <small class="text-muted">Allowed: Images, Videos, PDF</small>
                 </form>
 
                 <!-- ATTACHMENTS LIST -->
-                @if (Model.Attachments == null || !Model.Attachments.Any())
-                {
-                    <div class="alert alert-info">
-                        No attachments added yet.
-                    </div>
-                }
-                else
-                {
-                    <ul class="list-group list-group-flush">
-                        @foreach (var att in Model.Attachments)
-                        {
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <div class="d-flex align-items-center gap-2">
-                                    @if (att.Type == AttachmentType.Image)
-                                    {
-                                        <i class="bi bi-image"></i>
-                                    }
-                                    else if (att.Type == AttachmentType.Video)
-                                    {
-                                        <i class="bi bi-camera-video"></i>
-                                    }
-                                    else if (att.Type == AttachmentType.Pdf)
-                                    {
-                                        <i class="bi bi-file-earmark-pdf"></i>
-                                    }
-
-                                    <span class="text-truncate" style="max-width: 200px;">
-                                        @att.FileName
-                                    </span>
-                                </div>
-
-                                <div class="d-flex gap-2">
-                                    <a href="@att.FilePath"
-                                       target="_blank"
-                                       class="btn btn-sm btn-outline-secondary">
-                                        Open
-                                    </a>
-
-                                    <form asp-controller="ChapterAttachments"
-                                          asp-action="Delete"
-                                          asp-route-id="@att.Id"
-                                          method="post"
-                                          onsubmit="return confirm('Delete this attachment?');">
-                                        @Html.AntiForgeryToken()
-                                        <button type="submit"
-                                                class="btn btn-sm btn-outline-danger">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </form>
-                                </div>
-                            </li>
-                        }
-                    </ul>
-                }
+                <div class="flex-grow-1 overflow-auto">
+                    @if (Model.Attachments == null || !Model.Attachments.Any())
+                    {
+                        <div class="alert alert-info">
+                            No attachments added yet.
+                        </div>
+                    }
+                    else
+                    {
+                        <ul class="list-group list-group-flush">
+                            @foreach (var att in Model.Attachments)
+                            {
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center gap-2">
+                                        @if (att.Type == AttachmentType.Image)
+                                        {
+                                            <i class="bi bi-image"></i>
+                                        }
+                                        else if (att.Type == AttachmentType.Video)
+                                        {
+                                            <i class="bi bi-camera-video"></i>
+                                        }
+                                        else if (att.Type == AttachmentType.Pdf)
+                                        {
+                                            <i class="bi bi-file-earmark-pdf"></i>
+                                        }
+                                        <span class="text-truncate" style="max-width: 200px;">
+                                            @att.FileName
+                                        </span>
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        <a href="@att.FilePath"
+                                           target="_blank"
+                                           class="btn btn-sm btn-outline-secondary">
+                                            Open
+                                        </a>
+                                        <form asp-controller="ChapterAttachments"
+                                              asp-action="Delete"
+                                              asp-route-id="@att.Id"
+                                              method="post"
+                                              onsubmit="return confirm('Delete this attachment?');">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                    }
+                </div>
 
             </div>
         </div>
