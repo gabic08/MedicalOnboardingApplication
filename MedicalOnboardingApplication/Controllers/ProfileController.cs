@@ -22,7 +22,6 @@ public class ProfileController : Controller
     public async Task<IActionResult> UserProfile()
     {
         var user = await _userManager.GetUserAsync(User);
-
         if (user == null)
             return RedirectToAction("Login", "Account");
 
@@ -46,13 +45,15 @@ public class ProfileController : Controller
     public async Task<IActionResult> UserProfile(UserProfileViewModel vm)
     {
         var user = await _userManager.GetUserAsync(User);
-
         if (user == null)
             return RedirectToAction("Login", "Account");
 
         if (!ModelState.IsValid)
         {
             vm.ExistingProfileImagePath = user.ProfileImagePath;
+            vm.CurrentPassword = null;
+            vm.NewPassword = null;
+            vm.ConfirmNewPassword = null;
             return View(vm);
         }
 
@@ -60,8 +61,21 @@ public class ProfileController : Controller
         user.FirstName = vm.FirstName;
         user.LastName = vm.LastName;
 
-        // Handle image upload
-        if (vm.NewProfileImage != null && vm.NewProfileImage.Length > 0)
+        // Handle image removal
+        if (vm.RemoveProfileImage)
+        {
+            // Delete old file from disk if it exists
+            if (!string.IsNullOrEmpty(user.ProfileImagePath))
+            {
+                var oldPath = Path.Combine(_env.WebRootPath,
+                    user.ProfileImagePath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
+                if (System.IO.File.Exists(oldPath))
+                    System.IO.File.Delete(oldPath);
+            }
+            user.ProfileImagePath = null;
+        }
+        // Handle image upload (only if not removing)
+        else if (vm.NewProfileImage != null && vm.NewProfileImage.Length > 0)
         {
             var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
             var extension = Path.GetExtension(vm.NewProfileImage.FileName).ToLower();
@@ -71,6 +85,15 @@ public class ProfileController : Controller
                 ModelState.AddModelError("NewProfileImage", "Only image files are allowed.");
                 vm.ExistingProfileImagePath = user.ProfileImagePath;
                 return View(vm);
+            }
+
+            // Delete old file from disk if it exists
+            if (!string.IsNullOrEmpty(user.ProfileImagePath))
+            {
+                var oldPath = Path.Combine(_env.WebRootPath,
+                    user.ProfileImagePath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
+                if (System.IO.File.Exists(oldPath))
+                    System.IO.File.Delete(oldPath);
             }
 
             var uploadsFolder = Path.Combine(_env.WebRootPath, "uploads", "profiles");
@@ -105,9 +128,7 @@ public class ProfileController : Controller
         }
 
         await _userManager.UpdateAsync(user);
-
         TempData["Success"] = "Profile updated successfully.";
-
         return RedirectToAction(nameof(UserProfile));
     }
 }

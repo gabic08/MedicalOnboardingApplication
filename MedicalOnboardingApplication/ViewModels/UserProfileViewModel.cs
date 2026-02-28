@@ -14,9 +14,11 @@ public class UserProfileViewModel
 
     public IFormFile NewProfileImage { get; set; }
 
+    public bool RemoveProfileImage { get; set; }
+
     // Password section
     [DataType(DataType.Password)]
-    public string? CurrentPassword { get; set; }
+    public string CurrentPassword { get; set; }
 
     [DataType(DataType.Password)]
     [MinLength(6)]
@@ -24,5 +26,5 @@ public class UserProfileViewModel
 
     [DataType(DataType.Password)]
     [Compare("NewPassword")]
-    public string ConfirmNewPassword { get; set; }
+    public string? ConfirmNewPassword { get; set; }
 }
