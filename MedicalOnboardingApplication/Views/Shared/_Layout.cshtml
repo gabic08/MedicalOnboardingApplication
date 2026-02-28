@@ -1,4 +1,9 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Identity
+@using MedicalOnboardingApplication.Models
+@inject UserManager<ApplicationUser> LayoutUserManager
+@using Microsoft.EntityFrameworkCore
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -15,10 +20,29 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
-                <!-- Brand -->
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
-                    MedicalOnboardingApplication
-                </a>
+                @{
+                    if (User.Identity?.IsAuthenticated == true)
+                    {
+                        var layoutUser = await LayoutUserManager.Users
+                            .Include(u => u.Clinic)
+                            .FirstOrDefaultAsync(u => u.UserName == User.Identity.Name);
+
+                        if (layoutUser.Clinic == null)
+                        {
+                            <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                                MedicalOnboardingApplication
+                            </a>
+                        }
+                        else
+                        {
+                            <a class="navbar-brand fw-semibold" asp-area="" asp-controller="Home" asp-action="Index">
+                                <i class="bi bi-hospital me-1"></i> @layoutUser.Clinic?.Name
+                            </a>
+                        }
+                    }
+                }
+
+                
 
                 <!-- Toggler for small screens -->
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarRight"
@@ -31,13 +55,6 @@
                     @if (User.Identity?.IsAuthenticated == true)
                     {
                         <div class="d-flex align-items-center gap-2 ms-auto">
-
-                            <!-- Profile Button -->
-@*                             <a asp-controller="Profile"
-                               asp-action="UserProfile"
-                               class="btn btn-outline-primary btn-sm">
-                                <i class="bi bi-person-circle"></i> Profile
-                            </a> *@
                             <partial name="_ProfileButtonPartial" />
 
                             <!-- Logout Button (opens modal) -->
