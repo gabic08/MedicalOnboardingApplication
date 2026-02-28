@@ -7,6 +7,22 @@
         <h1 class="fw-bold">Admin Dashboard</h1>
         <p class="text-muted">Manage your onboarding system from one place</p>
     </div>
+
+    @if (!hasClinic)
+    {
+        <div class="alert alert-warning d-flex align-items-center gap-3 mb-4 shadow-sm" role="alert">
+            <i class="bi bi-exclamation-triangle-fill fs-4 flex-shrink-0"></i>
+            <div>
+                <strong>Clinic not configured.</strong>
+                You need to set up your clinic before you can manage employees and courses.
+                <a asp-controller="Clinic" asp-action="Details" class="alert-link ms-1">
+                    Set up your clinic →
+                </a>
+            </div>
+        </div>
+    }
+
+
     <div class="row justify-content-center g-4">
         <!-- Courses Card -->
         <div class="col-md-5 col-lg-4">

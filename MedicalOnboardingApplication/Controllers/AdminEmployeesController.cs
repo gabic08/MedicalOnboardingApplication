@@ -23,27 +23,41 @@ public class AdminEmployeesController : Controller
         _context = context;
     }
 
-    // ============================
-    // INDEX
-    // ============================
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(string search, int? employeeTypeId)
     {
         var currentAdmin = await _userManager.Users
             .Include(u => u.Clinic)
             .FirstOrDefaultAsync(u => u.UserName == User.Identity.Name);
 
-        var employees = await _userManager.Users
-             .Include(u => u.EmployeeType)
-             .Where(u => u.ClinicId == currentAdmin.ClinicId
-                      && u.UserRoles.Any(ur => ur.Role.Name != "Admin"))
-             .ToListAsync();
+        var query = _userManager.Users
+            .Include(u => u.EmployeeType)
+            .Where(u => u.ClinicId == currentAdmin.ClinicId
+                     && u.UserRoles.Any(ur => ur.Role.Name != "Admin"));
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = search.Trim().ToLower();
+            query = query.Where(u =>
+                u.FirstName.ToLower().Contains(term) ||
+                u.LastName.ToLower().Contains(term) ||
+                u.Email.ToLower().Contains(term) ||
+                (u.EmployeeType != null && u.EmployeeType.Name.ToLower().Contains(term)));
+        }
+
+        if (employeeTypeId.HasValue)
+        {
+            query = query.Where(u => u.EmployeeTypeId == employeeTypeId.Value);
+        }
+
+        var employees = await query.ToListAsync();
+
+        ViewBag.Search = search;
+        ViewBag.EmployeeTypeId = employeeTypeId;
+        ViewBag.EmployeeTypes = await _context.EmployeeTypes.ToListAsync();
 
         return View(employees);
     }
 
-    // ============================
-    // CREATE
-    // ============================
     public IActionResult Create()
     {
         ViewBag.EmployeeTypes = new SelectList(
@@ -91,9 +105,6 @@ public class AdminEmployeesController : Controller
         return View(model);
     }
 
-    // ============================
-    // EDIT
-    // ============================
     public async Task<IActionResult> Edit(int id)
     {
         var user = await _userManager.Users
@@ -128,21 +139,6 @@ public class AdminEmployeesController : Controller
         await _userManager.UpdateAsync(user);
 
         return RedirectToAction(nameof(Index));
-    }
-
-    // ============================
-    // DELETE
-    // ============================
-    public async Task<IActionResult> Delete(int id)
-    {
-        var user = await _userManager.Users
-            .Include(u => u.EmployeeType)
-            .FirstOrDefaultAsync(u => u.Id == id);
-
-        if (user == null)
-            return NotFound();
-
-        return View(user);
     }
 
     [HttpPost, ActionName("Delete")]

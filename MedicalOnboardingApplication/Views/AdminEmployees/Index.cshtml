@@ -22,6 +22,49 @@
     </div>
 </div>
 
+@{
+    var search = ViewBag.Search as string;
+    var employeeTypeId = ViewBag.EmployeeTypeId as int?;
+    var employeeTypes = ViewBag.EmployeeTypes as List<MedicalOnboardingApplication.Models.EmployeeType>;
+}
+
+<div class="mb-3">
+    <form method="get" class="row g-2 align-items-center">
+        <div class="col-md-5">
+            <input type="text"
+                   name="search"
+                   value="@search"
+                   class="form-control"
+                   placeholder="Search by name or email..." />
+        </div>
+        <div class="col-md-4">
+            <select name="employeeTypeId" class="form-select">
+                <option value="">All Employee Types</option>
+                @foreach (var type in employeeTypes)
+                {
+                    <option value="@type.Id" selected="@(employeeTypeId == type.Id)">
+                        @type.Name
+                    </option>
+                }
+            </select>
+        </div>
+        <div class="col-md-auto">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-search"></i> Search
+            </button>
+        </div>
+        @if (!string.IsNullOrEmpty(search) || employeeTypeId.HasValue)
+        {
+            <div class="col-md-auto">
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="bi bi-x"></i> Clear
+                </a>
+            </div>
+        }
+    </form>
+</div>
+
+
 <div class="card shadow-sm border-0">
     <div class="card-body p-0">
         <table class="table table-hover align-middle mb-0">
@@ -63,9 +106,14 @@
                             <a asp-action="Edit" asp-route-id="@emp.Id" class="btn btn-sm btn-outline-warning me-1">
                                 <i class="bi bi-pencil me-1"></i> Edit
                             </a>
-                            <a asp-action="Delete" asp-route-id="@emp.Id" class="btn btn-sm btn-outline-danger">
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-danger"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#deleteEmployeeModal"
+                                    data-employee-id="@emp.Id"
+                                    data-employee-name="@emp.FirstName @emp.LastName">
                                 <i class="bi bi-trash me-1"></i> Delete
-                            </a>
+                            </button>
                         </td>
                     </tr>
                 }
@@ -73,3 +121,49 @@
         </table>
     </div>
 </div>
+
+<form id="deleteEmployeeForm"
+      asp-action="Delete"
+      method="post"
+      class="d-none">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="id" id="deleteEmployeeId" />
+</form>
+
+<div class="modal fade" id="deleteEmployeeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title text-danger">
+                    <i class="bi bi-exclamation-triangle me-2"></i> Delete Employee
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete <strong id="deleteEmployeeName"></strong>?</p>
+                <div class="alert alert-warning small mb-0">
+                    <i class="bi bi-info-circle me-1"></i>
+                    This action cannot be undone.
+                </div>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button"
+                        class="btn btn-danger"
+                        onclick="document.getElementById('deleteEmployeeForm').submit();">
+                    <i class="bi bi-trash me-1"></i> Yes, Delete
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('deleteEmployeeModal').addEventListener('show.bs.modal', function (e) {
+            const btn = e.relatedTarget;
+            document.getElementById('deleteEmployeeId').value = btn.getAttribute('data-employee-id');
+            document.getElementById('deleteEmployeeName').innerText = btn.getAttribute('data-employee-name');
+        });
+    </script>
+}

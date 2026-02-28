@@ -1,4 +1,4 @@
-﻿@model IEnumerable<MedicalOnboardingApplication.Models.Course>
+﻿@* @model IEnumerable<MedicalOnboardingApplication.Models.Course>
 
 @{
     ViewData["Title"] = "AdminCourses";
@@ -96,3 +96,122 @@
         }
     </tbody>
 </table>
+ *@
+
+@model IEnumerable<MedicalOnboardingApplication.Models.Course>
+@{
+    ViewData["Title"] = "AdminCourses";
+    var employeeTypes = ViewBag.EmployeeTypes as List<MedicalOnboardingApplication.Models.EmployeeType>;
+    var selectedTypeId = ViewBag.SelectedEmployeeTypeId as int?;
+    var search = ViewBag.Search as string;
+}
+
+<div class="mb-4">
+    <a asp-controller="Admin"
+       asp-action="Index"
+       class="btn btn-outline-secondary mb-2">
+        <i class="bi bi-arrow-left"></i> Back to Dashboard
+    </a>
+    <h1 class="mb-0">Courses</h1>
+</div>
+
+<!-- Search & Filter -->
+<div class="mb-3">
+    <form method="get" class="row g-2 align-items-center">
+        <div class="col-md-4">
+            <input type="text"
+                   name="search"
+                   value="@search"
+                   class="form-control"
+                   placeholder="Search title or description..." />
+        </div>
+        <div class="col-md-3">
+            <select name="employeeTypeId" class="form-select">
+                <option value="">All Employee Types</option>
+                @foreach (var type in employeeTypes)
+                {
+                    <option value="@type.Id" selected="@(selectedTypeId == type.Id)">
+                        @type.Name
+                    </option>
+                }
+            </select>
+        </div>
+        <div class="col-md-auto">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-search"></i> Search
+            </button>
+        </div>
+        @if (!string.IsNullOrEmpty(search) || selectedTypeId.HasValue)
+        {
+            <div class="col-md-auto">
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="bi bi-x"></i> Clear
+                </a>
+            </div>
+        }
+        <div class="col-md-auto ms-auto">
+            <a asp-action="Create" class="btn btn-success">
+                <i class="bi bi-plus-circle me-1"></i> New Course
+            </a>
+        </div>
+    </form>
+</div>
+
+<!-- Courses Table -->
+<div class="card shadow-sm border-0">
+    <div class="card-body p-0">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th class="ps-4" style="width: 80px;">Order</th>
+                    <th style="width: 25%;">Title</th>
+                    <th>Employee Types</th>
+                    <th style="width: 200px;"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var course in Model)
+                {
+                    <tr>
+                        <td class="ps-4">
+                            <span class="badge bg-secondary rounded-pill">@course.Order</span>
+                        </td>
+                        <td class="fw-semibold">@course.Title</td>
+                        <td>
+                            @foreach (var cet in course.CourseEmployeeTypes)
+                            {
+                                <span class="badge bg-secondary bg-opacity-10 text-secondary me-1">
+                                    <i class="bi bi-person-badge me-1"></i>@cet.EmployeeType.Name
+                                </span>
+                            }
+                        </td>
+                        <td class="text-end pe-4">
+                            <div class="d-flex justify-content-end gap-2">
+                                <a asp-controller="Courses"
+                                   asp-action="Details"
+                                   asp-route-id="@course.Id"
+                                   class="btn btn-sm btn-outline-info">
+                                    <i class="bi bi-eye me-1"></i> View
+                                </a>
+                                <a asp-action="Manage"
+                                   asp-route-id="@course.Id"
+                                   class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-sliders me-1"></i> Manage
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="4" class="text-center py-5 text-muted">
+                            <i class="bi bi-journal-x fs-1 d-block mb-2 opacity-25"></i>
+                            No courses found.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
