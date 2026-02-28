@@ -33,11 +33,12 @@
                         <div class="d-flex align-items-center gap-2 ms-auto">
 
                             <!-- Profile Button -->
-                            <a asp-controller="Profile"
+@*                             <a asp-controller="Profile"
                                asp-action="UserProfile"
                                class="btn btn-outline-primary btn-sm">
                                 <i class="bi bi-person-circle"></i> Profile
-                            </a>
+                            </a> *@
+                            <partial name="_ProfileButtonPartial" />
 
                             <!-- Logout Button (opens modal) -->
                             <button type="button"

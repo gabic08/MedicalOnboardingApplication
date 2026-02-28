@@ -1,0 +1,23 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject UserManager<MedicalOnboardingApplication.Models.ApplicationUser> UserManager
+@inject SignInManager<MedicalOnboardingApplication.Models.ApplicationUser> SignInManager
+
+@if (SignInManager.IsSignedIn(User))
+{
+    var user = await UserManager.GetUserAsync(User);
+    <a asp-controller="Profile"
+       asp-action="UserProfile"
+       class="btn btn-outline-primary btn-sm d-flex align-items-center gap-2">
+        @if (user?.ProfileImagePath != null)
+        {
+            <img src="@user.ProfileImagePath"
+                 class="rounded-circle"
+                 style="width: 24px; height: 24px; object-fit: cover;" />
+        }
+        else
+        {
+            <i class="bi bi-person-circle"></i>
+        }
+        Profile
+    </a>
+}

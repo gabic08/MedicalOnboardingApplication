@@ -1,57 +1,71 @@
 ﻿@using MedicalOnboardingApplication.ViewModels
 @model LoginViewModel
-
 @{
     ViewData["Title"] = "Login";
 }
 
-<div class="row justify-content-center">
-    <div class="col-md-4">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <h4 class="mb-3">Login</h4>
+<div class="d-flex justify-content-center align-items-center py-5">
+    <div class="col-md-7 col-lg-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-6">
+
+                <div class="text-center mb-4">
+                    <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                         style="width: 64px; height: 64px;">
+                        <i class="bi bi-person-circle fs-3 text-primary"></i>
+                    </div>
+                    <h4 class="fw-semibold mb-0">Welcome Back</h4>
+                    <p class="text-muted small mt-1">Sign in to your account</p>
+                </div>
 
                 <form asp-action="Login" method="post" novalidate>
                     @Html.AntiForgeryToken()
-
                     <input type="hidden" asp-for="ReturnUrl" />
 
-                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small mb-3"></div>
 
                     <div class="mb-3">
-                        <label asp-for="Email" class="form-label"></label>
-                        <input asp-for="Email" class="form-control" />
-                        <span asp-validation-for="Email" class="text-danger"></span>
+                        <label asp-for="Email" class="form-label fw-semibold small"></label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                            <input asp-for="Email" class="form-control" placeholder="Enter your email" />
+                        </div>
+                        <span asp-validation-for="Email" class="text-danger small"></span>
                     </div>
 
-                    <label asp-for="Password" class="form-label"></label>
-                    <div class="mb-3 d-flex align-items-center">
-                        <input asp-for="Password"
-                               id="passwordField"
-                               class="form-control"
-                               type="password"
-                               autocomplete="new-password" />
-                        <button type="button"
-                                class="btn btn-outline-secondary ms-2 toggle-password"
-                                data-target="passwordField"
-                                tabindex="-1">
-                            <i class="fas fa-eye"></i>
-                        </button>
+                    <div class="mb-4">
+                        <label asp-for="Password" class="form-label fw-semibold small"></label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                            <input asp-for="Password"
+                                   id="passwordField"
+                                   class="form-control"
+                                   type="password"
+                                   placeholder="Enter your password"
+                                   autocomplete="new-password" />
+                            <button type="button"
+                                    class="btn btn-outline-secondary toggle-password"
+                                    data-target="passwordField"
+                                    tabindex="-1">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                        <span asp-validation-for="Password" class="text-danger small"></span>
                     </div>
-                    <span asp-validation-for="Password" class="text-danger"></span>
 
-                    <button class="btn btn-primary w-100" type="submit">
-                        Login
+                    <button class="btn btn-primary w-100 py-2" type="submit">
+                        <i class="bi bi-box-arrow-in-right me-1"></i> Login
                     </button>
 
                     <div class="text-center mt-3">
                         <a asp-action="RegisterClinicAdmin"
-                           asp-controller="Account">
-                            Register as a clinic admin
+                           asp-controller="Account"
+                           class="text-decoration-none text-muted small">
+                            Don't have an account? <span class="text-primary">Register as a clinic admin</span>
                         </a>
                     </div>
-
                 </form>
+
             </div>
         </div>
     </div>
@@ -59,17 +73,13 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-
     <script>
-        $(document).ready(function () {
-            $('.toggle-password').on('click', function () {
-                const target = $('#' + $(this).data('target'));
-                const type = target.attr('type') === 'password' ? 'text' : 'password';
-                target.attr('type', type);
-
-                $(this).find('i')
-                       .toggleClass('fa-eye')
-                       .toggleClass('fa-eye-slash');
+        document.querySelectorAll('.toggle-password').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const target = document.getElementById(this.dataset.target);
+                target.type = target.type === 'password' ? 'text' : 'password';
+                this.querySelector('i').classList.toggle('bi-eye');
+                this.querySelector('i').classList.toggle('bi-eye-slash');
             });
         });
     </script>
