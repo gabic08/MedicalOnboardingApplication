@@ -32,11 +32,6 @@ public class ProfileController : Controller
             ExistingProfileImagePath = user.ProfileImagePath
         };
 
-        if (vm.ExistingProfileImagePath == null)
-        {
-            vm.ExistingProfileImagePath = "/required/NoProfileImage.jpg";
-        }
-
         return View(vm);
     }
 
