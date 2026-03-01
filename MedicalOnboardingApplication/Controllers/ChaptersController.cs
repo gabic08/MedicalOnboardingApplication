@@ -214,11 +214,70 @@ public class ChaptersController : Controller
             .Include(c => c.Attachments)
             .Include(c => c.Course)
                 .ThenInclude(c => c.Chapters)
+                    .ThenInclude(ch => ch.Progress)
             .FirstOrDefaultAsync(c => c.Id == id);
 
         if (chapter == null)
             return NotFound();
 
+        var user = await _context.Users
+            .FirstOrDefaultAsync(u => u.UserName == User.Identity.Name);
+
+        ViewBag.IsAdmin = User.IsInRole("Admin");
+        ViewBag.CompletedChapterIds = await _context.UserChapterProgress
+            .Where(p => p.UserId == user.Id)
+            .Select(p => p.ChapterId)
+            .ToListAsync();
+
         return View(chapter);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> MarkComplete(int chapterId)
+    {
+        var user = await _context.Users
+            .FirstOrDefaultAsync(u => u.UserName == User.Identity.Name);
+
+        if (user == null)
+            return Unauthorized();
+
+        var alreadyCompleted = await _context.UserChapterProgress
+            .AnyAsync(p => p.UserId == user.Id && p.ChapterId == chapterId);
+
+        if (!alreadyCompleted)
+        {
+            _context.UserChapterProgress.Add(new UserChapterProgress
+            {
+                UserId = user.Id,
+                ChapterId = chapterId,
+                CompletedAt = DateTime.UtcNow
+            });
+            await _context.SaveChangesAsync();
+        }
+
+        return RedirectToAction("Details", new { id = chapterId });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UnmarkComplete(int chapterId)
+    {
+        var user = await _context.Users
+            .FirstOrDefaultAsync(u => u.UserName == User.Identity.Name);
+
+        if (user == null)
+            return Unauthorized();
+
+        var progress = await _context.UserChapterProgress
+            .FirstOrDefaultAsync(p => p.UserId == user.Id && p.ChapterId == chapterId);
+
+        if (progress != null)
+        {
+            _context.UserChapterProgress.Remove(progress);
+            await _context.SaveChangesAsync();
+        }
+
+        return RedirectToAction("Details", new { id = chapterId });
     }
 }

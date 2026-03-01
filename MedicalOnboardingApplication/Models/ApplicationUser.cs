@@ -12,4 +12,5 @@ public class ApplicationUser : IdentityUser<int>
     public Clinic Clinic { get; set; }
     public string ProfileImagePath { get; set; }
     public List<ApplicationUserRole> UserRoles { get; set; } = new();
+    public List<UserChapterProgress> ChapterProgress { get; set; } = new();
 }

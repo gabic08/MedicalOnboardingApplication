@@ -12,4 +12,5 @@ public class Chapter
     public int Order { get; set; }
 
     public List<ChapterAttachment> Attachments { get; set; } = new();
+    public List<UserChapterProgress> Progress { get; set; } = new();
 }

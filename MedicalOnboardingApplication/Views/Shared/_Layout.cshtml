@@ -17,17 +17,19 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                @{
-                    if (User.Identity?.IsAuthenticated == true)
-                    {
-                        var layoutUser = await LayoutUserManager.Users
-                            .Include(u => u.Clinic)
-                            .FirstOrDefaultAsync(u => u.UserName == User.Identity.Name);
 
-                        if (layoutUser.Clinic == null)
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <header>
+            <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom box-shadow mb-3">
+                <div class="container-fluid">
+
+                    @{
+                        var layoutUser = await LayoutUserManager.Users
+                        .Include(u => u.Clinic)
+                        .FirstOrDefaultAsync(u => u.UserName == User.Identity.Name);
+
+                        if (layoutUser?.Clinic == null)
                         {
                             <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
                                 MedicalOnboardingApplication
@@ -36,85 +38,72 @@
                         else
                         {
                             <a class="navbar-brand fw-semibold" asp-area="" asp-controller="Home" asp-action="Index">
-                                <i class="bi bi-hospital me-1"></i> @layoutUser.Clinic?.Name
+                                <i class="bi bi-hospital me-1"></i> @layoutUser.Clinic.Name
                             </a>
                         }
                     }
-                }
 
-                
+                    <!-- Toggler for small screens -->
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarRight"
+                            aria-controls="navbarRight" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
 
-                <!-- Toggler for small screens -->
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarRight"
-                        aria-controls="navbarRight" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-
-                <!-- Right-side buttons -->
-                <div class="collapse navbar-collapse justify-content-end" id="navbarRight">
-                    @if (User.Identity?.IsAuthenticated == true)
-                    {
+                    <!-- Right-side buttons -->
+                    <div class="collapse navbar-collapse justify-content-end" id="navbarRight">
                         <div class="d-flex align-items-center gap-2 ms-auto">
                             <partial name="_ProfileButtonPartial" />
 
-                            <!-- Logout Button (opens modal) -->
                             <button type="button"
                                     class="btn btn-outline-danger btn-sm"
                                     data-bs-toggle="modal"
                                     data-bs-target="#logoutModal">
                                 <i class="bi bi-box-arrow-right"></i> Logout
                             </button>
-
                         </div>
-                    }
+                    </div>
+
                 </div>
-            </div>
-        </nav>
-    </header>
-    
-    <form id="logoutForm"
-          asp-controller="Account"
-          asp-action="Logout"
-          method="post"
-          class="d-none">
-        @Html.AntiForgeryToken()
-    </form>
+            </nav>
+        </header>
 
-    <div class="modal fade" id="logoutModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
+        <form id="logoutForm"
+              asp-controller="Account"
+              asp-action="Logout"
+              method="post"
+              class="d-none">
+            @Html.AntiForgeryToken()
+        </form>
 
-                <div class="modal-header">
-                    <h5 class="modal-title">Confirm Logout</h5>
-                    <button type="button"
-                            class="btn-close"
-                            data-bs-dismiss="modal"
-                            aria-label="Close"></button>
+        <div class="modal fade" id="logoutModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Confirm Logout</h5>
+                        <button type="button"
+                                class="btn-close"
+                                data-bs-dismiss="modal"
+                                aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        Are you sure you want to logout?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button"
+                                class="btn btn-secondary"
+                                data-bs-dismiss="modal">
+                            Cancel
+                        </button>
+                        <button type="button"
+                                class="btn btn-danger"
+                                onclick="document.getElementById('logoutForm').submit();">
+                            Yes, Logout
+                        </button>
+                    </div>
                 </div>
-
-                <div class="modal-body">
-                    Are you sure you want to logout?
-                </div>
-
-                <div class="modal-footer">
-                    <button type="button"
-                            class="btn btn-secondary"
-                            data-bs-dismiss="modal">
-                        Cancel
-                    </button>
-
-                    <button type="button"
-                            class="btn btn-danger"
-                            onclick="document.getElementById('logoutForm').submit();" >
-                        Yes, Logout
-                    </button>
-                </div>
-
             </div>
         </div>
-    </div>
-
-
+    }
 
     <div class="container">
         <main role="main" class="pb-3">
@@ -122,11 +111,15 @@
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - MedicalOnboardingApplication - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <footer class="border-top footer text-muted mt-4">
+            <div class="container">
+                &copy; 2026 - MedicalOnboardingApplication - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            </div>
+        </footer>
+    }
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
