@@ -26,6 +26,13 @@ builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
 
 var app = builder.Build();
 
+// Auto-run migrations on startup
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<MedicalOnboardingApplicationContext>();
+    db.Database.Migrate();
+}
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {

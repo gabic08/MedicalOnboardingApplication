@@ -256,7 +256,7 @@ public class ChaptersController : Controller
             await _context.SaveChangesAsync();
         }
 
-        return RedirectToAction("Details", new { id = chapterId });
+        return Ok();
     }
 
     [HttpPost]
@@ -278,6 +278,6 @@ public class ChaptersController : Controller
             await _context.SaveChangesAsync();
         }
 
-        return RedirectToAction("Details", new { id = chapterId });
+        return Ok();
     }
 }
