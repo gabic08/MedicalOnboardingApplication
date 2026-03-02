@@ -256,6 +256,41 @@ public class ChaptersController : Controller
             await _context.SaveChangesAsync();
         }
 
+        // Check if all chapters in the course are now completed
+        var chapter = await _context.Chapters
+            .Include(c => c.Course)
+                .ThenInclude(c => c.Chapters)
+            .FirstOrDefaultAsync(c => c.Id == chapterId);
+
+        if (chapter != null)
+        {
+            var allChapterIds = chapter.Course.Chapters.Select(c => c.Id).ToList();
+
+            var completedChapterIds = await _context.UserChapterProgress
+                .Where(p => p.UserId == user.Id && allChapterIds.Contains(p.ChapterId))
+                .Select(p => p.ChapterId)
+                .ToListAsync();
+
+            bool allCompleted = allChapterIds.All(id => completedChapterIds.Contains(id));
+
+            if (allCompleted)
+            {
+                var alreadyCourseCompleted = await _context.UserCourseProgress
+                    .AnyAsync(p => p.UserId == user.Id && p.CourseId == chapter.CourseId);
+
+                if (!alreadyCourseCompleted)
+                {
+                    _context.UserCourseProgress.Add(new UserCourseProgress
+                    {
+                        UserId = user.Id,
+                        CourseId = chapter.CourseId,
+                        CompletedAt = DateTime.UtcNow
+                    });
+                    await _context.SaveChangesAsync();
+                }
+            }
+        }
+
         return Ok();
     }
 
@@ -275,6 +310,18 @@ public class ChaptersController : Controller
         if (progress != null)
         {
             _context.UserChapterProgress.Remove(progress);
+
+            // Also remove course completion since not all chapters are done anymore
+            var chapter = await _context.Chapters.FirstOrDefaultAsync(c => c.Id == chapterId);
+            if (chapter != null)
+            {
+                var courseProgress = await _context.UserCourseProgress
+                    .FirstOrDefaultAsync(p => p.UserId == user.Id && p.CourseId == chapter.CourseId);
+
+                if (courseProgress != null)
+                    _context.UserCourseProgress.Remove(courseProgress);
+            }
+
             await _context.SaveChangesAsync();
         }
 

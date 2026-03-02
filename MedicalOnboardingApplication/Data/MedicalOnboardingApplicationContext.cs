@@ -24,6 +24,7 @@ namespace MedicalOnboardingApplication.Data
         public DbSet<ChapterAttachment> ChapterAttachments { get; set; }
         public DbSet<Clinic> Clinics { get; set; }
         public DbSet<UserChapterProgress> UserChapterProgress { get; set; }
+        public DbSet<UserCourseProgress> UserCourseProgress { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -12,5 +12,6 @@ public class Course
 
     public int ClinicId { get; set; }
     public Clinic Clinic { get; set; }
+    public List<UserCourseProgress> CourseProgress { get; set; } = new();
 }
 

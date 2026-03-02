@@ -6,6 +6,11 @@
     string backUrl = isAdmin
         ? Url.Action("Index", "AdminCourses")
         : Url.Action("Index", "Courses");
+
+    var completedIds = ViewBag.CompletedChapterIds as List<int> ?? new List<int>();
+    var totalChapters = Model.Chapters?.Count ?? 0;
+    var completedCount = !isAdmin ? completedIds.Count : 0;
+    var isCourseCompleted = !isAdmin && totalChapters > 0 && completedCount == totalChapters;
 }
 
 <!-- ========================= -->
@@ -27,6 +32,33 @@
     </div>
 </div>
 
+@if (!isAdmin && totalChapters > 0)
+{
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="fw-semibold">Your Progress</span>
+                @if (isCourseCompleted)
+                {
+                    <span class="badge bg-success px-3 py-2">
+                        <i class="bi bi-trophy-fill me-1"></i> Course Completed!
+                    </span>
+                }
+                else
+                {
+                    <span class="text-muted small">@completedCount / @totalChapters chapters completed</span>
+                }
+            </div>
+            <div class="progress" style="height: 8px;">
+                <div class="progress-bar @(isCourseCompleted ? "bg-success" : "")"
+                     role="progressbar"
+                     style="width: @(totalChapters > 0 ? (completedCount * 100 / totalChapters) : 0)%">
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
 <!-- ========================= -->
 <!-- CHAPTERS LIST -->
 <!-- ========================= -->
@@ -38,24 +70,38 @@
 }
 else
 {
-    <div class="card shadow-sm rounded-3 border-0">
+   @*  <div class="card shadow-sm rounded-3 border-0">
         <div class="card-body">
             <h5 class="fw-semibold mb-3">Chapters</h5>
 
+            <div class="list-group"> *@
+    <div class="card shadow-sm rounded-3 border-0">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-semibold mb-0">Chapters</h5>
+                <span class="badge bg-secondary bg-opacity-10 text-secondary px-3 py-2">
+                    <i class="bi bi-journals me-1"></i> @totalChapters chapters
+                </span>
+            </div>
             <div class="list-group">
                 @foreach (var chapter in Model.Chapters.OrderBy(c => c.Order))
                 {
+                    var chCompleted = !isAdmin && completedIds.Contains(chapter.Id);
                     <a asp-controller="Chapters"
                        asp-action="Details"
                        asp-route-id="@chapter.Id"
-                       class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-3 px-4 mb-2 rounded shadow-sm border-0"
+                       class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-3 px-4 mb-2 rounded shadow-sm border-0 @(chCompleted ? "border-start border-success border-3" : "")"
                        style="transition: all 0.2s ease-in-out;">
-
                         <div class="d-flex align-items-center gap-3">
-                            <span class="badge bg-primary fs-6">@chapter.Order</span>
+                            <span class="badge @(chCompleted ? "bg-success" : "bg-primary") fs-6">@chapter.Order</span>
                             <span class="fw-medium fs-6">@chapter.Title</span>
+                            @if (chCompleted)
+                            {
+                                <span class="badge bg-success bg-opacity-10 text-success small">
+                                    <i class="bi bi-check-circle-fill me-1"></i> Completed
+                                </span>
+                            }
                         </div>
-
                         <i class="bi bi-chevron-right fs-5 text-secondary"></i>
                     </a>
                 }

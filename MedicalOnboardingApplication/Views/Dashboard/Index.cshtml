@@ -1,0 +1,79 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h1 class="fw-bold">Welcome back!</h1>
+        <p class="text-muted">Continue your onboarding journey from where you left off</p>
+    </div>
+
+    <div class="row justify-content-center g-4">
+
+        <!-- Courses Card -->
+        <div class="col-md-5 col-lg-4">
+            <a asp-controller="Courses" asp-action="Index" class="text-decoration-none">
+                <div class="card shadow-lg border-0 h-100 dashboard-card">
+                    <div class="card-body text-center p-5">
+                        <div class="mb-4 text-primary">
+                            <i class="bi bi-journal-text display-3"></i>
+                        </div>
+                        <h3 class="fw-bold mb-2">Courses</h3>
+                        <p class="text-muted">
+                            Browse and complete your assigned onboarding courses
+                        </p>
+                        <div class="mt-4">
+                            <span class="btn btn-primary px-4">
+                                View Courses
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Tests Card (coming soon) -->
+        <div class="col-md-5 col-lg-4">
+            <div class="card shadow-lg border-0 h-100 dashboard-card disabled-card">
+                <div class="card-body text-center p-5">
+                    <div class="mb-4 text-warning">
+                        <i class="bi bi-patch-question display-3"></i>
+                    </div>
+                    <h3 class="fw-bold mb-2">Tests</h3>
+                    <p class="text-muted">
+                        Take adaptive tests to assess your knowledge and track your progress
+                    </p>
+                    <div class="mt-4">
+                        <span class="btn btn-warning px-4 disabled">
+                            Coming Soon
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+    .dashboard-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        border-radius: 1rem;
+    }
+
+        .dashboard-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.15);
+        }
+
+    .disabled-card {
+        opacity: 0.6;
+        pointer-events: none;
+        cursor: not-allowed;
+    }
+
+        .disabled-card:hover {
+            transform: none;
+            box-shadow: none;
+        }
+</style>

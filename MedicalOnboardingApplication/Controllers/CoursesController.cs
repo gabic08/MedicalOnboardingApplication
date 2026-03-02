@@ -16,27 +16,78 @@ public class CoursesController : Controller
     }
 
     // GET: Courses
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(string search, string filter = "all")
     {
-        var courses = await _context.Courses
+        var user = await _context.Users
+            .Include(u => u.EmployeeType)
+            .FirstOrDefaultAsync(u => u.UserName == User.Identity.Name);
+
+        var query = _context.Courses
             .Include(c => c.CourseEmployeeTypes)
                 .ThenInclude(cet => cet.EmployeeType)
-            .OrderBy(c => c.Order)
+            .Include(c => c.Chapters)
+            .Where(c => c.CourseEmployeeTypes.Any(cet => cet.EmployeeTypeId == user.EmployeeTypeId));
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = search.Trim().ToLower();
+            query = query.Where(c =>
+                c.Title.ToLower().Contains(term) ||
+                c.Description.ToLower().Contains(term));
+        }
+
+        var courses = await query.OrderBy(c => c.Order).ToListAsync();
+
+        var completedCourseIds = await _context.UserCourseProgress
+            .Where(p => p.UserId == user.Id)
+            .Select(p => p.CourseId)
             .ToListAsync();
+
+        var completedChapterIds = await _context.UserChapterProgress
+            .Where(p => p.UserId == user.Id)
+            .Select(p => p.ChapterId)
+            .ToListAsync();
+
+        // Apply completion filter in memory
+        courses = filter switch
+        {
+            "completed" => courses.Where(c => completedCourseIds.Contains(c.Id)).ToList(),
+            "notcompleted" => courses.Where(c => !completedCourseIds.Contains(c.Id)).ToList(),
+            _ => courses
+        };
+
+        ViewBag.Search = search;
+        ViewBag.Filter = filter;
+        ViewBag.CompletedCourseIds = completedCourseIds;
+        ViewBag.CompletedChapterIds = completedChapterIds;
 
         return View(courses);
     }
 
     // GET: Courses/Details/5
-    public async Task<IActionResult> Details(int id)
+    public async Task<IActionResult> Details(int? id)
     {
+        if (id == null)
+            return NotFound();
+
         var course = await _context.Courses
-            .Include(c => c.Chapters.OrderBy(ch => ch.Order))
-            .ThenInclude(ch => ch.Attachments)
+            .Include(c => c.Chapters)
             .FirstOrDefaultAsync(c => c.Id == id);
 
         if (course == null)
             return NotFound();
+
+        if (!User.IsInRole("Admin"))
+        {
+            var user = await _context.Users
+                .FirstOrDefaultAsync(u => u.UserName == User.Identity.Name);
+
+            ViewBag.CompletedChapterIds = await _context.UserChapterProgress
+                .Where(p => p.UserId == user.Id &&
+                            course.Chapters.Select(c => c.Id).Contains(p.ChapterId))
+                .Select(p => p.ChapterId)
+                .ToListAsync();
+        }
 
         return View(course);
     }

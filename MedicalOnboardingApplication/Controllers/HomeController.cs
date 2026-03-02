@@ -20,20 +20,15 @@ public class HomeController : Controller
         if (User.Identity.IsAuthenticated)
         {
             var user = await _userManager.GetUserAsync(User);
-
             if (user != null && await _userManager.IsInRoleAsync(user, "Admin"))
             {
-                // Admin goes to admin dashboard
                 return RedirectToAction("Index", "Admin");
             }
             else
             {
-                // Regular user goes to normal courses page
-                return RedirectToAction("Index", "Courses");
+                return RedirectToAction("Index", "Dashboard");
             }
         }
-
-        // Not logged in → maybe show public home page
         return View();
     }
 

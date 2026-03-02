@@ -218,7 +218,7 @@ namespace MedicalOnboardingApplication.Controllers
 
             await _context.SaveChangesAsync();
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Manage", "AdminCourses", new { id = course.Id });
         }
 
 

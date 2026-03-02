@@ -13,4 +13,5 @@ public class ApplicationUser : IdentityUser<int>
     public string ProfileImagePath { get; set; }
     public List<ApplicationUserRole> UserRoles { get; set; } = new();
     public List<UserChapterProgress> ChapterProgress { get; set; } = new();
+    public List<UserCourseProgress> CourseProgress { get; set; } = new();
 }
