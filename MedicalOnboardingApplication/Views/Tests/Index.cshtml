@@ -1,0 +1,168 @@
+﻿@model IEnumerable<MedicalOnboardingApplication.Models.TestSession>
+@{
+    ViewData["Title"] = "Tests";
+    var canStart = ViewBag.CanStartTest as bool? ?? false;
+    var questionCount = ViewBag.QuestionCount as int? ?? 0;
+}
+
+<div class="mb-4">
+    <a asp-controller="Dashboard" asp-action="Index" class="btn btn-outline-secondary mb-2">
+        <i class="bi bi-arrow-left"></i> Back to Dashboard
+    </a>
+    <h1 class="mb-0">Tests</h1>
+</div>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-circle me-2"></i> @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<!-- Start Test Card -->
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body p-4">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h5 class="fw-semibold mb-1">
+                    <i class="bi bi-patch-question me-2 text-warning"></i> Adaptive Test
+                </h5>
+                <p class="text-muted small mb-0">
+                    The test consists of 15 questions. Difficulty adjusts automatically based on your performance.
+                    Questions are drawn from courses assigned to your employee type.
+                </p>
+                @if (!canStart)
+                {
+                    <div class="alert alert-warning small mt-3 mb-0 py-2">
+                        <i class="bi bi-exclamation-triangle me-1"></i>
+                        Not enough questions available (@questionCount found, 15 required).
+                        Ask your admin to add more questions.
+                    </div>
+                }
+            </div>
+            <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                @if (canStart)
+                {
+                    <form asp-action="Start" method="post">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-warning px-4 py-2">
+                            <i class="bi bi-play-circle me-2"></i> Start New Test
+                        </button>
+                    </form>
+                }
+                else
+                {
+                    <button class="btn btn-warning px-4 py-2 disabled" disabled>
+                        <i class="bi bi-play-circle me-2"></i> Start New Test
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Test History -->
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+        <h5 class="mb-0 fw-semibold">
+            <i class="bi bi-clock-history me-2 text-primary"></i> Test History
+            <span class="badge bg-primary bg-opacity-10 text-primary ms-1">@Model.Count()</span>
+        </h5>
+    </div>
+    <div class="card-body p-0">
+        @if (!Model.Any())
+        {
+            <div class="text-center py-5 text-muted">
+                <i class="bi bi-journal-x fs-1 d-block mb-2 opacity-25"></i>
+                No tests taken yet. Start your first test above!
+            </div>
+        }
+        else
+        {
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">Date</th>
+                        <th>Score</th>
+                        <th>Correct</th>
+                        <th>Final Difficulty</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var session in Model)
+                    {
+                        var scorePct = session.TotalQuestions > 0
+                        ? (int)Math.Round((double)session.CorrectAnswers / session.TotalQuestions * 100)
+                        : 0;
+
+                        var scoreColor = scorePct >= 80 ? "text-success"
+                        : scorePct >= 50 ? "text-warning"
+                        : "text-danger";
+
+                        var diffLabel = session.FinalDifficulty switch
+                        {
+                            1 => ("bg-success", "1 - Very Easy"),
+                            2 => ("bg-primary", "2 - Easy"),
+                            3 => ("bg-warning text-dark", "3 - Medium"),
+                            4 => ("bg-orange", "4 - Hard"),
+                            5 => ("bg-danger", "5 - Very Hard"),
+                            _ => ("bg-secondary", session.FinalDifficulty.ToString())
+                        };
+
+                        <tr>
+                            <td class="ps-4">
+                                <span class="fw-semibold">@session.StartedAt.ToLocalTime().ToString("dd MMM yyyy")</span>
+                                <br />
+                                <small class="text-muted">@session.StartedAt.ToLocalTime().ToString("HH:mm")</small>
+                            </td>
+                            <td>
+                                <span class="fw-bold fs-5 @scoreColor">@scorePct%</span>
+                            </td>
+                            <td class="text-muted">
+                                @session.CorrectAnswers / @session.TotalQuestions
+                            </td>
+                            <td>
+                                <span class="badge @diffLabel.Item1">@diffLabel.Item2</span>
+                            </td>
+                            <td>
+                                @if (session.IsCompleted)
+                                {
+                                    <span class="badge bg-success bg-opacity-10 text-success">
+                                        <i class="bi bi-check-circle me-1"></i> Completed
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning bg-opacity-10 text-warning">
+                                        <i class="bi bi-hourglass-split me-1"></i> In Progress
+                                    </span>
+                                }
+                            </td>
+                            <td class="text-end pe-4">
+                                @if (session.IsCompleted)
+                                {
+                                    <a asp-action="Complete"
+                                       asp-route-sessionId="@session.Id"
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-bar-chart me-1"></i> View Results
+                                    </a>
+                                }
+                                else
+                                {
+                                    <a asp-action="Question"
+                                       asp-route-sessionId="@session.Id"
+                                       class="btn btn-sm btn-outline-warning">
+                                        <i class="bi bi-play-circle me-1"></i> Continue
+                                    </a>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>

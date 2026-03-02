@@ -14,4 +14,5 @@ public class ApplicationUser : IdentityUser<int>
     public List<ApplicationUserRole> UserRoles { get; set; } = new();
     public List<UserChapterProgress> ChapterProgress { get; set; } = new();
     public List<UserCourseProgress> CourseProgress { get; set; } = new();
+    public List<TestSession> TestSessions { get; set; } = new();
 }
