@@ -32,20 +32,14 @@ public class QuestionsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(CreateQuestionViewModel vm)
     {
-        var validAnswers = vm.Answers
-            .Where(a => !string.IsNullOrWhiteSpace(a))
-            .ToList();
-
-        if (validAnswers.Count < 2)
+        if (vm.Answers.Any(a => string.IsNullOrWhiteSpace(a)) == true)
         {
-            ModelState.AddModelError("", "A question must have at least 2 answers.");
+            ModelState.AddModelError("", "Please remove any empty answers.");
         }
 
-        if (vm.CorrectAnswerIndex < 0 ||
-            vm.CorrectAnswerIndex >= vm.Answers.Count ||
-            string.IsNullOrWhiteSpace(vm.Answers[vm.CorrectAnswerIndex]))
+        if (vm.Answers.Count < 2)
         {
-            ModelState.AddModelError("", "Please select a valid correct answer.");
+            ModelState.AddModelError("", "A question must have at least 2 answers.");
         }
 
         if (!ModelState.IsValid)
