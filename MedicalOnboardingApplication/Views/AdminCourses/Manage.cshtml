@@ -270,7 +270,8 @@
                                     data-bs-toggle="modal"
                                     data-bs-target="#deleteQuestionModal"
                                     data-question-id="@q.Id"
-                                    data-question-text="@q.Text">
+                                    data-question-text="@q.Text"
+                                    data-course-id="@course.Id">
                                 <i class="bi bi-trash me-1"></i> Delete
                             </button>
                         </div>
@@ -293,10 +294,14 @@
     <input type="hidden" name="id" id="deleteChapterId" />
 </form>
 
-<form id="deleteQuestionForm" asp-controller="Questions" asp-action="Delete"
-      method="post" class="d-none">
+<form id="deleteQuestionForm"
+      asp-controller="Questions"
+      asp-action="Delete"
+      method="post"
+      class="d-none">
     @Html.AntiForgeryToken()
     <input type="hidden" name="id" id="deleteQuestionId" />
+    <input type="hidden" name="courseId" id="deleteQuestionCourseId" />
 </form>
 
 <!-- Delete Question Modal -->
@@ -412,6 +417,7 @@
             const btn = e.relatedTarget;
             document.getElementById('deleteQuestionId').value = btn.getAttribute('data-question-id');
             document.getElementById('deleteQuestionText').innerText = btn.getAttribute('data-question-text');
+            document.getElementById('deleteQuestionCourseId').value = btn.getAttribute('data-course-id');
         });
     </script>
 }
