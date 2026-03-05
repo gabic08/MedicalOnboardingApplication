@@ -17,6 +17,11 @@ public class CoursesController : Controller
 
     public async Task<IActionResult> Index(string search, string filter = "all")
     {
+        if (User.IsInRole("Admin"))
+        {
+            return RedirectToAction("Index", "AdminCourses");
+        }
+
         var user = await _context.Users
             .Include(u => u.EmployeeType)
             .FirstOrDefaultAsync(u => u.UserName == User.Identity.Name);

@@ -1,11 +1,9 @@
 ﻿using MedicalOnboardingApplication.Data;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace MedicalOnboardingApplication.Controllers;
 
-[Authorize(Roles = "Employee")]
 public class DashboardController : Controller
 {
     private readonly MedicalOnboardingApplicationContext _context;
@@ -17,6 +15,11 @@ public class DashboardController : Controller
 
     public async Task<IActionResult> Index()
     {
+        if (User.IsInRole("Admin"))
+        {
+            return RedirectToAction("Index", "Admin");
+        }
+
         var user = await _context.Users
             .Include(u => u.EmployeeType)
             .FirstOrDefaultAsync(u => u.UserName == User.Identity.Name);

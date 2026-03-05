@@ -153,4 +153,98 @@ public class AdminEmployeesController : Controller
 
         return RedirectToAction(nameof(Index));
     }
+
+    public async Task<IActionResult> Report(int id)
+    {
+        var admin = await _userManager.Users
+            .Include(u => u.Clinic)
+            .FirstOrDefaultAsync(u => u.UserName == User.Identity.Name);
+
+        if (admin?.ClinicId == null)
+            return RedirectToAction("Index", "Admin");
+
+        var employee = await _userManager.Users
+            .Include(u => u.EmployeeType)
+            .Include(u => u.Clinic)
+            .FirstOrDefaultAsync(u => u.Id == id && u.ClinicId == admin.ClinicId);
+
+        if (employee == null)
+            return NotFound();
+
+        var assignedCourses = await _context.Courses
+            .Include(c => c.Chapters)
+            .Include(c => c.CourseEmployeeTypes)
+            .Where(c => c.CourseEmployeeTypes
+                .Any(cet => cet.EmployeeTypeId == employee.EmployeeTypeId))
+            .OrderBy(c => c.Order)
+            .ToListAsync();
+
+        var completedCourseIds = await _context.UserCourseProgress
+            .Where(p => p.UserId == employee.Id)
+            .Select(p => p.CourseId)
+            .ToListAsync();
+
+        var completedChapterIds = await _context.UserChapterProgress
+            .Where(p => p.UserId == employee.Id)
+            .Select(p => p.ChapterId)
+            .ToListAsync();
+
+        var chapterProgressMap = await _context.UserChapterProgress
+            .Where(p => p.UserId == employee.Id)
+            .ToDictionaryAsync(p => p.ChapterId, p => p.CompletedAt);
+
+        var courseProgressMap = await _context.UserCourseProgress
+            .Where(p => p.UserId == employee.Id)
+            .ToDictionaryAsync(p => p.CourseId, p => p.CompletedAt);
+
+        var testSessions = await _context.TestSessions
+            .Where(s => s.UserId == employee.Id && s.IsCompleted)
+            .OrderBy(s => s.StartedAt)
+            .ToListAsync();
+
+        const double passingScore = 70.0;
+
+        bool allCoursesCompleted = assignedCourses.Any() &&
+            assignedCourses.All(c => completedCourseIds.Contains(c.Id));
+
+        double averageTestScore = testSessions.Any()
+            ? testSessions.Average(s => s.TotalQuestions > 0
+                ? (double)s.CorrectAnswers / s.TotalQuestions * 100
+                : 0)
+            : 0;
+
+        bool isCompliant = allCoursesCompleted && averageTestScore >= passingScore;
+
+        string nonCompliantReason = "";
+        if (!isCompliant)
+        {
+            if (!assignedCourses.Any())
+                nonCompliantReason = "No courses assigned.";
+            else if (!allCoursesCompleted)
+            {
+                var remaining = assignedCourses.Count(c => !completedCourseIds.Contains(c.Id));
+                nonCompliantReason = $"{remaining} course(s) not yet completed.";
+            }
+            else if (!testSessions.Any())
+                nonCompliantReason = "No tests taken yet.";
+            else
+                nonCompliantReason = $"Average test score is {averageTestScore:0.0}%, required ≥ {passingScore}%.";
+        }
+
+        ViewBag.Employee = employee;
+        ViewBag.AssignedCourses = assignedCourses;
+        ViewBag.CompletedCourseIds = completedCourseIds;
+        ViewBag.CompletedChapterIds = completedChapterIds;
+        ViewBag.ChapterProgressMap = chapterProgressMap;
+        ViewBag.CourseProgressMap = courseProgressMap;
+        ViewBag.TestSessions = testSessions;
+        ViewBag.IsCompliant = isCompliant;
+        ViewBag.NonCompliantReason = nonCompliantReason;
+        ViewBag.AverageTestScore = averageTestScore;
+        ViewBag.PassingScore = passingScore;
+        ViewBag.ReportDate = DateTime.Now;
+        ViewBag.ClinicName = admin.Clinic?.Name;
+
+        return View();
+    }
 }

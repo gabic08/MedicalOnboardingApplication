@@ -1,13 +1,10 @@
 ﻿using MedicalOnboardingApplication.Data;
 using MedicalOnboardingApplication.Models;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-
 namespace MedicalOnboardingApplication.Controllers;
 
-[Authorize(Roles = "Employee")]
 public class TestsController : Controller
 {
     private readonly MedicalOnboardingApplicationContext _context;
@@ -26,6 +23,11 @@ public class TestsController : Controller
     // GET: Tests/Index
     public async Task<IActionResult> Index()
     {
+        if (User.IsInRole("Admin"))
+        {
+            return RedirectToAction("Index", "Admin");
+        }
+
         var user = await _context.Users
             .Include(u => u.EmployeeType)
             .FirstOrDefaultAsync(u => u.UserName == User.Identity.Name);

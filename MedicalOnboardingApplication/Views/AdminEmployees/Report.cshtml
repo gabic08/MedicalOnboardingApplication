@@ -1,0 +1,378 @@
+﻿@{
+    ViewData["Title"] = "Employee Report";
+
+    var employee = ViewBag.Employee as MedicalOnboardingApplication.Models.ApplicationUser;
+    var assignedCourses = ViewBag.AssignedCourses as List<MedicalOnboardingApplication.Models.Course> ?? new();
+    var completedCourseIds = ViewBag.CompletedCourseIds as List<int> ?? new();
+    var completedChapterIds = ViewBag.CompletedChapterIds as List<int> ?? new();
+    var chapterProgressMap = ViewBag.ChapterProgressMap as Dictionary<int, DateTime> ?? new();
+    var courseProgressMap = ViewBag.CourseProgressMap as Dictionary<int, DateTime> ?? new();
+    var testSessions = ViewBag.TestSessions as List<MedicalOnboardingApplication.Models.TestSession> ?? new();
+    var isCompliant = ViewBag.IsCompliant as bool? ?? false;
+    var nonCompliantReason = ViewBag.NonCompliantReason as string ?? "";
+    var averageTestScore = ViewBag.AverageTestScore as double? ?? 0;
+    var passingScore = ViewBag.PassingScore as double? ?? 70;
+    var reportDate = ViewBag.ReportDate as DateTime? ?? DateTime.Now;
+    var clinicName = ViewBag.ClinicName as string ?? "";
+
+    var bestScore = testSessions.Any()
+        ? testSessions.Max(s => s.TotalQuestions > 0 ? (double)s.CorrectAnswers / s.TotalQuestions * 100 : 0)
+        : 0;
+    var latestScore = testSessions.Any()
+        ? (double)testSessions.Last().CorrectAnswers / testSessions.Last().TotalQuestions * 100
+        : 0;
+}
+
+<div class="mb-4 d-flex justify-content-between align-items-center">
+    <div>
+        <a asp-controller="AdminEmployees" asp-action="Index" class="btn btn-outline-secondary mb-2">
+            <i class="bi bi-arrow-left"></i> Back to Employees
+        </a>
+        <h1 class="mb-0">Employee Report</h1>
+    </div>
+    <button onclick="window.print()" class="btn btn-outline-primary">
+        <i class="bi bi-printer me-1"></i> Print Report
+    </button>
+</div>
+
+<!-- ===================== -->
+<!-- HEADER -->
+<!-- ===================== -->
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body p-4">
+        <div class="row align-items-center g-4">
+            <div class="col-auto">
+                <img src="@(employee.ProfileImagePath ?? "/required/NoProfileImage.jpg")"
+                     class="rounded-circle border"
+                     style="width: 90px; height: 90px; object-fit: cover;" />
+            </div>
+            <div class="col">
+                <h3 class="fw-bold mb-1">@employee.FirstName @employee.LastName</h3>
+                <div class="d-flex flex-wrap gap-3 text-muted small">
+                    <span><i class="bi bi-person-badge me-1"></i> @(employee.EmployeeType?.Name ?? "—")</span>
+                    <span><i class="bi bi-hospital me-1"></i> @clinicName</span>
+                    <span><i class="bi bi-envelope me-1"></i> @employee.Email</span>
+                </div>
+            </div>
+            <div class="col-md-3 text-md-end">
+                <div class="text-muted small mb-1">Report generated</div>
+                <div class="fw-semibold">@reportDate.ToString("dd MMM yyyy HH:mm")</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===================== -->
+<!-- COMPLIANCE VERDICT -->
+<!-- ===================== -->
+<div class="card shadow-sm border-0 mb-4 @(isCompliant ? "border-start border-success border-4" : "border-start border-danger border-4")">
+    <div class="card-body p-4">
+        <div class="row align-items-center g-3">
+            <div class="col-auto">
+                <div class="rounded-circle d-flex align-items-center justify-content-center @(isCompliant ? "bg-success" : "bg-danger") bg-opacity-10"
+                     style="width: 64px; height: 64px;">
+                    <i class="bi @(isCompliant ? "bi-shield-fill-check text-success" : "bi-shield-fill-x text-danger") fs-3"></i>
+                </div>
+            </div>
+            <div class="col">
+                <h4 class="fw-bold mb-1 @(isCompliant ? "text-success" : "text-danger")">
+                    @(isCompliant ? "Compliant" : "Non-Compliant")
+                </h4>
+                @if (isCompliant)
+                {
+                    <p class="text-muted mb-0 small">
+                        All assigned courses have been completed and the average test score meets the required threshold.
+                    </p>
+                }
+                else
+                {
+                    <p class="text-danger mb-0 small">
+                        <i class="bi bi-exclamation-triangle me-1"></i> @nonCompliantReason
+                    </p>
+                }
+            </div>
+            <div class="col-md-5">
+                <div class="row g-3 text-center">
+                    <div class="col-4">
+                        <div class="text-muted small mb-1">Courses Done</div>
+                        <div class="fw-bold fs-5">
+                            @completedCourseIds.Count / @assignedCourses.Count
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="text-muted small mb-1">Tests Taken</div>
+                        <div class="fw-bold fs-5">@testSessions.Count</div>
+                    </div>
+                    <div class="col-4">
+                        <div class="text-muted small mb-1">Avg Score</div>
+                        <div class="fw-bold fs-5 @(averageTestScore >= passingScore ? "text-success" : "text-danger")">
+                            @(testSessions.Any() ? $"{averageTestScore:0.0}%" : "—")
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===================== -->
+<!-- COURSE PROGRESS -->
+<!-- ===================== -->
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-header bg-white border-bottom py-3">
+        <h5 class="mb-0 fw-semibold">
+            <i class="bi bi-journal-text me-2 text-primary"></i> Course Progress
+            <span class="badge bg-primary bg-opacity-10 text-primary ms-1">@assignedCourses.Count courses</span>
+        </h5>
+    </div>
+    <div class="card-body p-0">
+        @if (!assignedCourses.Any())
+        {
+            <div class="text-center py-5 text-muted">
+                <i class="bi bi-journal-x fs-1 d-block mb-2 opacity-25"></i>
+                No courses assigned.
+            </div>
+        }
+        else
+        {
+            <div class="accordion accordion-flush" id="coursesAccordion">
+                @foreach (var course in assignedCourses)
+                {
+                    var isCourseCompleted = completedCourseIds.Contains(course.Id);
+                    var totalChapters = course.Chapters?.Count ?? 0;
+                    var completedCount = course.Chapters?
+                    .Count(ch => completedChapterIds.Contains(ch.Id)) ?? 0;
+                    var progressPct = totalChapters > 0
+                    ? (int)Math.Round((double)completedCount / totalChapters * 100)
+                    : 0;
+                    var isInProgress = completedCount > 0 && !isCourseCompleted;
+                    var collapseId = $"course_{course.Id}";
+                    var completedAt = courseProgressMap.ContainsKey(course.Id)
+                    ? courseProgressMap[course.Id].ToString("dd MMM yyyy")
+                    : null;
+
+                    <div class="accordion-item border-0 border-bottom">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed py-3"
+                                    type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#@collapseId">
+                                <div class="d-flex align-items-center gap-3 w-100 me-3">
+                                    @if (isCourseCompleted)
+                                    {
+                                        <i class="bi bi-check-circle-fill text-success fs-5"></i>
+                                    }
+                                    else if (isInProgress)
+                                    {
+                                        <i class="bi bi-hourglass-split text-primary fs-5"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-circle text-muted fs-5"></i>
+                                    }
+                                    <span class="fw-semibold flex-grow-1">@course.Title</span>
+                                    <div class="d-flex align-items-center gap-3 flex-shrink-0">
+                                        <span class="text-muted small">@completedCount / @totalChapters chapters</span>
+                                        @if (isCourseCompleted)
+                                        {
+                                            <span class="badge bg-success">Completed @completedAt</span>
+                                        }
+                                        else if (isInProgress)
+                                        {
+                                            <span class="badge bg-primary bg-opacity-10 text-primary">In Progress</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary bg-opacity-10 text-secondary">Not Started</span>
+                                        }
+                                    </div>
+                                </div>
+                            </button>
+                        </h2>
+                        <div id="@collapseId" class="accordion-collapse collapse">
+                            <div class="accordion-body pt-2 pb-3 ps-5">
+
+                                <!-- Progress bar -->
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <small class="text-muted">Progress</small>
+                                        <small class="text-muted">@progressPct%</small>
+                                    </div>
+                                    <div class="progress" style="height: 6px;">
+                                        <div class="progress-bar @(isCourseCompleted ? "bg-success" : "")"
+                                             role="progressbar"
+                                             style="width: @progressPct%">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Chapters list -->
+                                <ul class="list-unstyled mb-0">
+                                    @foreach (var chapter in course.Chapters?.OrderBy(c => c.Order) ?? Enumerable.Empty<MedicalOnboardingApplication.Models.Chapter>())
+                                    {
+                                        var chCompleted = completedChapterIds.Contains(chapter.Id);
+                                        var chDate = chapterProgressMap.ContainsKey(chapter.Id)
+                                        ? chapterProgressMap[chapter.Id].ToString("dd MMM yyyy")
+                                        : null;
+
+                                        <li class="d-flex align-items-center gap-2 py-1 border-bottom">
+                                            <i class="bi @(chCompleted ? "bi-check-circle-fill text-success" : "bi-circle text-muted") flex-shrink-0"></i>
+                                            <span class="small @(chCompleted ? "" : "text-muted")">
+                                                @chapter.Order. @chapter.Title
+                                            </span>
+                                            @if (chCompleted && chDate != null)
+                                            {
+                                                <span class="text-muted small ms-auto">@chDate</span>
+                                            }
+                                        </li>
+                                    }
+                                </ul>
+
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+<!-- ===================== -->
+<!-- TEST PERFORMANCE -->
+<!-- ===================== -->
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-header bg-white border-bottom py-3">
+        <h5 class="mb-0 fw-semibold">
+            <i class="bi bi-patch-question me-2 text-warning"></i> Test Performance
+            <span class="badge bg-warning bg-opacity-10 text-warning ms-1">@testSessions.Count tests</span>
+        </h5>
+    </div>
+    <div class="card-body p-4">
+        @if (!testSessions.Any())
+        {
+            <div class="text-center py-4 text-muted">
+                <i class="bi bi-patch-question fs-1 d-block mb-2 opacity-25"></i>
+                No tests taken yet.
+            </div>
+        }
+        else
+        {
+            <!-- Summary Stats -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-3">
+                    <div class="card border-0 bg-light text-center p-3">
+                        <div class="text-muted small mb-1">Average Score</div>
+                        <div class="fw-bold fs-4 @(averageTestScore >= passingScore ? "text-success" : "text-danger")">
+                            @averageTestScore.ToString("0.0")%
+                        </div>
+                        <small class="text-muted">Required ≥ @passingScore%</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-0 bg-light text-center p-3">
+                        <div class="text-muted small mb-1">Best Score</div>
+                        <div class="fw-bold fs-4 text-primary">@bestScore.ToString("0.0")%</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-0 bg-light text-center p-3">
+                        <div class="text-muted small mb-1">Latest Score</div>
+                        <div class="fw-bold fs-4 @(latestScore >= passingScore ? "text-success" : "text-danger")">
+                            @latestScore.ToString("0.0")%
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-0 bg-light text-center p-3">
+                        <div class="text-muted small mb-1">Tests Taken</div>
+                        <div class="fw-bold fs-4">@testSessions.Count</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Test History Table -->
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Date</th>
+                        <th>Score</th>
+                        <th>Correct</th>
+                        <th>Avg Difficulty</th>
+                        <th>Result</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        int testNum = 1;
+                    }
+                    @foreach (var session in testSessions)
+                    {
+                        var scorePct = session.TotalQuestions > 0
+                        ? (double)session.CorrectAnswers / session.TotalQuestions * 100
+                        : 0;
+                        var passed = scorePct >= passingScore;
+
+                        <tr>
+                            <td class="text-muted small">@testNum</td>
+                            <td>
+                                <span class="fw-semibold">
+                                    @session.StartedAt.ToLocalTime().ToString("dd MMM yyyy")
+                                </span>
+                                <br />
+                                <small class="text-muted">
+                                    @session.StartedAt.ToLocalTime().ToString("HH:mm")
+                                </small>
+                            </td>
+                            <td>
+                                <span class="fw-bold @(passed ? "text-success" : "text-danger")">
+                                    @scorePct.ToString("0.0")%
+                                </span>
+                            </td>
+                            <td class="text-muted">
+                                @session.CorrectAnswers / @session.TotalQuestions
+                            </td>
+                            <td>
+                                <span class="badge @(session.AverageDifficulty >= 4 ? "bg-danger" : session.AverageDifficulty >= 3 ? "bg-warning text-dark" : "bg-success")">
+                                    @session.AverageDifficulty.ToString("0.0")
+                                </span>
+                            </td>
+                            <td>
+                                @if (passed)
+                                {
+                                    <span class="badge bg-success bg-opacity-10 text-success">
+                                        <i class="bi bi-check-circle me-1"></i> Pass
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger bg-opacity-10 text-danger">
+                                        <i class="bi bi-x-circle me-1"></i> Fail
+                                    </span>
+                                }
+                            </td>
+                        </tr>
+                        testNum++;
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+
+<style>
+    @@media print {
+        .btn, .accordion-button::after {
+            display: none !important;
+        }
+
+        .accordion-collapse {
+            display: block !important;
+        }
+
+        .card {
+            box-shadow: none !important;
+            border: 1px solid #dee2e6 !important;
+        }
+    }
+</style>
