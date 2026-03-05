@@ -15,7 +15,6 @@ public class CoursesController : Controller
         _context = context;
     }
 
-    // GET: Courses
     public async Task<IActionResult> Index(string search, string filter = "all")
     {
         var user = await _context.Users
@@ -48,11 +47,14 @@ public class CoursesController : Controller
             .Select(p => p.ChapterId)
             .ToListAsync();
 
-        // Apply completion filter in memory
         courses = filter switch
         {
             "completed" => courses.Where(c => completedCourseIds.Contains(c.Id)).ToList(),
-            "notcompleted" => courses.Where(c => !completedCourseIds.Contains(c.Id)).ToList(),
+            "inprogress" => courses.Where(c =>
+                !completedCourseIds.Contains(c.Id) &&
+                completedChapterIds.Any(chId => c.Chapters.Any(ch => ch.Id == chId))).ToList(),
+            "notstarted" => courses.Where(c =>
+                !completedChapterIds.Any(chId => c.Chapters.Any(ch => ch.Id == chId))).ToList(),
             _ => courses
         };
 
@@ -64,7 +66,6 @@ public class CoursesController : Controller
         return View(courses);
     }
 
-    // GET: Courses/Details/5
     public async Task<IActionResult> Details(int? id)
     {
         if (id == null)
@@ -86,6 +87,11 @@ public class CoursesController : Controller
                 .Where(p => p.UserId == user.Id &&
                             course.Chapters.Select(c => c.Id).Contains(p.ChapterId))
                 .Select(p => p.ChapterId)
+                .ToListAsync();
+
+            ViewBag.CompletedCourseIds = await _context.UserCourseProgress
+                .Where(p => p.UserId == user.Id)
+                .Select(p => p.CourseId)
                 .ToListAsync();
         }
 
