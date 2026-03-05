@@ -1,0 +1,253 @@
+﻿@model MedicalOnboardingApplication.Models.TestSession
+@{
+    ViewData["Title"] = "Test Results";
+
+    var scorePct = Model.TotalQuestions > 0
+        ? (int)Math.Round((double)Model.CorrectAnswers / Model.TotalQuestions * 100)
+        : 0;
+
+    var scoreColor = scorePct >= 80 ? "text-success"
+                   : scorePct >= 50 ? "text-warning"
+                   : "text-danger";
+
+    var scoreBg = scorePct >= 80 ? "bg-success"
+                : scorePct >= 50 ? "bg-warning"
+                : "bg-danger";
+
+    var scoreMessage = scorePct >= 80 ? "Excellent work!"
+                     : scorePct >= 50 ? "Good effort!"
+                     : "Keep practicing!";
+
+    var diffLabel = (int diff) => diff switch
+    {
+        1 => ("bg-success", "1 - Very Easy"),
+        2 => ("bg-primary", "2 - Easy"),
+        3 => ("bg-warning text-dark", "3 - Medium"),
+        4 => ("bg-danger bg-opacity-75", "4 - Hard"),
+        5 => ("bg-danger", "5 - Very Hard"),
+        _ => ("bg-secondary", diff.ToString())
+    };
+}
+
+<div class="mb-4">
+    <a asp-action="Index" class="btn btn-outline-secondary mb-2">
+        <i class="bi bi-arrow-left"></i> Back to Tests
+    </a>
+    <h1 class="mb-0">Test Results</h1>
+</div>
+
+<!-- Score Summary -->
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body p-4">
+        <div class="row align-items-center g-4">
+
+            <!-- Score Circle -->
+            <div class="col-md-3 text-center">
+                <div class="position-relative d-inline-block">
+                    <svg width="140" height="140" viewBox="0 0 140 140">
+                        <circle cx="70" cy="70" r="60" fill="none" stroke="#e9ecef" stroke-width="12" />
+                        <circle cx="70" cy="70" r="60" fill="none"
+                                stroke="@(scorePct >= 80 ? "#198754" : scorePct >= 50 ? "#ffc107" : "#dc3545")"
+                                stroke-width="12"
+                                stroke-dasharray="@(Math.Round(scorePct / 100.0 * 376.99)) 376.99"
+                                stroke-dashoffset="94.25"
+                                stroke-linecap="round"
+                                transform="rotate(-90 70 70)" />
+                    </svg>
+                    <div class="position-absolute top-50 start-50 translate-middle text-center">
+                        <div class="fw-bold fs-2 @scoreColor">@scorePct%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="col-md-5">
+                <h4 class="fw-bold mb-1">@scoreMessage</h4>
+                <p class="text-muted mb-3">
+                    You answered <strong>@Model.CorrectAnswers</strong> out of
+                    <strong>@Model.TotalQuestions</strong> questions correctly.
+                </p>
+                <div class="d-flex flex-wrap gap-2">
+                    <span class="badge bg-success bg-opacity-10 text-success px-3 py-2">
+                        <i class="bi bi-check-circle me-1"></i> @Model.CorrectAnswers Correct
+                    </span>
+                    <span class="badge bg-danger bg-opacity-10 text-danger px-3 py-2">
+                        <i class="bi bi-x-circle me-1"></i> @(Model.TotalQuestions - Model.CorrectAnswers) Incorrect
+                    </span>
+                    <span class="badge @diffLabel(Model.FinalDifficulty).Item1 px-3 py-2">
+                        <i class="bi bi-bar-chart me-1"></i> Final: @diffLabel(Model.FinalDifficulty).Item2
+                    </span>
+                </div>
+            </div>
+
+            <!-- Meta -->
+            <div class="col-md-4">
+                <ul class="list-unstyled mb-0">
+                    <li class="d-flex justify-content-between border-bottom py-2">
+                        <span class="text-muted small">Started</span>
+                        <span class="small fw-semibold">
+                            @Model.StartedAt.ToLocalTime().ToString("dd MMM yyyy HH:mm")
+                        </span>
+                    </li>
+                    <li class="d-flex justify-content-between border-bottom py-2">
+                        <span class="text-muted small">Completed</span>
+                        <span class="small fw-semibold">
+                            @Model.CompletedAt?.ToLocalTime().ToString("dd MMM yyyy HH:mm")
+                        </span>
+                    </li>
+                    <li class="d-flex justify-content-between py-2">
+                        <span class="text-muted small">Duration</span>
+                        <span class="small fw-semibold">
+                            @if (Model.CompletedAt.HasValue)
+                            {
+                                var duration = Model.CompletedAt.Value - Model.StartedAt;
+                                @($"{(int)duration.TotalMinutes}m {duration.Seconds}s")
+                            }
+                        </span>
+                    </li>
+                </ul>
+            </div>
+
+            <li class="d-flex justify-content-between border-bottom py-2">
+                <span class="text-muted small">Avg Difficulty</span>
+                <span class="small fw-semibold">
+                    <span class="badge @diffLabel((int)Math.Round(Model.AverageDifficulty)).Item1">
+                        @Model.AverageDifficulty.ToString("0.00")
+                    </span>
+                </span>
+            </li>
+
+        </div>
+    </div>
+</div>
+
+<!-- Difficulty Progression -->
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-header bg-white border-bottom py-3">
+        <h6 class="mb-0 fw-semibold text-muted text-uppercase">
+            <i class="bi bi-graph-up me-2"></i> Difficulty Progression
+        </h6>
+    </div>
+    <div class="card-body p-4">
+        <div class="d-flex align-items-end gap-2 flex-wrap">
+            @foreach (var q in Model.Questions.OrderBy(q => q.Order))
+            {
+                var heightPct = q.DifficultyAtTime * 20;
+                var barColor = q.IsCorrect == true ? "bg-success" : "bg-danger";
+                <div class="d-flex flex-column align-items-center gap-1" style="min-width: 40px;">
+                    <small class="text-muted" style="font-size: 0.7rem;">@q.DifficultyAtTime</small>
+                    <div class="@barColor rounded"
+                         style="width: 28px; height: @(heightPct)px; min-height: 8px; transition: height 0.3s;"
+                         title="Q@(q.Order) — Difficulty @q.DifficultyAtTime — @(q.IsCorrect == true ? "Correct" : "Incorrect")">
+                    </div>
+                    <small class="text-muted" style="font-size: 0.7rem;">Q@(q.Order)</small>
+                </div>
+            }
+        </div>
+        <div class="d-flex gap-3 mt-3">
+            <span class="d-flex align-items-center gap-1 small text-muted">
+                <span class="bg-success rounded" style="width:12px;height:12px;display:inline-block;"></span> Correct
+            </span>
+            <span class="d-flex align-items-center gap-1 small text-muted">
+                <span class="bg-danger rounded" style="width:12px;height:12px;display:inline-block;"></span> Incorrect
+            </span>
+        </div>
+    </div>
+</div>
+
+<!-- Question Breakdown -->
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-header bg-white border-bottom py-3">
+        <h6 class="mb-0 fw-semibold text-muted text-uppercase">
+            <i class="bi bi-list-check me-2"></i> Question Breakdown
+        </h6>
+    </div>
+    <div class="card-body p-0">
+        <div class="accordion accordion-flush" id="questionsAccordion">
+            @foreach (var q in Model.Questions.OrderBy(q => q.Order))
+            {
+                var collapseId = $"q_{q.Id}";
+                var correct = q.Question.Answers.FirstOrDefault(a => a.IsCorrect);
+                var selected = q.Question.Answers.FirstOrDefault(a => a.Id == q.SelectedAnswerId);
+                var wasCorrect = q.IsCorrect == true;
+
+                <div class="accordion-item border-0 border-bottom">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed py-3 fw-medium"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#@collapseId">
+                            <div class="d-flex align-items-center gap-3 w-100 me-3">
+                                <span class="badge @(wasCorrect ? "bg-success" : "bg-danger") rounded-circle"
+                                      style="width:28px;height:28px;display:flex;align-items:center;justify-content:center;">
+                                    <i class="bi @(wasCorrect ? "bi-check" : "bi-x")"></i>
+                                </span>
+                                <span class="flex-grow-1 text-truncate">@q.Question.Text</span>
+                                <span class="badge @diffLabel(q.DifficultyAtTime).Item1 flex-shrink-0">
+                                    @diffLabel(q.DifficultyAtTime).Item2
+                                </span>
+                            </div>
+                        </button>
+                    </h2>
+                    <div id="@collapseId" class="accordion-collapse collapse">
+                        <div class="accordion-body pt-2 pb-3">
+                            <div class="row g-2 mb-3">
+                                @foreach (var answer in q.Question.Answers)
+                                {
+                                    var isRight = answer.IsCorrect;
+                                    var wasSelected = answer.Id == q.SelectedAnswerId;
+
+                                    string cardClass = "border-0 bg-light";
+                                    string iconClass = "bi-circle text-muted";
+
+                                    if (isRight)
+                                    {
+                                        cardClass = "border-success bg-success bg-opacity-10";
+                                        iconClass = "bi-check-circle-fill text-success";
+                                    }
+                                    else if (wasSelected && !isRight)
+                                    {
+                                        cardClass = "border-danger bg-danger bg-opacity-10";
+                                        iconClass = "bi-x-circle-fill text-danger";
+                                    }
+
+                                    <div class="col-md-6">
+                                        <div class="card @cardClass border">
+                                            <div class="card-body p-2 d-flex align-items-center gap-2">
+                                                <i class="bi @iconClass flex-shrink-0"></i>
+                                                <span class="small">@answer.Text</span>
+                                                @if (wasSelected && isRight)
+                                                {
+                                                    <span class="badge bg-success ms-auto">Your answer</span>
+                                                }
+                                                else if (wasSelected && !isRight)
+                                                {
+                                                    <span class="badge bg-danger ms-auto">Your answer</span>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                            <small class="text-muted">
+                                <i class="bi bi-journal-text me-1"></i> @q.Question.Course?.Title
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="d-flex justify-content-end gap-2 mb-4">
+    <a asp-action="Index" class="btn btn-outline-secondary px-4">
+        <i class="bi bi-clock-history me-1"></i> Back to Tests
+    </a>
+    <form asp-action="Start" method="post">
+        @Html.AntiForgeryToken()
+        <button type="submit" class="btn btn-warning px-4">
+            <i class="bi bi-arrow-repeat me-1"></i> Take Another Test
+        </button>
+    </form>
+</div>

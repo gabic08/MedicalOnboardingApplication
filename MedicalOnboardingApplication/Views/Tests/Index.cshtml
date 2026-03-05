@@ -3,6 +3,17 @@
     ViewData["Title"] = "Tests";
     var canStart = ViewBag.CanStartTest as bool? ?? false;
     var questionCount = ViewBag.QuestionCount as int? ?? 0;
+    var activeSessionId = ViewBag.ActiveSessionId as int?;
+
+    Func<int, (string, string)> diffLabel = (int diff) => diff switch
+    {
+        1 => ("bg-success", "1 - Very Easy"),
+        2 => ("bg-primary", "2 - Easy"),
+        3 => ("bg-warning text-dark", "3 - Medium"),
+        4 => ("bg-danger bg-opacity-75", "4 - Hard"),
+        5 => ("bg-danger", "5 - Very Hard"),
+        _ => ("bg-secondary", diff.ToString())
+    };
 }
 
 <div class="mb-4">
@@ -28,14 +39,23 @@
                 <h5 class="fw-semibold mb-1">
                     <i class="bi bi-patch-question me-2 text-warning"></i> Adaptive Test
                 </h5>
-                <p class="text-muted small mb-0">
-                    The test consists of 15 questions. Difficulty adjusts automatically based on your performance.
+                <p class="text-muted small mb-2">
+                    The test consists of 15 questions. Difficulty adjusts automatically based on your last 3 answers.
                     Questions are drawn from courses assigned to your employee type.
                 </p>
-                <p class="text-warning small mb-0">
+                <p class="text-muted small mb-0">
+                    <i class="bi bi-info-circle me-1"></i>
                     It is strongly recommended to complete all assigned courses before attempting the test.
                 </p>
-                @if (!canStart)
+
+                @if (activeSessionId.HasValue)
+                {
+                    <div class="alert alert-warning small mt-3 mb-0 py-2">
+                        <i class="bi bi-exclamation-triangle me-1"></i>
+                        You have an unfinished test. Complete it before starting a new one.
+                    </div>
+                }
+                else if (!canStart)
                 {
                     <div class="alert alert-warning small mt-3 mb-0 py-2">
                         <i class="bi bi-exclamation-triangle me-1"></i>
@@ -44,8 +64,17 @@
                     </div>
                 }
             </div>
+
             <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
-                @if (canStart)
+                @if (activeSessionId.HasValue)
+                {
+                    <a asp-action="Question"
+                       asp-route-sessionId="@activeSessionId"
+                       class="btn btn-warning px-4 py-2">
+                        <i class="bi bi-play-circle me-2"></i> Continue Test
+                    </a>
+                }
+                else if (canStart)
                 {
                     <form asp-action="Start" method="post">
                         @Html.AntiForgeryToken()
@@ -56,7 +85,7 @@
                 }
                 else
                 {
-                    <button class="btn btn-warning px-4 py-2 disabled" disabled>
+                    <button class="btn btn-warning px-4 py-2" disabled>
                         <i class="bi bi-play-circle me-2"></i> Start New Test
                     </button>
                 }
@@ -77,7 +106,7 @@
         @if (!Model.Any())
         {
             <div class="text-center py-5 text-muted">
-                <i class="bi bi-journal-x fs-1 d-block mb-2 opacity-25"></i>
+                <i class="bi bi-patch-question fs-1 d-block mb-2 opacity-25"></i>
                 No tests taken yet. Start your first test above!
             </div>
         }
@@ -89,6 +118,7 @@
                         <th class="ps-4">Date</th>
                         <th>Score</th>
                         <th>Correct</th>
+                        <th>Avg Difficulty</th>
                         <th>Final Difficulty</th>
                         <th>Status</th>
                         <th></th>
@@ -105,30 +135,55 @@
                         : scorePct >= 50 ? "text-warning"
                         : "text-danger";
 
-                        var diffLabel = session.FinalDifficulty switch
-                        {
-                            1 => ("bg-success", "1 - Very Easy"),
-                            2 => ("bg-primary", "2 - Easy"),
-                            3 => ("bg-warning text-dark", "3 - Medium"),
-                            4 => ("bg-orange", "4 - Hard"),
-                            5 => ("bg-danger", "5 - Very Hard"),
-                            _ => ("bg-secondary", session.FinalDifficulty.ToString())
-                        };
+                        var finalDiffLabel = diffLabel(session.FinalDifficulty);
+                        var avgDiffLabel = session.IsCompleted
+                        ? diffLabel((int)Math.Round(session.AverageDifficulty))
+                        : ("bg-secondary", "—");
 
                         <tr>
                             <td class="ps-4">
-                                <span class="fw-semibold">@session.StartedAt.ToLocalTime().ToString("dd MMM yyyy")</span>
+                                <span class="fw-semibold">
+                                    @session.StartedAt.ToLocalTime().ToString("dd MMM yyyy")
+                                </span>
                                 <br />
-                                <small class="text-muted">@session.StartedAt.ToLocalTime().ToString("HH:mm")</small>
+                                <small class="text-muted">
+                                    @session.StartedAt.ToLocalTime().ToString("HH:mm")
+                                </small>
                             </td>
                             <td>
-                                <span class="fw-bold fs-5 @scoreColor">@scorePct%</span>
+                                @if (session.IsCompleted)
+                                {
+                                    <span class="fw-bold fs-5 @scoreColor">@scorePct%</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">—</span>
+                                }
                             </td>
                             <td class="text-muted">
-                                @session.CorrectAnswers / @session.TotalQuestions
+                                @if (session.IsCompleted)
+                                {
+                                    <span>@session.CorrectAnswers / @session.TotalQuestions</span>
+                                }
+                                else
+                                {
+                                    <span>— / @session.TotalQuestions</span>
+                                }
                             </td>
                             <td>
-                                <span class="badge @diffLabel.Item1">@diffLabel.Item2</span>
+                                @if (session.IsCompleted)
+                                {
+                                    <span class="badge @avgDiffLabel.Item1">
+                                        @session.AverageDifficulty.ToString("0.0")
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">—</span>
+                                }
+                            </td>
+                            <td>
+                                <span class="badge @finalDiffLabel.Item1">@finalDiffLabel.Item2</span>
                             </td>
                             <td>
                                 @if (session.IsCompleted)
@@ -147,7 +202,7 @@
                             <td class="text-end pe-4">
                                 @if (session.IsCompleted)
                                 {
-                                    <a asp-action="Complete"
+                                    <a asp-action="Results"
                                        asp-route-sessionId="@session.Id"
                                        class="btn btn-sm btn-outline-primary">
                                         <i class="bi bi-bar-chart me-1"></i> View Results

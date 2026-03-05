@@ -23,7 +23,7 @@ public class TestsController : Controller
         _context = context;
     }
 
-    // GET: Tests/Index — show history and start button
+    // GET: Tests/Index
     public async Task<IActionResult> Index()
     {
         var user = await _context.Users
@@ -35,14 +35,16 @@ public class TestsController : Controller
             .OrderByDescending(s => s.StartedAt)
             .ToListAsync();
 
-        // Check if enough questions exist
         var questionCount = await _context.Questions
             .Where(q => q.Course.CourseEmployeeTypes
                 .Any(cet => cet.EmployeeTypeId == user.EmployeeTypeId))
             .CountAsync();
 
-        ViewBag.CanStartTest = questionCount >= TotalQuestions;
+        var activeSession = sessions.FirstOrDefault(s => !s.IsCompleted);
+
+        ViewBag.CanStartTest = questionCount >= TotalQuestions && activeSession == null;
         ViewBag.QuestionCount = questionCount;
+        ViewBag.ActiveSessionId = activeSession?.Id;
 
         return View(sessions);
     }
@@ -56,7 +58,15 @@ public class TestsController : Controller
             .Include(u => u.EmployeeType)
             .FirstOrDefaultAsync(u => u.UserName == User.Identity.Name);
 
-        // Get all eligible questions
+        var activeSession = await _context.TestSessions
+            .FirstOrDefaultAsync(s => s.UserId == user.Id && !s.IsCompleted);
+
+        if (activeSession != null)
+        {
+            TempData["Error"] = "You have an unfinished test. Please complete it before starting a new one.";
+            return RedirectToAction(nameof(Index));
+        }
+
         var allQuestions = await _context.Questions
             .Include(q => q.Answers)
             .Where(q => q.Course.CourseEmployeeTypes
@@ -69,7 +79,18 @@ public class TestsController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        // Pick 15 random questions
+        // Get starting difficulty from last completed session
+        var lastSession = await _context.TestSessions
+            .Where(s => s.UserId == user.Id && s.IsCompleted)
+            .OrderByDescending(s => s.CompletedAt)
+            .FirstOrDefaultAsync();
+
+        int startingDifficulty = MinDifficulty;
+        if (lastSession != null)
+        {
+            startingDifficulty = Math.Clamp((int)Math.Round(lastSession.AverageDifficulty), MinDifficulty, MaxDifficulty);
+        }
+
         var random = new Random();
         var selectedQuestions = allQuestions
             .OrderBy(_ => random.Next())
@@ -81,13 +102,12 @@ public class TestsController : Controller
             UserId = user.Id,
             StartedAt = DateTime.UtcNow,
             TotalQuestions = TotalQuestions,
-            FinalDifficulty = MinDifficulty
+            FinalDifficulty = startingDifficulty
         };
 
         _context.TestSessions.Add(session);
         await _context.SaveChangesAsync();
 
-        // Add questions to session in order
         for (int i = 0; i < selectedQuestions.Count; i++)
         {
             _context.TestSessionQuestions.Add(new TestSessionQuestion
@@ -95,7 +115,7 @@ public class TestsController : Controller
                 TestSessionId = session.Id,
                 QuestionId = selectedQuestions[i].Id,
                 Order = i + 1,
-                DifficultyAtTime = MinDifficulty
+                DifficultyAtTime = startingDifficulty
             });
         }
 
@@ -105,7 +125,7 @@ public class TestsController : Controller
     }
 
     // GET: Tests/Question?sessionId=1
-    public async Task<IActionResult> Question(int sessionId)
+    public async Task<IActionResult> Question(int sessionId, int? answeredQuestionId = null)
     {
         var user = await _context.Users
             .FirstOrDefaultAsync(u => u.UserName == User.Identity.Name);
@@ -114,12 +134,67 @@ public class TestsController : Controller
             .Include(s => s.Questions)
                 .ThenInclude(q => q.Question)
                     .ThenInclude(q => q.Answers)
+            .Include(s => s.Questions)
+                .ThenInclude(q => q.Question)
+                    .ThenInclude(q => q.Course)
             .FirstOrDefaultAsync(s => s.Id == sessionId && s.UserId == user.Id);
 
-        if (session == null || session.IsCompleted)
-            return RedirectToAction(nameof(Index));
+        if (session == null) return RedirectToAction(nameof(Index));
+        if (session.IsCompleted) return RedirectToAction(nameof(Results), new { sessionId });
 
-        // Find next unanswered question
+        var answeredCount = session.Questions.Count(q => q.IsCorrect != null);
+
+        // Show feedback for the just-answered question
+        if (answeredQuestionId.HasValue)
+        {
+            var answered = session.Questions.FirstOrDefault(q => q.Id == answeredQuestionId.Value);
+            if (answered != null)
+            {
+                var answeredSoFar = session.Questions
+                    .Where(q => q.IsCorrect != null)
+                    .OrderBy(q => q.Order)
+                    .ToList();
+
+                var lastWindow = answeredSoFar
+                    .TakeLast(WindowSize)
+                    .Select(q => q.IsCorrect == true ? 1.0 : 0.0)
+                    .ToList();
+
+                double? windowAvg = lastWindow.Count == WindowSize ? lastWindow.Average() : null;
+
+                int nextDiff = answered.DifficultyAtTime;
+                if (windowAvg.HasValue)
+                {
+                    if (windowAvg.Value > IncreaseThreshold)
+                        nextDiff = Math.Min(answered.DifficultyAtTime + 1, MaxDifficulty);
+                    else if (windowAvg.Value < DecreaseThreshold)
+                        nextDiff = Math.Max(answered.DifficultyAtTime - 1, MinDifficulty);
+                }
+
+                bool allAnswered = session.Questions.All(q => q.IsCorrect != null);
+
+                ViewBag.ShowFeedback = true;
+                ViewBag.IsCorrect = answered.IsCorrect;
+                ViewBag.CorrectAnswerId = answered.Question.Answers.FirstOrDefault(a => a.IsCorrect)?.Id;
+                ViewBag.SelectedAnswerId = answered.SelectedAnswerId;
+                ViewBag.WindowAvg = windowAvg;
+                ViewBag.LastWindow = lastWindow;
+                ViewBag.WindowSize = WindowSize;
+                ViewBag.IncreaseThreshold = IncreaseThreshold;
+                ViewBag.DecreaseThreshold = DecreaseThreshold;
+                ViewBag.NextDifficulty = nextDiff;
+                ViewBag.IsLastQuestion = allAnswered;
+                ViewBag.AnsweredCount = answeredCount;
+                ViewBag.TotalQuestions = TotalQuestions;
+                ViewBag.Progress = (int)Math.Round((double)answeredCount / TotalQuestions * 100);
+                ViewBag.CurrentDifficulty = answered.DifficultyAtTime;
+                ViewBag.SessionId = sessionId;
+
+                return View(answered);
+            }
+        }
+
+        // Show next unanswered question
         var nextQuestion = session.Questions
             .OrderBy(q => q.Order)
             .FirstOrDefault(q => q.IsCorrect == null);
@@ -127,12 +202,16 @@ public class TestsController : Controller
         if (nextQuestion == null)
             return RedirectToAction(nameof(Complete), new { sessionId });
 
-        var answeredCount = session.Questions.Count(q => q.IsCorrect != null);
+        nextQuestion.Question.Answers = nextQuestion.Question.Answers
+            .OrderBy(_ => Guid.NewGuid())
+            .ToList();
 
+        ViewBag.ShowFeedback = false;
         ViewBag.AnsweredCount = answeredCount;
         ViewBag.TotalQuestions = TotalQuestions;
         ViewBag.Progress = (int)Math.Round((double)answeredCount / TotalQuestions * 100);
         ViewBag.CurrentDifficulty = nextQuestion.DifficultyAtTime;
+        ViewBag.SessionId = sessionId;
 
         return View(nextQuestion);
     }
@@ -157,17 +236,17 @@ public class TestsController : Controller
         var sessionQuestion = session.Questions
             .FirstOrDefault(q => q.Id == sessionQuestionId);
 
-        if (sessionQuestion == null)
-            return RedirectToAction(nameof(Index));
+        if (sessionQuestion == null || sessionQuestion.IsCorrect != null)
+            return RedirectToAction(nameof(Question), new { sessionId });
 
-        // Record the answer
         var selectedAnswer = sessionQuestion.Question.Answers
             .FirstOrDefault(a => a.Id == answerId);
 
         sessionQuestion.SelectedAnswerId = answerId;
         sessionQuestion.IsCorrect = selectedAnswer?.IsCorrect ?? false;
 
-        // Compute new difficulty based on last 3 answers
+        await _context.SaveChangesAsync();
+
         var answeredSoFar = session.Questions
             .Where(q => q.IsCorrect != null)
             .OrderBy(q => q.Order)
@@ -190,27 +269,21 @@ public class TestsController : Controller
                 newDifficulty = Math.Max(currentDifficulty - 1, MinDifficulty);
         }
 
-        // Set difficulty on next unanswered question
         var nextQuestion = session.Questions
             .OrderBy(q => q.Order)
-            .FirstOrDefault(q => q.IsCorrect == null && q.Id != sessionQuestionId);
+            .FirstOrDefault(q => q.IsCorrect == null);
 
         if (nextQuestion != null)
             nextQuestion.DifficultyAtTime = newDifficulty;
 
         session.FinalDifficulty = newDifficulty;
-
         await _context.SaveChangesAsync();
 
-        // Check if test is complete
-        bool allAnswered = session.Questions.All(q => q.IsCorrect != null);
-        if (allAnswered)
-            return RedirectToAction(nameof(Complete), new { sessionId });
-
-        return RedirectToAction(nameof(Question), new { sessionId });
+        // Redirect back to Question with feedback
+        return RedirectToAction(nameof(Question), new { sessionId, answeredQuestionId = sessionQuestionId });
     }
 
-    // GET: Tests/Complete?sessionId=1
+    // GET: Tests/Complete
     public async Task<IActionResult> Complete(int sessionId)
     {
         var user = await _context.Users
@@ -219,6 +292,7 @@ public class TestsController : Controller
         var session = await _context.TestSessions
             .Include(s => s.Questions)
                 .ThenInclude(q => q.Question)
+                    .ThenInclude(q => q.Answers)
             .FirstOrDefaultAsync(s => s.Id == sessionId && s.UserId == user.Id);
 
         if (session == null)
@@ -229,9 +303,80 @@ public class TestsController : Controller
             session.IsCompleted = true;
             session.CompletedAt = DateTime.UtcNow;
             session.CorrectAnswers = session.Questions.Count(q => q.IsCorrect == true);
+            session.AverageDifficulty = session.Questions.Average(q => q.DifficultyAtTime);
             await _context.SaveChangesAsync();
         }
 
+        return RedirectToAction(nameof(Results), new { sessionId });
+    }
+
+    // GET: Tests/Results
+    public async Task<IActionResult> Results(int sessionId)
+    {
+        var user = await _context.Users
+            .FirstOrDefaultAsync(u => u.UserName == User.Identity.Name);
+
+        var session = await _context.TestSessions
+            .Include(s => s.Questions.OrderBy(q => q.Order))
+                .ThenInclude(q => q.Question)
+                    .ThenInclude(q => q.Answers)
+            .Include(s => s.Questions)
+                .ThenInclude(q => q.SelectedAnswer)
+            .FirstOrDefaultAsync(s => s.Id == sessionId && s.UserId == user.Id);
+
+        if (session == null || !session.IsCompleted)
+            return RedirectToAction(nameof(Index));
+
         return View(session);
+    }
+
+    public async Task<IActionResult> Feedback(int sessionId, int sessionQuestionId)
+    {
+        var user = await _context.Users
+            .FirstOrDefaultAsync(u => u.UserName == User.Identity.Name);
+
+        var session = await _context.TestSessions
+            .Include(s => s.Questions)
+                .ThenInclude(q => q.Question)
+                    .ThenInclude(q => q.Answers)
+            .Include(s => s.Questions)
+                .ThenInclude(q => q.Question)
+                    .ThenInclude(q => q.Course)
+            .FirstOrDefaultAsync(s => s.Id == sessionId && s.UserId == user.Id);
+
+        if (session == null)
+            return RedirectToAction(nameof(Index));
+
+        var sessionQuestion = session.Questions
+            .FirstOrDefault(q => q.Id == sessionQuestionId);
+
+        if (sessionQuestion == null)
+            return RedirectToAction(nameof(Index));
+
+        var answeredSoFar = session.Questions
+            .Where(q => q.IsCorrect != null)
+            .OrderBy(q => q.Order)
+            .ToList();
+
+        var lastWindow = answeredSoFar
+            .TakeLast(WindowSize)
+            .Select(q => q.IsCorrect == true ? 1.0 : 0.0)
+            .ToList();
+
+        double? windowAvg = lastWindow.Count == WindowSize ? lastWindow.Average() : null;
+
+        bool allAnswered = session.Questions.All(q => q.IsCorrect != null);
+
+        ViewBag.SessionId = sessionId;
+        ViewBag.WindowAvg = windowAvg;
+        ViewBag.WindowSize = WindowSize;
+        ViewBag.IncreaseThreshold = IncreaseThreshold;
+        ViewBag.DecreaseThreshold = DecreaseThreshold;
+        ViewBag.LastWindow = lastWindow;
+        ViewBag.IsLastQuestion = allAnswered;
+        ViewBag.AnsweredCount = answeredSoFar.Count;
+        ViewBag.TotalQuestions = TotalQuestions;
+
+        return View(sessionQuestion);
     }
 }
