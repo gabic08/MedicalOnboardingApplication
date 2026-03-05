@@ -101,8 +101,7 @@ public class TestsController : Controller
         {
             UserId = user.Id,
             StartedAt = DateTime.UtcNow,
-            TotalQuestions = TotalQuestions,
-            FinalDifficulty = startingDifficulty
+            TotalQuestions = TotalQuestions
         };
 
         _context.TestSessions.Add(session);
@@ -150,6 +149,17 @@ public class TestsController : Controller
             var answered = session.Questions.FirstOrDefault(q => q.Id == answeredQuestionId.Value);
             if (answered != null)
             {
+                // Restore saved answer order
+                if (!string.IsNullOrEmpty(answered.AnswerOrder))
+                {
+                    var orderedAnswers = answered.AnswerOrder
+                        .Split(',')
+                        .Select(id => answered.Question.Answers.FirstOrDefault(a => a.Id == int.Parse(id)))
+                        .Where(a => a != null)
+                        .ToList();
+                    answered.Question.Answers = orderedAnswers;
+                }
+
                 var answeredSoFar = session.Questions
                     .Where(q => q.IsCorrect != null)
                     .OrderBy(q => q.Order)
@@ -202,8 +212,21 @@ public class TestsController : Controller
         if (nextQuestion == null)
             return RedirectToAction(nameof(Complete), new { sessionId });
 
-        nextQuestion.Question.Answers = nextQuestion.Question.Answers
-            .OrderBy(_ => Guid.NewGuid())
+        // Shuffle and save order if not already saved
+        if (string.IsNullOrEmpty(nextQuestion.AnswerOrder))
+        {
+            var shuffled = nextQuestion.Question.Answers
+                .OrderBy(_ => Guid.NewGuid())
+                .ToList();
+            nextQuestion.AnswerOrder = string.Join(",", shuffled.Select(a => a.Id));
+            await _context.SaveChangesAsync();
+        }
+
+        // Apply saved order
+        nextQuestion.Question.Answers = nextQuestion.AnswerOrder
+            .Split(',')
+            .Select(id => nextQuestion.Question.Answers.FirstOrDefault(a => a.Id == int.Parse(id)))
+            .Where(a => a != null)
             .ToList();
 
         ViewBag.ShowFeedback = false;
@@ -276,7 +299,6 @@ public class TestsController : Controller
         if (nextQuestion != null)
             nextQuestion.DifficultyAtTime = newDifficulty;
 
-        session.FinalDifficulty = newDifficulty;
         await _context.SaveChangesAsync();
 
         // Redirect back to Question with feedback
@@ -322,10 +344,26 @@ public class TestsController : Controller
                     .ThenInclude(q => q.Answers)
             .Include(s => s.Questions)
                 .ThenInclude(q => q.SelectedAnswer)
+            .Include(s => s.Questions)
+                .ThenInclude(q => q.Question)
+                    .ThenInclude(q => q.Course)
             .FirstOrDefaultAsync(s => s.Id == sessionId && s.UserId == user.Id);
 
         if (session == null || !session.IsCompleted)
             return RedirectToAction(nameof(Index));
+
+        // Restore saved answer order for each question
+        foreach (var sq in session.Questions)
+        {
+            if (!string.IsNullOrEmpty(sq.AnswerOrder))
+            {
+                sq.Question.Answers = sq.AnswerOrder
+                    .Split(',')
+                    .Select(id => sq.Question.Answers.FirstOrDefault(a => a.Id == int.Parse(id)))
+                    .Where(a => a != null)
+                    .ToList();
+            }
+        }
 
         return View(session);
     }

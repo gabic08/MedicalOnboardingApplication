@@ -12,4 +12,5 @@ public class TestSessionQuestion
     public bool? IsCorrect { get; set; }
     public int Order { get; set; }
     public int DifficultyAtTime { get; set; }
+    public string AnswerOrder { get; set; }
 }

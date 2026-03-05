@@ -10,7 +10,6 @@ public class TestSession
     public bool IsCompleted { get; set; }
     public int TotalQuestions { get; set; }
     public int CorrectAnswers { get; set; }
-    public int FinalDifficulty { get; set; }
     public double AverageDifficulty { get; set; }
     public List<TestSessionQuestion> Questions { get; set; } = new();
 }

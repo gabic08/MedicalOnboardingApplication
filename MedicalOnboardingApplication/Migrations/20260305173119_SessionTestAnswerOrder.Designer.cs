@@ -3,6 +3,7 @@ using System;
 using MedicalOnboardingApplication.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MedicalOnboardingApplication.Migrations
 {
     [DbContext(typeof(MedicalOnboardingApplicationContext))]
-    partial class MedicalOnboardingApplicationContextModelSnapshot : ModelSnapshot
+    [Migration("20260305173119_SessionTestAnswerOrder")]
+    partial class SessionTestAnswerOrder
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -355,6 +358,9 @@ namespace MedicalOnboardingApplication.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("CorrectAnswers")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("FinalDifficulty")
                         .HasColumnType("integer");
 
                     b.Property<bool>("IsCompleted")
