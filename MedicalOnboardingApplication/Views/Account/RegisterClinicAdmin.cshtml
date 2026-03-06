@@ -1,7 +1,7 @@
 ﻿@using MedicalOnboardingApplication.ViewModels
 @model RegisterAdminViewModel
 @{
-    ViewData["Title"] = "Register Admin";
+    ViewData["Title"] = "Înregistrare Administrator";
 }
 
 <div class="d-flex justify-content-center align-items-center py-5">
@@ -14,8 +14,8 @@
                          style="width: 64px; height: 64px;">
                         <i class="bi bi-person-plus fs-3 text-success"></i>
                     </div>
-                    <h4 class="fw-semibold mb-0">Create Admin Account</h4>
-                    <p class="text-muted small mt-1">Fill in the details below to register</p>
+                    <h4 class="fw-semibold mb-0">Creare Cont Administrator</h4>
+                    <p class="text-muted small mt-1">Completează detaliile de mai jos pentru înregistrare</p>
                 </div>
 
                 <form method="post" novalidate>
@@ -27,12 +27,12 @@
                     <div class="row g-3 mb-3">
                         <div class="col-6">
                             <label asp-for="FirstName" class="form-label fw-semibold small"></label>
-                            <input asp-for="FirstName" class="form-control" placeholder="First name" />
+                            <input asp-for="FirstName" class="form-control" placeholder="Prenume" />
                             <span asp-validation-for="FirstName" class="text-danger small"></span>
                         </div>
                         <div class="col-6">
                             <label asp-for="LastName" class="form-label fw-semibold small"></label>
-                            <input asp-for="LastName" class="form-control" placeholder="Last name" />
+                            <input asp-for="LastName" class="form-control" placeholder="Nume" />
                             <span asp-validation-for="LastName" class="text-danger small"></span>
                         </div>
                     </div>
@@ -41,7 +41,7 @@
                         <label asp-for="Email" class="form-label fw-semibold small"></label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="bi bi-envelope"></i></span>
-                            <input asp-for="Email" class="form-control" placeholder="admin@example.com" />
+                            <input asp-for="Email" class="form-control" placeholder="admin@exemplu.com" />
                         </div>
                         <span asp-validation-for="Email" class="text-danger small"></span>
                     </div>
@@ -54,7 +54,7 @@
                                    id="passwordField"
                                    class="form-control"
                                    type="password"
-                                   placeholder="Create a password"
+                                   placeholder="Creează o parolă"
                                    autocomplete="new-password" />
                             <button type="button"
                                     class="btn btn-outline-secondary toggle-password"
@@ -74,7 +74,7 @@
                                    id="confirmPasswordField"
                                    class="form-control"
                                    type="password"
-                                   placeholder="Repeat your password"
+                                   placeholder="Repetă parola"
                                    autocomplete="new-password" />
                             <button type="button"
                                     class="btn btn-outline-secondary toggle-password"
@@ -87,7 +87,7 @@
                     </div>
 
                     <button class="btn btn-success w-100 py-2" type="submit">
-                        <i class="bi bi-person-check me-1"></i> Create Admin Account
+                        <i class="bi bi-person-check me-1"></i> Creare Cont Administrator
                     </button>
 
                     <div class="text-center mt-3">
@@ -95,7 +95,7 @@
                            asp-action="Login"
                            asp-route-returnUrl="@Model.ReturnUrl"
                            class="text-decoration-none text-muted small">
-                            <i class="bi bi-arrow-left me-1"></i> Back to Login
+                            <i class="bi bi-arrow-left me-1"></i> Înapoi la Autentificare
                         </a>
                     </div>
                 </form>

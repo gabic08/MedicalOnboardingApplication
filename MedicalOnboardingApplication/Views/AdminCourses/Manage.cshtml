@@ -4,21 +4,21 @@
 @using MedicalOnboardingApplication.ViewModels
 
 @{
-    ViewData["Title"] = "Manage Course";
+    ViewData["Title"] = "Gestionare Curs";
     var course = ViewBag.Course as Course;
 }
 
 <div class="mb-4">
     <a asp-controller="AdminCourses" asp-action="Index" class="btn btn-outline-secondary mb-2">
-        <i class="bi bi-arrow-left"></i> Back to Courses
+        <i class="bi bi-arrow-left"></i> Înapoi la Cursuri
     </a>
     <div class="d-flex justify-content-between align-items-center">
-        <h1 class="mb-0">Manage Course</h1>
+        <h1 class="mb-0">Gestionare Curs</h1>
         <button type="button"
                 class="btn btn-outline-danger"
                 data-bs-toggle="modal"
                 data-bs-target="#deleteCourseModal">
-            <i class="bi bi-trash"></i> Delete Course
+            <i class="bi bi-trash"></i> Șterge Cursul
         </button>
     </div>
 </div>
@@ -29,7 +29,7 @@
 <div class="card shadow-sm border-0 mb-4">
     <div class="card-header bg-white border-bottom py-3">
         <h5 class="mb-0 fw-semibold">
-            <i class="bi bi-pencil-square me-2 text-primary"></i> Course Details
+            <i class="bi bi-pencil-square me-2 text-primary"></i> Detalii Curs
         </h5>
     </div>
     <div class="card-body p-4">
@@ -59,7 +59,7 @@
 
             <div class="mt-4">
                 <h6 class="fw-semibold small text-muted text-uppercase mb-3">
-                    <i class="bi bi-people me-1"></i> Assign to Employee Types
+                    <i class="bi bi-people me-1"></i> Atribuie Tipurilor de Angajați
                 </h6>
                 <div class="d-flex flex-wrap gap-2">
                     @for (int i = 0; i < Model.EmployeeTypes.Count; i++)
@@ -84,7 +84,7 @@
 
             <div class="d-flex justify-content-end mt-4">
                 <button type="submit" class="btn btn-primary px-4">
-                    <i class="bi bi-save me-1"></i> Save Course
+                    <i class="bi bi-save me-1"></i> Salvează Cursul
                 </button>
             </div>
         </form>
@@ -97,14 +97,14 @@
 <div class="card shadow-sm border-0 mb-4">
     <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
         <h5 class="mb-0 fw-semibold">
-            <i class="bi bi-journals me-2 text-success"></i> Chapters
+            <i class="bi bi-journals me-2 text-success"></i> Capitole
             <span class="badge bg-success bg-opacity-10 text-success ms-1">@(course.Chapters?.Count ?? 0)</span>
         </h5>
         <a asp-controller="Chapters"
            asp-action="Create"
            asp-route-courseId="@course.Id"
            class="btn btn-success btn-sm">
-            <i class="bi bi-plus-circle me-1"></i> Add Chapter
+            <i class="bi bi-plus-circle me-1"></i> Adaugă Capitol
         </a>
     </div>
     <div class="card-body p-4">
@@ -112,7 +112,7 @@
         {
             <div class="text-center py-4 text-muted">
                 <i class="bi bi-journal-x fs-1 d-block mb-2 opacity-25"></i>
-                No chapters yet. Add your first chapter to get started.
+                Niciun capitol adăugat. Adaugă primul capitol pentru a începe.
             </div>
         }
         else
@@ -146,7 +146,7 @@
                                     {
                                         <span id="@(baseId)_full" class="d-none">@content</span>
                                         <a href="javascript:void(0)" class="ms-2 text-primary small"
-                                           onclick="toggleContent('@baseId', this)">See more</a>
+                                           onclick="toggleContent('@baseId', this)">Vezi mai mult</a>
                                     }
                                 </p>
 
@@ -155,7 +155,7 @@
                                        asp-action="Edit"
                                        asp-route-id="@chapter.Id"
                                        class="btn btn-sm btn-outline-primary">
-                                        <i class="bi bi-pencil me-1"></i> Edit
+                                        <i class="bi bi-pencil me-1"></i> Editează
                                     </a>
                                     <button type="button"
                                             class="btn btn-sm btn-outline-danger"
@@ -163,14 +163,14 @@
                                             data-bs-target="#deleteChapterModal"
                                             data-chapter-id="@chapter.Id"
                                             data-chapter-title="@chapter.Title">
-                                        <i class="bi bi-trash me-1"></i> Delete
+                                        <i class="bi bi-trash me-1"></i> Șterge
                                     </button>
                                 </div>
 
                                 @if (chapter.Attachments != null && chapter.Attachments.Any())
                                 {
                                     <h6 class="small fw-semibold text-muted text-uppercase mb-2">
-                                        <i class="bi bi-paperclip me-1"></i> Attachments
+                                        <i class="bi bi-paperclip me-1"></i> Atașamente
                                     </h6>
                                     <ul class="list-group list-group-flush">
                                         @foreach (var att in chapter.Attachments)
@@ -196,7 +196,7 @@
                                                 <a href="@att.FilePath"
                                                    target="_blank"
                                                    class="btn btn-sm btn-outline-secondary">
-                                                    <i class="bi bi-box-arrow-up-right me-1"></i> Open
+                                                    <i class="bi bi-box-arrow-up-right me-1"></i> Deschide
                                                 </a>
                                             </li>
                                         }
@@ -205,7 +205,7 @@
                                 else
                                 {
                                     <p class="text-muted small mb-0">
-                                        <i class="bi bi-paperclip me-1"></i> No attachments
+                                        <i class="bi bi-paperclip me-1"></i> Niciun atașament
                                     </p>
                                 }
                             </div>
@@ -223,14 +223,14 @@
 <div class="card shadow-sm border-0 mb-4">
     <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
         <h5 class="mb-0 fw-semibold">
-            <i class="bi bi-patch-question me-2 text-warning"></i> Questions
+            <i class="bi bi-patch-question me-2 text-warning"></i> Întrebări
             <span class="badge bg-warning bg-opacity-10 text-warning ms-1">@(course.Questions?.Count ?? 0)</span>
         </h5>
         <a asp-controller="Questions"
            asp-action="Create"
            asp-route-courseId="@course.Id"
            class="btn btn-warning btn-sm">
-            <i class="bi bi-plus-circle me-1"></i> Add Question
+            <i class="bi bi-plus-circle me-1"></i> Adaugă Întrebare
         </a>
     </div>
     <div class="card-body p-4">
@@ -238,7 +238,7 @@
         {
             <div class="text-center py-4 text-muted">
                 <i class="bi bi-question-circle fs-1 d-block mb-2 opacity-25"></i>
-                No questions added yet.
+                Nicio întrebare adăugată încă.
             </div>
         }
         else
@@ -254,7 +254,7 @@
                                     <i class="bi bi-bar-chart me-1"></i> @q.Difficulty
                                 </span>
                                 <span class="text-muted small">
-                                    <i class="bi bi-list-check me-1"></i> @(q.Answers?.Count ?? 0) answers
+                                    <i class="bi bi-list-check me-1"></i> @(q.Answers?.Count ?? 0) răspunsuri
                                 </span>
                             </div>
                         </div>
@@ -263,7 +263,7 @@
                                asp-action="Edit"
                                asp-route-id="@q.Id"
                                class="btn btn-sm btn-outline-primary">
-                                <i class="bi bi-pencil me-1"></i> Edit
+                                <i class="bi bi-pencil me-1"></i> Editează
                             </a>
                             <button type="button"
                                     class="btn btn-sm btn-outline-danger"
@@ -272,7 +272,7 @@
                                     data-question-id="@q.Id"
                                     data-question-text="@q.Text"
                                     data-course-id="@course.Id">
-                                <i class="bi bi-trash me-1"></i> Delete
+                                <i class="bi bi-trash me-1"></i> Șterge
                             </button>
                         </div>
                     </div>
@@ -310,22 +310,22 @@
         <div class="modal-content border-0 shadow">
             <div class="modal-header border-0 pb-0">
                 <h5 class="modal-title text-danger">
-                    <i class="bi bi-exclamation-triangle me-2"></i> Delete Question
+                    <i class="bi bi-exclamation-triangle me-2"></i> Șterge Întrebarea
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <p>Are you sure you want to delete <strong id="deleteQuestionText"></strong>?</p>
+                <p>Ești sigur că vrei să ștergi <strong id="deleteQuestionText"></strong>?</p>
                 <div class="alert alert-warning small mb-0">
                     <i class="bi bi-info-circle me-1"></i>
-                    This will also delete all answers. This action cannot be undone.
+                    Aceasta va șterge și toate răspunsurile. Această acțiune nu poate fi anulată.
                 </div>
             </div>
             <div class="modal-footer border-0 pt-0">
-                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Anulează</button>
                 <button type="button" class="btn btn-danger"
                         onclick="document.getElementById('deleteQuestionForm').submit();">
-                    <i class="bi bi-trash me-1"></i> Yes, Delete
+                    <i class="bi bi-trash me-1"></i> Da, Șterge
                 </button>
             </div>
         </div>
@@ -338,22 +338,22 @@
         <div class="modal-content border-0 shadow">
             <div class="modal-header border-0 pb-0">
                 <h5 class="modal-title text-danger">
-                    <i class="bi bi-exclamation-triangle me-2"></i> Delete Chapter
+                    <i class="bi bi-exclamation-triangle me-2"></i> Șterge Capitolul
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <p>Are you sure you want to delete <strong id="deleteChapterTitle"></strong>?</p>
+                <p>Ești sigur că vrei să ștergi <strong id="deleteChapterTitle"></strong>?</p>
                 <div class="alert alert-warning small mb-0">
                     <i class="bi bi-info-circle me-1"></i>
-                    This will also delete all attachments. This action cannot be undone.
+                    Aceasta va șterge și toate atașamentele. Această acțiune nu poate fi anulată.
                 </div>
             </div>
             <div class="modal-footer border-0 pt-0">
-                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Anulează</button>
                 <button type="button" class="btn btn-danger"
                         onclick="document.getElementById('deleteChapterForm').submit();">
-                    <i class="bi bi-trash me-1"></i> Yes, Delete
+                    <i class="bi bi-trash me-1"></i> Da, Șterge
                 </button>
             </div>
         </div>
@@ -366,22 +366,22 @@
         <div class="modal-content border-0 shadow">
             <div class="modal-header border-0 pb-0">
                 <h5 class="modal-title text-danger">
-                    <i class="bi bi-exclamation-triangle me-2"></i> Delete Course
+                    <i class="bi bi-exclamation-triangle me-2"></i> Șterge Cursul
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <p>Are you sure you want to delete <strong>@course.Title</strong>?</p>
+                <p>Ești sigur că vrei să ștergi <strong>@course.Title</strong>?</p>
                 <div class="alert alert-warning small mb-0">
                     <i class="bi bi-info-circle me-1"></i>
-                    This will also delete all chapters, attachments, and questions. This action cannot be undone.
+                    Aceasta va șterge și toate capitolele, atașamentele și întrebările. Această acțiune nu poate fi anulată.
                 </div>
             </div>
             <div class="modal-footer border-0 pt-0">
-                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Anulează</button>
                 <button type="button" class="btn btn-danger"
                         onclick="document.getElementById('deleteCourseForm').submit();">
-                    <i class="bi bi-trash me-1"></i> Yes, Delete
+                    <i class="bi bi-trash me-1"></i> Da, Șterge
                 </button>
             </div>
         </div>
@@ -399,11 +399,11 @@
             if (fullEl.classList.contains("d-none")) {
                 shortEl.classList.add("d-none");
                 fullEl.classList.remove("d-none");
-                link.innerText = "See less";
+                link.innerText = "Vezi mai puțin";
             } else {
                 fullEl.classList.add("d-none");
                 shortEl.classList.remove("d-none");
-                link.innerText = "See more";
+                link.innerText = "Vezi mai mult";
             }
         }
 

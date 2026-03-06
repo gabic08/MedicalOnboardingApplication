@@ -1,14 +1,14 @@
 ﻿@using MedicalOnboardingApplication.ViewModels
 @model CourseViewModel
 @{
-    ViewData["Title"] = "Create Course";
+    ViewData["Title"] = "Creare Curs";
 }
 
 <div class="mb-4">
     <a asp-action="Index" class="btn btn-outline-secondary mb-2">
-        <i class="bi bi-arrow-left"></i> Back to Courses
+        <i class="bi bi-arrow-left"></i> Înapoi la Cursuri
     </a>
-    <h1 class="mb-0">Create Course</h1>
+    <h1 class="mb-0">Creare Curs</h1>
 </div>
 
 <div class="row">
@@ -22,18 +22,18 @@
             <div class="card shadow-sm border-0 mb-3">
                 <div class="card-header bg-white border-bottom py-3">
                     <h6 class="mb-0 fw-semibold text-muted text-uppercase">
-                        <i class="bi bi-journal-text me-2 text-primary"></i> Course Details
+                        <i class="bi bi-journal-text me-2 text-primary"></i> Detalii Curs
                     </h6>
                 </div>
                 <div class="card-body p-4">
                     <div class="mb-3">
                         <label asp-for="Title" class="form-label fw-semibold small"></label>
-                        <input asp-for="Title" class="form-control" placeholder="Enter course title..." />
+                        <input asp-for="Title" class="form-control" placeholder="Introdu titlul cursului..." />
                         <span asp-validation-for="Title" class="text-danger small"></span>
                     </div>
                     <div class="mb-3">
                         <label asp-for="Description" class="form-label fw-semibold small"></label>
-                        <input asp-for="Description" class="form-control" placeholder="Enter course description..." />
+                        <input asp-for="Description" class="form-control" placeholder="Introdu descrierea cursului..." />
                         <span asp-validation-for="Description" class="text-danger small"></span>
                     </div>
                     <div class="mb-0" style="max-width: 150px;">
@@ -48,7 +48,7 @@
             <div class="card shadow-sm border-0 mb-4">
                 <div class="card-header bg-white border-bottom py-3">
                     <h6 class="mb-0 fw-semibold text-muted text-uppercase">
-                        <i class="bi bi-people me-2 text-primary"></i> Assign to Employee Types
+                        <i class="bi bi-people me-2 text-primary"></i> Atribuie Tipurilor de Angajați
                     </h6>
                 </div>
                 <div class="card-body p-4">
@@ -75,9 +75,9 @@
             </div>
 
             <div class="d-flex justify-content-end gap-2">
-                <a asp-action="Index" class="btn btn-outline-secondary px-4">Cancel</a>
+                <a asp-action="Index" class="btn btn-outline-secondary px-4">Anulează</a>
                 <button type="submit" class="btn btn-primary px-4">
-                    <i class="bi bi-save me-1"></i> Save Course
+                    <i class="bi bi-save me-1"></i> Salvează Cursul
                 </button>
             </div>
         </form>

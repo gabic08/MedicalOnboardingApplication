@@ -2,7 +2,7 @@
 @using MedicalOnboardingApplication.Models
 
 @{
-    ViewData["Title"] = "Create Chapter";
+    ViewData["Title"] = "Creare Capitol";
 }
 
 <div class="mb-3">
@@ -10,9 +10,9 @@
        asp-action="Manage"
        asp-route-id="@Model.CourseId"
        class="btn btn-outline-secondary mb-2">
-        <i class="bi bi-arrow-left"></i> Back to Course
+        <i class="bi bi-arrow-left"></i> Înapoi la Curs
     </a>
-    <h1 class="mb-0">Create Chapter</h1>
+    <h1 class="mb-0">Creare Capitol</h1>
 </div>
 
 <div class="row g-3" style="height: calc(100vh - 180px);">
@@ -31,7 +31,7 @@
                         <label asp-for="Title" class="form-label"></label>
                         <input asp-for="Title"
                                class="form-control"
-                               placeholder="Chapter title..." />
+                               placeholder="Titlul capitolului..." />
                         <span asp-validation-for="Title" class="text-danger"></span>
                     </div>
 
@@ -39,7 +39,7 @@
                         <label asp-for="Order" class="form-label"></label>
                         <input asp-for="Order"
                                class="form-control"
-                               placeholder="Chapter order (1, 2, 3...)" />
+                               placeholder="Ordinea capitolului (1, 2, 3...)" />
                         <span asp-validation-for="Order" class="text-danger"></span>
                     </div>
 
@@ -48,13 +48,13 @@
                         <textarea asp-for="Content"
                                   class="form-control flex-grow-1"
                                   style="resize: none; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.6;"
-                                  placeholder="Write your chapter content here..."></textarea>
+                                  placeholder="Scrie conținutul capitolului aici..."></textarea>
                         <span asp-validation-for="Content" class="text-danger"></span>
                     </div>
 
                     <div class="d-flex justify-content-end">
                         <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-save"></i> Save Chapter
+                            <i class="bi bi-save"></i> Salvează Capitolul
                         </button>
                     </div>
                 </form>
@@ -68,34 +68,34 @@
             <div class="card-body d-flex flex-column">
 
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="mb-0">Attachments</h5>
+                    <h5 class="mb-0">Atașamente</h5>
                     <button class="btn btn-sm btn-success" disabled>
-                        <i class="bi bi-plus-circle"></i> Add
+                        <i class="bi bi-plus-circle"></i> Adaugă
                     </button>
                 </div>
 
                 <div class="alert alert-info">
                     <i class="bi bi-info-circle me-2"></i>
-                    Save this chapter first to enable attachments.
+                    Salvează capitolul mai întâi pentru a activa atașamentele.
                 </div>
 
                 <ul class="list-group list-group-flush opacity-50">
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         <span class="d-flex align-items-center gap-2">
                             <i class="bi bi-image"></i>
-                            Image Attachment
+                            Atașament Imagine
                         </span>
                         <button class="btn btn-sm btn-outline-secondary" disabled>
-                            Open
+                            Deschide
                         </button>
                     </li>
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         <span class="d-flex align-items-center gap-2">
                             <i class="bi bi-file-earmark-pdf"></i>
-                            PDF Attachment
+                            Atașament PDF
                         </span>
                         <button class="btn btn-sm btn-outline-secondary" disabled>
-                            Open
+                            Deschide
                         </button>
                     </li>
                 </ul>

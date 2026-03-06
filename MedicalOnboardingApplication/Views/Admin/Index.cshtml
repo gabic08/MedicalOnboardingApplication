@@ -1,11 +1,11 @@
 ﻿@{
-    ViewData["Title"] = "Admin Dashboard";
+    ViewData["Title"] = "Panou Administrator";
     var hasClinic = ViewBag.HasClinic as bool? ?? false;
 }
 <div class="container py-5">
     <div class="text-center mb-5">
-        <h1 class="fw-bold">Admin Dashboard</h1>
-        <p class="text-muted">Manage your onboarding system from one place</p>
+        <h1 class="fw-bold">Panou Administrator</h1>
+        <p class="text-muted">Gestionează sistemul de integrare dintr-un singur loc</p>
     </div>
 
     @if (!hasClinic)
@@ -13,15 +13,14 @@
         <div class="alert alert-warning d-flex align-items-center gap-3 mb-4 shadow-sm" role="alert">
             <i class="bi bi-exclamation-triangle-fill fs-4 flex-shrink-0"></i>
             <div>
-                <strong>Clinic not configured.</strong>
-                You need to set up your clinic before you can manage employees and courses.
+                <strong>Clinica nu este configurată.</strong>
+                Trebuie să îți configurezi clinica înainte de a putea gestiona angajații și cursurile.
                 <a asp-controller="Clinic" asp-action="Details" class="alert-link ms-1">
-                    Set up your clinic →
+                    Configurează clinica →
                 </a>
             </div>
         </div>
     }
-
 
     <div class="row justify-content-center g-4">
         <!-- Courses Card -->
@@ -34,13 +33,13 @@
                             <div class="mb-4 text-primary">
                                 <i class="bi bi-journal-text display-3"></i>
                             </div>
-                            <h3 class="fw-bold mb-2">Courses</h3>
+                            <h3 class="fw-bold mb-2">Cursuri</h3>
                             <p class="text-muted">
-                                Create, edit, and organize onboarding courses for employees
+                                Creează, editează și organizează cursuri de integrare pentru angajați
                             </p>
                             <div class="mt-4">
                                 <span class="btn btn-primary px-4">
-                                    Manage Courses
+                                    Gestionează Cursurile
                                 </span>
                             </div>
                         </div>
@@ -54,13 +53,13 @@
                         <div class="mb-4 text-primary">
                             <i class="bi bi-journal-text display-3"></i>
                         </div>
-                        <h3 class="fw-bold mb-2">Courses</h3>
+                        <h3 class="fw-bold mb-2">Cursuri</h3>
                         <p class="text-muted">
-                            Create, edit, and organize onboarding courses for employees
+                            Creează, editează și organizează cursuri de integrare pentru angajați
                         </p>
                         <div class="mt-4">
                             <span class="btn btn-primary px-4">
-                                Manage Courses
+                                Gestionează Cursurile
                             </span>
                         </div>
                     </div>
@@ -76,13 +75,13 @@
                         <div class="mb-4 text-danger">
                             <i class="bi bi-hospital display-3"></i>
                         </div>
-                        <h3 class="fw-bold mb-2">Clinic</h3>
+                        <h3 class="fw-bold mb-2">Clinică</h3>
                         <p class="text-muted">
-                            View and manage your clinic information
+                            Vizualizează și gestionează informațiile clinicii tale
                         </p>
                         <div class="mt-4">
                             <span class="btn btn-danger px-4">
-                                Manage Clinic
+                                Gestionează Clinica
                             </span>
                         </div>
                     </div>
@@ -100,13 +99,13 @@
                             <div class="mb-4 text-success">
                                 <i class="bi bi-people-fill display-3"></i>
                             </div>
-                            <h3 class="fw-bold mb-2">Employees</h3>
+                            <h3 class="fw-bold mb-2">Angajați</h3>
                             <p class="text-muted">
-                                Manage employees, assign roles, and update their information
+                                Gestionează angajații, atribuie roluri și actualizează informațiile acestora
                             </p>
                             <div class="mt-4">
                                 <span class="btn btn-success px-4">
-                                    Manage Employees
+                                    Gestionează Angajații
                                 </span>
                             </div>
                         </div>
@@ -116,21 +115,21 @@
             else
             {
                 <div class="card shadow-lg border-0 h-100 admin-card disabled-card">
-                <div class="card-body text-center p-5">
-                    <div class="mb-4 text-success">
-                        <i class="bi bi-people-fill display-3"></i>
-                    </div>
-                    <h3 class="fw-bold mb-2">Employees</h3>
-                    <p class="text-muted">
-                        Manage employees, assign roles, and update their information
-                    </p>
-                    <div class="mt-4">
-                        <span class="btn btn-success px-4">
-                            Manage Employees
-                        </span>
+                    <div class="card-body text-center p-5">
+                        <div class="mb-4 text-success">
+                            <i class="bi bi-people-fill display-3"></i>
+                        </div>
+                        <h3 class="fw-bold mb-2">Angajați</h3>
+                        <p class="text-muted">
+                            Gestionează angajații, atribuie roluri și actualizează informațiile acestora
+                        </p>
+                        <div class="mt-4">
+                            <span class="btn btn-success px-4">
+                                Gestionează Angajații
+                            </span>
+                        </div>
                     </div>
                 </div>
-            </div>
             }
         </div>
     </div>
@@ -140,17 +139,20 @@
         transition: transform 0.2s ease, box-shadow 0.2s ease;
         border-radius: 1rem;
     }
-    .admin-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.15);
-    }
+
+        .admin-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.15);
+        }
+
     .disabled-card {
         opacity: 0.5;
         pointer-events: none;
         cursor: not-allowed;
     }
-    .disabled-card:hover {
-        transform: none;
-        box-shadow: none;
-    }
+
+        .disabled-card:hover {
+            transform: none;
+            box-shadow: none;
+        }
 </style>

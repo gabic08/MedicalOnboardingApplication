@@ -339,28 +339,6 @@ namespace MedicalOnboardingApplication.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: Courses/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-            var clinicId = await GetCurrentClinicId();
-            if (clinicId == null)
-                return Forbid();
-
-
-            var course = await _context.Courses
-                .FirstOrDefaultAsync(m => m.Id == id && m.ClinicId == clinicId);
-            if (course == null)
-            {
-                return NotFound();
-            }
-
-            return View(course);
-        }
-
         // POST: Courses/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
