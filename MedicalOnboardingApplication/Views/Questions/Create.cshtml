@@ -3,7 +3,7 @@
 @model CreateQuestionViewModel
 
 @{
-    ViewData["Title"] = "Add Question";
+    ViewData["Title"] = "Adaugă Întrebare";
 }
 
 <div class="mb-4">
@@ -11,9 +11,9 @@
        asp-action="Manage"
        asp-route-id="@Model.CourseId"
        class="btn btn-outline-secondary mb-2">
-        <i class="bi bi-arrow-left"></i> Back to Course
+        <i class="bi bi-arrow-left"></i> Înapoi la Curs
     </a>
-    <h1 class="mb-0">Add Question</h1>
+    <h1 class="mb-0">Adaugă Întrebare</h1>
 </div>
 
 <div class="row">
@@ -28,12 +28,12 @@
             <div class="card shadow-sm mb-3">
                 <div class="card-body">
                     <h6 class="text-muted text-uppercase fw-semibold mb-3">
-                        <i class="bi bi-question-circle me-1"></i> Question
+                        <i class="bi bi-question-circle me-1"></i> Întrebare
                     </h6>
                     <textarea asp-for="QuestionText"
                               class="form-control"
                               rows="3"
-                              placeholder="Enter the question..."></textarea>
+                              placeholder="Introdu întrebarea..."></textarea>
                     <span asp-validation-for="QuestionText" class="text-danger"></span>
                 </div>
             </div>
@@ -42,7 +42,7 @@
             <div class="card shadow-sm mb-3">
                 <div class="card-body">
                     <h6 class="text-muted text-uppercase fw-semibold mb-3">
-                        <i class="bi bi-bar-chart me-1"></i> Difficulty
+                        <i class="bi bi-bar-chart me-1"></i> Dificultate
                     </h6>
                     <select asp-for="Difficulty"
                             asp-items="Html.GetEnumSelectList<QuestionDifficulty>()"
@@ -55,11 +55,11 @@
             <div class="card shadow-sm mb-4">
                 <div class="card-body">
                     <h6 class="text-muted text-uppercase fw-semibold mb-1">
-                        <i class="bi bi-list-check me-1"></i> Answers
+                        <i class="bi bi-list-check me-1"></i> Răspunsuri
                     </h6>
                     <small class="text-muted d-block mb-3">
-                        Select the radio button next to the correct answer.
-                        Minimum 2 answers required.
+                        Selectează butonul radio de lângă răspunsul corect.
+                        Sunt necesare minimum 2 răspunsuri.
                     </small>
 
                     <div id="answers-container">
@@ -71,16 +71,16 @@
                                            name="CorrectAnswerIndex"
                                            value="@i"
                                            class="form-check-input"
-                                           title="Mark as correct"
+                                           title="Marchează ca corect"
                                            @(Model.CorrectAnswerIndex == i ? "checked" : "") />
                                 </div>
                                 <input name="Answers[@i]"
                                        value="@Model.Answers[i]"
                                        class="form-control"
-                                       placeholder="Answer @(i + 1)" />
+                                       placeholder="Răspuns @(i + 1)" />
                                 <button type="button"
                                         class="btn btn-outline-danger btn-sm remove-answer-btn"
-                                        title="Remove">
+                                        title="Șterge">
                                     <i class="bi bi-trash"></i>
                                 </button>
                             </div>
@@ -90,14 +90,14 @@
                     <button type="button"
                             id="add-answer-btn"
                             class="btn btn-outline-secondary btn-sm mt-2">
-                        <i class="bi bi-plus-circle"></i> Add Answer
+                        <i class="bi bi-plus-circle"></i> Adaugă Răspuns
                     </button>
                 </div>
             </div>
 
             <div class="d-flex justify-content-end">
                 <button type="submit" class="btn btn-primary px-4">
-                    <i class="bi bi-save"></i> Save Question
+                    <i class="bi bi-save"></i> Salvează Întrebarea
                 </button>
             </div>
 
@@ -124,14 +124,14 @@
                            name="CorrectAnswerIndex"
                            value="${index}"
                            class="form-check-input"
-                           title="Mark as correct" />
+                           title="Marchează ca corect" />
                 </div>
                 <input name="Answers[${index}]"
                        class="form-control"
-                       placeholder="Answer ${index + 1}" />
+                       placeholder="Răspuns ${index + 1}" />
                 <button type="button"
                         class="btn btn-outline-danger btn-sm remove-answer-btn"
-                        title="Remove">
+                        title="Șterge">
                     <i class="bi bi-trash"></i>
                 </button>
             `;
@@ -154,7 +154,7 @@
                 row.querySelector("input[type='text'], input:not([type='radio'])")
                    .setAttribute("name", `Answers[${i}]`);
                 row.querySelector("input:not([type='radio'])")
-                   .setAttribute("placeholder", `Answer ${i + 1}`);
+                   .setAttribute("placeholder", `Răspuns ${i + 1}`);
             });
         }
 

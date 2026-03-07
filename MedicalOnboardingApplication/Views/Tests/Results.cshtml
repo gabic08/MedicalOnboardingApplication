@@ -1,6 +1,6 @@
 ﻿@model MedicalOnboardingApplication.Models.TestSession
 @{
-    ViewData["Title"] = "Test Results";
+    ViewData["Title"] = "Rezultate Test";
 
     var scorePct = Model.TotalQuestions > 0
         ? (int)Math.Round((double)Model.CorrectAnswers / Model.TotalQuestions * 100)
@@ -14,26 +14,26 @@
                 : scorePct >= 50 ? "bg-warning"
                 : "bg-danger";
 
-    var scoreMessage = scorePct >= 80 ? "Excellent work!"
-                     : scorePct >= 50 ? "Good effort!"
-                     : "Keep practicing!";
+    var scoreMessage = scorePct >= 80 ? "Excelent!"
+                     : scorePct >= 50 ? "Efort bun!"
+                     : "Continuă să exersezi!";
 
     var diffLabel = (int diff) => diff switch
     {
-        1 => ("bg-success", "1 - Very Easy"),
-        2 => ("bg-primary", "2 - Easy"),
-        3 => ("bg-warning text-dark", "3 - Medium"),
-        4 => ("bg-danger bg-opacity-75", "4 - Hard"),
-        5 => ("bg-danger", "5 - Very Hard"),
+        1 => ("bg-success", "1 - Foarte Ușor"),
+        2 => ("bg-primary", "2 - Ușor"),
+        3 => ("bg-warning text-dark", "3 - Mediu"),
+        4 => ("bg-danger bg-opacity-75", "4 - Dificil"),
+        5 => ("bg-danger", "5 - Foarte Dificil"),
         _ => ("bg-secondary", diff.ToString())
     };
 }
 
 <div class="mb-4">
     <a asp-action="Index" class="btn btn-outline-secondary mb-2">
-        <i class="bi bi-arrow-left"></i> Back to Tests
+        <i class="bi bi-arrow-left"></i> Înapoi la Teste
     </a>
-    <h1 class="mb-0">Test Results</h1>
+    <h1 class="mb-0">Rezultate Test</h1>
 </div>
 
 <!-- Score Summary -->
@@ -64,15 +64,15 @@
             <div class="col-md-5">
                 <h4 class="fw-bold mb-1">@scoreMessage</h4>
                 <p class="text-muted mb-3">
-                    You answered <strong>@Model.CorrectAnswers</strong> out of
-                    <strong>@Model.TotalQuestions</strong> questions correctly.
+                    Ai răspuns corect la <strong>@Model.CorrectAnswers</strong> din
+                    <strong>@Model.TotalQuestions</strong> întrebări.
                 </p>
                 <div class="d-flex flex-wrap gap-2">
                     <span class="badge bg-success bg-opacity-10 text-success px-3 py-2">
-                        <i class="bi bi-check-circle me-1"></i> @Model.CorrectAnswers Correct
+                        <i class="bi bi-check-circle me-1"></i> @Model.CorrectAnswers Corecte
                     </span>
                     <span class="badge bg-danger bg-opacity-10 text-danger px-3 py-2">
-                        <i class="bi bi-x-circle me-1"></i> @(Model.TotalQuestions - Model.CorrectAnswers) Incorrect
+                        <i class="bi bi-x-circle me-1"></i> @(Model.TotalQuestions - Model.CorrectAnswers) Incorecte
                     </span>
                 </div>
             </div>
@@ -81,19 +81,19 @@
             <div class="col-md-4">
                 <ul class="list-unstyled mb-0">
                     <li class="d-flex justify-content-between border-bottom py-2">
-                        <span class="text-muted small">Started</span>
+                        <span class="text-muted small">Început</span>
                         <span class="small fw-semibold">
                             @Model.StartedAt.ToLocalTime().ToString("dd MMM yyyy HH:mm")
                         </span>
                     </li>
                     <li class="d-flex justify-content-between border-bottom py-2">
-                        <span class="text-muted small">Completed</span>
+                        <span class="text-muted small">Finalizat</span>
                         <span class="small fw-semibold">
                             @Model.CompletedAt?.ToLocalTime().ToString("dd MMM yyyy HH:mm")
                         </span>
                     </li>
                     <li class="d-flex justify-content-between border-bottom py-2">
-                        <span class="text-muted small">Duration</span>
+                        <span class="text-muted small">Durată</span>
                         <span class="small fw-semibold">
                             @if (Model.CompletedAt.HasValue)
                             {
@@ -103,7 +103,7 @@
                         </span>
                     </li>
                     <li class="d-flex justify-content-between py-2">
-                        <span class="text-muted small">Avg Difficulty</span>
+                        <span class="text-muted small">Dificultate Medie</span>
                         <span class="small fw-semibold">
                             <span class="badge @diffLabel((int)Math.Round(Model.AverageDifficulty)).Item1">
                                 @Model.AverageDifficulty.ToString("0.00")
@@ -120,7 +120,7 @@
 <div class="card shadow-sm border-0 mb-4">
     <div class="card-header bg-white border-bottom py-3">
         <h6 class="mb-0 fw-semibold text-muted text-uppercase">
-            <i class="bi bi-graph-up me-2"></i> Difficulty Progression
+            <i class="bi bi-graph-up me-2"></i> Progresie Dificultate
         </h6>
     </div>
     <div class="card-body p-4">
@@ -133,18 +133,18 @@
                     <small class="text-muted" style="font-size: 0.7rem;">@q.DifficultyAtTime</small>
                     <div class="@barColor rounded"
                          style="width: 28px; height: @(heightPct)px; min-height: 8px; transition: height 0.3s;"
-                         title="Q@(q.Order) — Difficulty @q.DifficultyAtTime — @(q.IsCorrect == true ? "Correct" : "Incorrect")">
+                         title="Î@(q.Order) — Dificultate @q.DifficultyAtTime — @(q.IsCorrect == true ? "Corect" : "Incorect")">
                     </div>
-                    <small class="text-muted" style="font-size: 0.7rem;">Q@(q.Order)</small>
+                    <small class="text-muted" style="font-size: 0.7rem;">Î@(q.Order)</small>
                 </div>
             }
         </div>
         <div class="d-flex gap-3 mt-3">
             <span class="d-flex align-items-center gap-1 small text-muted">
-                <span class="bg-success rounded" style="width:12px;height:12px;display:inline-block;"></span> Correct
+                <span class="bg-success rounded" style="width:12px;height:12px;display:inline-block;"></span> Corect
             </span>
             <span class="d-flex align-items-center gap-1 small text-muted">
-                <span class="bg-danger rounded" style="width:12px;height:12px;display:inline-block;"></span> Incorrect
+                <span class="bg-danger rounded" style="width:12px;height:12px;display:inline-block;"></span> Incorect
             </span>
         </div>
     </div>
@@ -154,7 +154,7 @@
 <div class="card shadow-sm border-0 mb-4">
     <div class="card-header bg-white border-bottom py-3">
         <h6 class="mb-0 fw-semibold text-muted text-uppercase">
-            <i class="bi bi-list-check me-2"></i> Question Breakdown
+            <i class="bi bi-list-check me-2"></i> Detalii Întrebări
         </h6>
     </div>
     <div class="card-body p-0">
@@ -213,11 +213,11 @@
                                                 <span class="small">@answer.Text</span>
                                                 @if (wasSelected && isRight)
                                                 {
-                                                    <span class="badge bg-success ms-auto">Your answer</span>
+                                                    <span class="badge bg-success ms-auto">Răspunsul tău</span>
                                                 }
                                                 else if (wasSelected && !isRight)
                                                 {
-                                                    <span class="badge bg-danger ms-auto">Your answer</span>
+                                                    <span class="badge bg-danger ms-auto">Răspunsul tău</span>
                                                 }
                                             </div>
                                         </div>
@@ -237,12 +237,12 @@
 
 <div class="d-flex justify-content-end gap-2 mb-4">
     <a asp-action="Index" class="btn btn-outline-secondary px-4">
-        <i class="bi bi-clock-history me-1"></i> Back to Tests
+        <i class="bi bi-clock-history me-1"></i> Înapoi la Teste
     </a>
     <form asp-action="Start" method="post">
         @Html.AntiForgeryToken()
         <button type="submit" class="btn btn-warning px-4">
-            <i class="bi bi-arrow-repeat me-1"></i> Take Another Test
+            <i class="bi bi-arrow-repeat me-1"></i> Susține Alt Test
         </button>
     </form>
 </div>

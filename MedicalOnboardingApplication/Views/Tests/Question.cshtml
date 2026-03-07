@@ -1,6 +1,6 @@
 ﻿@model MedicalOnboardingApplication.Models.TestSessionQuestion
 @{
-    ViewData["Title"] = "Question";
+    ViewData["Title"] = "Întrebare";
     var answeredCount = ViewBag.AnsweredCount as int? ?? 0;
     var totalQuestions = ViewBag.TotalQuestions as int? ?? 15;
     var progress = ViewBag.Progress as int? ?? 0;
@@ -9,15 +9,14 @@
 
     var diffLabel = (int diff) => diff switch
     {
-        1 => ("bg-success", "1 - Very Easy"),
-        2 => ("bg-primary", "2 - Easy"),
-        3 => ("bg-warning text-dark", "3 - Medium"),
-        4 => ("bg-danger bg-opacity-75", "4 - Hard"),
-        5 => ("bg-danger", "5 - Very Hard"),
+        1 => ("bg-success", "1 - Foarte Ușor"),
+        2 => ("bg-primary", "2 - Ușor"),
+        3 => ("bg-warning text-dark", "3 - Mediu"),
+        4 => ("bg-danger bg-opacity-75", "4 - Dificil"),
+        5 => ("bg-danger", "5 - Foarte Dificil"),
         _ => ("bg-secondary", diff.ToString())
     };
 
-    // Feedback data (only present after answering)
     var showFeedback = ViewBag.ShowFeedback as bool? ?? false;
     var isCorrect = ViewBag.IsCorrect as bool? ?? false;
     var correctAnswerId = ViewBag.CorrectAnswerId as int? ?? 0;
@@ -34,7 +33,7 @@
 <!-- Progress -->
 <div class="mb-4">
     <div class="d-flex justify-content-between align-items-center mb-1">
-        <small class="text-muted">Question @(answeredCount + (showFeedback ? 0 : 1)) of @totalQuestions</small>
+        <small class="text-muted">Întrebarea @(answeredCount + (showFeedback ? 0 : 1)) din @totalQuestions</small>
         <span class="badge @diffLabel(currentDifficulty).Item1">
             <i class="bi bi-bar-chart me-1"></i> @diffLabel(currentDifficulty).Item2
         </span>
@@ -56,16 +55,16 @@
             <div class="alert @(isCorrect ? "alert-success" : "alert-danger") d-flex align-items-center gap-3 mb-4 shadow-sm">
                 <i class="bi @(isCorrect ? "bi-check-circle-fill" : "bi-x-circle-fill") fs-3"></i>
                 <div>
-                    <strong class="fs-5">@(isCorrect ? "Correct!" : "Incorrect!")</strong>
+                    <strong class="fs-5">@(isCorrect ? "Corect!" : "Incorect!")</strong>
                     <p class="mb-0 small">
                         @if (!isCorrect)
                         {
                             var correct = Model.Question.Answers.FirstOrDefault(a => a.Id == correctAnswerId);
-                            <text>The correct answer was: <strong>@correct?.Text</strong></text>
+                            <text>Răspunsul corect era: <strong>@correct?.Text</strong></text>
                         }
                         else
                         {
-                            <text>Well done, you selected the right answer.</text>
+                            <text>Felicitări, ai selectat răspunsul corect.</text>
                         }
                     </p>
                 </div>
@@ -76,7 +75,7 @@
         <div class="card shadow-sm border-0 mb-4">
             <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
                 <p class="text-muted small text-uppercase fw-semibold mb-0">
-                    <i class="bi bi-patch-question me-1"></i> Question @(answeredCount + (showFeedback ? 0 : 1))
+                    <i class="bi bi-patch-question me-1"></i> Întrebarea @(answeredCount + (showFeedback ? 0 : 1))
                 </p>
                 <span class="badge bg-secondary bg-opacity-10 text-secondary small">
                     <i class="bi bi-journal-text me-1"></i> @Model.Question.Course?.Title
@@ -120,7 +119,7 @@
                             id="submitBtn"
                             class="btn btn-primary px-5 py-2 disabled"
                             disabled>
-                        Submit <i class="bi bi-arrow-right ms-1"></i>
+                        Trimite <i class="bi bi-arrow-right ms-1"></i>
                     </button>
                 </div>
             </form>
@@ -155,11 +154,11 @@
                                 <span class="fw-medium">@answer.Text</span>
                                 @if (wasSelected && isRight)
                                 {
-                                    <span class="badge bg-success ms-auto">Your answer</span>
+                                    <span class="badge bg-success ms-auto">Răspunsul tău</span>
                                 }
                                 else if (wasSelected && !isRight)
                                 {
-                                    <span class="badge bg-danger ms-auto">Your answer</span>
+                                    <span class="badge bg-danger ms-auto">Răspunsul tău</span>
                                 }
                             </div>
                         </div>
@@ -171,20 +170,20 @@
             <div class="card shadow-sm border-0 mb-4">
                 <div class="card-header bg-white border-bottom py-3">
                     <h6 class="mb-0 fw-semibold text-muted text-uppercase">
-                        <i class="bi bi-calculator me-1"></i> Difficulty Adjustment
+                        <i class="bi bi-calculator me-1"></i> Ajustare Dificultate
                     </h6>
                 </div>
                 <div class="card-body p-4">
                     <div class="d-flex align-items-center gap-3 mb-3">
                         <div>
-                            <div class="text-muted small fw-semibold mb-1">Current</div>
+                            <div class="text-muted small fw-semibold mb-1">Curentă</div>
                             <span class="badge @diffLabel(currentDifficulty).Item1 px-3 py-2">
                                 @diffLabel(currentDifficulty).Item2
                             </span>
                         </div>
                         <i class="bi bi-arrow-right text-muted fs-5 mt-3"></i>
                         <div>
-                            <div class="text-muted small fw-semibold mb-1">Next</div>
+                            <div class="text-muted small fw-semibold mb-1">Următoarea</div>
                             <span class="badge @diffLabel(nextDifficulty).Item1 px-3 py-2">
                                 @diffLabel(nextDifficulty).Item2
                             </span>
@@ -194,14 +193,14 @@
                     <hr />
 
                     <p class="small text-muted mb-2">
-                        <strong>Formula:</strong> average of last @windowSize answers
-                        → if &gt; @increaseThreshold.ToString("0.0") increase,
-                        if &lt; @decreaseThreshold.ToString("0.0") decrease,
-                        otherwise stay the same.
+                        <strong>Formulă:</strong> media ultimelor @windowSize răspunsuri
+                        → dacă &gt; @increaseThreshold.ToString("0.0") crește,
+                        dacă &lt; @decreaseThreshold.ToString("0.0") scade,
+                        altfel rămâne aceeași.
                     </p>
 
                     <div class="d-flex align-items-center gap-2 mb-2">
-                        <span class="small text-muted fw-semibold">Last @windowSize answers:</span>
+                        <span class="small text-muted fw-semibold">Ultimele @windowSize răspunsuri:</span>
                         @foreach (var val in lastWindow)
                         {
                             <span class="badge @(val == 1 ? "bg-success" : "bg-danger")">
@@ -217,30 +216,30 @@
                     @if (windowAvg.HasValue)
                     {
                         <p class="small mb-0">
-                            <strong>Average:</strong>
+                            <strong>Medie:</strong>
                             <span class="@(windowAvg.Value > increaseThreshold ? "text-success" : windowAvg.Value < decreaseThreshold ? "text-danger" : "text-muted") fw-semibold">
                                 @windowAvg.Value.ToString("0.00")
                             </span>
                             —
                             @if (windowAvg.Value > increaseThreshold)
                             {
-                                <span class="text-success">Difficulty increases <i class="bi bi-arrow-up"></i></span>
+                                <span class="text-success">Dificultatea crește <i class="bi bi-arrow-up"></i></span>
                             }
                             else if (windowAvg.Value < decreaseThreshold)
                             {
-                                <span class="text-danger">Difficulty decreases <i class="bi bi-arrow-down"></i></span>
+                                <span class="text-danger">Dificultatea scade <i class="bi bi-arrow-down"></i></span>
                             }
                             else
                             {
-                                <span class="text-muted">Difficulty stays the same <i class="bi bi-dash"></i></span>
+                                <span class="text-muted">Dificultatea rămâne aceeași <i class="bi bi-dash"></i></span>
                             }
                         </p>
                     }
                     else
                     {
                         <p class="small text-muted mb-0">
-                            Difficulty will adjust after @windowSize answers are collected
-                            (@lastWindow.Count / @windowSize so far).
+                            Dificultatea se va ajusta după colectarea a @windowSize răspunsuri
+                            (@lastWindow.Count / @windowSize până acum).
                         </p>
                     }
                 </div>
@@ -253,7 +252,7 @@
                     <a asp-action="Complete"
                        asp-route-sessionId="@sessionId"
                        class="btn btn-success px-5 py-2">
-                        <i class="bi bi-check-circle me-2"></i> See Results
+                        <i class="bi bi-check-circle me-2"></i> Vezi Rezultatele
                     </a>
                 }
                 else
@@ -261,7 +260,7 @@
                     <a asp-action="Question"
                        asp-route-sessionId="@sessionId"
                        class="btn btn-primary px-5 py-2">
-                        Next Question <i class="bi bi-arrow-right ms-1"></i>
+                        Următoarea Întrebare <i class="bi bi-arrow-right ms-1"></i>
                     </a>
                 }
             </div>
@@ -302,7 +301,7 @@
         document.getElementById('answerForm')?.addEventListener('submit', function () {
             const btn = document.getElementById('submitBtn');
             btn.disabled = true;
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Submitting...';
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Se trimite...';
         });
     </script>
 }

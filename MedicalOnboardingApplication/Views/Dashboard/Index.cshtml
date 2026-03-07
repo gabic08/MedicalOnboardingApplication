@@ -1,15 +1,12 @@
 ﻿@{
-    ViewData["Title"] = "Dashboard";
+    ViewData["Title"] = "Panou Principal";
 }
-
 <div class="container py-5">
     <div class="text-center mb-5">
-        <h1 class="fw-bold">Welcome back!</h1>
-        <p class="text-muted">Continue your onboarding journey from where you left off</p>
+        <h1 class="fw-bold">Bine ai revenit!</h1>
+        <p class="text-muted">Continuă procesul de integrare de unde ai rămas</p>
     </div>
-
     <div class="row justify-content-center g-4">
-
         <!-- Courses Card -->
         <div class="col-md-5 col-lg-4">
             <a asp-controller="Courses" asp-action="Index" class="text-decoration-none">
@@ -18,20 +15,19 @@
                         <div class="mb-4 text-primary">
                             <i class="bi bi-journal-text display-3"></i>
                         </div>
-                        <h3 class="fw-bold mb-2">Courses</h3>
+                        <h3 class="fw-bold mb-2">Cursuri</h3>
                         <p class="text-muted">
-                            Browse and complete your assigned onboarding courses
+                            Explorează și finalizează cursurile de integrare atribuite
                         </p>
                         <div class="mt-4">
                             <span class="btn btn-primary px-4">
-                                View Courses
+                                Vezi Cursurile
                             </span>
                         </div>
                     </div>
                 </div>
             </a>
         </div>
-
         <!-- Tests Card -->
         <div class="col-md-5 col-lg-4">
             <a asp-controller="Tests" asp-action="Index" class="text-decoration-none">
@@ -40,23 +36,21 @@
                         <div class="mb-4 text-warning">
                             <i class="bi bi-patch-question display-3"></i>
                         </div>
-                        <h3 class="fw-bold mb-2">Tests</h3>
+                        <h3 class="fw-bold mb-2">Teste</h3>
                         <p class="text-muted">
-                            Take adaptive tests to assess your knowledge and track your progress
+                            Susține teste adaptive pentru a-ți evalua cunoștințele și a urmări progresul
                         </p>
                         <div class="mt-4">
                             <span class="btn btn-warning px-4">
-                                View Tests
+                                Vezi Testele
                             </span>
                         </div>
                     </div>
                 </div>
             </a>
         </div>
-
     </div>
 </div>
-
 <style>
     .dashboard-card {
         transition: transform 0.2s ease, box-shadow 0.2s ease;
