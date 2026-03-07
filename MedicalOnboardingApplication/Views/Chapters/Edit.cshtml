@@ -1,9 +1,11 @@
-﻿@model MedicalOnboardingApplication.Models.Chapter
+﻿@model MedicalOnboardingApplication.ViewModels.EditChapterViewModel
 @using MedicalOnboardingApplication.Enums
 @using MedicalOnboardingApplication.Models
 
 @{
     ViewData["Title"] = "Editare Capitol";
+
+    var attachments = ViewBag.Attachments as IEnumerable<MedicalOnboardingApplication.Models.ChapterAttachment>;
 }
 
 <div class="mb-3">
@@ -92,7 +94,7 @@
 
                 <!-- ATTACHMENTS LIST -->
                 <div class="flex-grow-1 overflow-auto">
-                    @if (Model.Attachments == null || !Model.Attachments.Any())
+                    @if (attachments == null || !attachments.Any())
                     {
                         <div class="alert alert-info">
                             Niciun atașament adăugat încă.
@@ -101,7 +103,7 @@
                     else
                     {
                         <ul class="list-group list-group-flush">
-                            @foreach (var att in Model.Attachments)
+                            @foreach (var att in attachments)
                             {
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
                                     <div class="d-flex align-items-center gap-2">

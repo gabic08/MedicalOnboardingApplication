@@ -1,5 +1,6 @@
 ﻿using MedicalOnboardingApplication.Data;
 using MedicalOnboardingApplication.Models;
+using MedicalOnboardingApplication.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,52 +22,52 @@ public class ChaptersController : Controller
             .Where(c => c.CourseId == courseId)
             .MaxAsync(c => (int?)c.Order) ?? 0;
 
-        var chapter = new Chapter
+        var vm = new CreateChapterViewModel
         {
             CourseId = courseId,
             Order = maxOrder + 1
         };
 
-        return View(chapter);
+        return View(vm);
     }
 
     // POST: Chapters/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("Title,Content,Order,CourseId")] Chapter chapter)
+    public async Task<IActionResult> Create(CreateChapterViewModel vm)
     {
         if (!ModelState.IsValid)
-            return View(chapter);
+            return View(vm);
 
-        // Get max order for this course
         var maxOrder = await _context.Chapters
-            .Where(c => c.CourseId == chapter.CourseId)
+            .Where(c => c.CourseId == vm.CourseId)
             .MaxAsync(c => (int?)c.Order) ?? 0;
 
-        // Normalize order
-        var requestedOrder = chapter.Order < 1 ? 1 :
-                             chapter.Order > maxOrder + 1 ? maxOrder + 1 :
-                             chapter.Order;
+        var requestedOrder = vm.Order < 1 ? 1 :
+                             vm.Order > maxOrder + 1 ? maxOrder + 1 :
+                             vm.Order;
 
-        // Shift chapters DOWN
         var chaptersToShift = await _context.Chapters
-            .Where(c => c.CourseId == chapter.CourseId &&
+            .Where(c => c.CourseId == vm.CourseId &&
                         c.Order >= requestedOrder)
             .OrderBy(c => c.Order)
             .ToListAsync();
 
         foreach (var c in chaptersToShift)
-        {
             c.Order++;
-        }
 
-        chapter.Order = requestedOrder;
+        var chapter = new Chapter
+        {
+            Title = vm.Title,
+            Content = vm.Content,
+            Order = requestedOrder,
+            CourseId = vm.CourseId
+        };
 
         _context.Chapters.Add(chapter);
         await _context.SaveChangesAsync();
 
         return RedirectToAction("Edit", "Chapters", new { id = chapter.Id });
-
     }
 
     // GET: Chapters/Edit/5
@@ -82,19 +83,30 @@ public class ChaptersController : Controller
         if (chapter == null)
             return NotFound();
 
-        return View(chapter);
+        var vm = new EditChapterViewModel
+        {
+            Id = chapter.Id,
+            Title = chapter.Title,
+            Content = chapter.Content,
+            Order = chapter.Order,
+            CourseId = chapter.CourseId
+        };
+
+        ViewBag.Attachments = chapter.Attachments;
+
+        return View(vm);
     }
 
     // POST: Chapters/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Content,Order,CourseId")] Chapter chapter)
+    public async Task<IActionResult> Edit(int id, EditChapterViewModel vm)
     {
-        if (id != chapter.Id)
+        if (id != vm.Id)
             return NotFound();
 
         if (!ModelState.IsValid)
-            return View(chapter);
+            return View(vm);
 
         var existing = await _context.Chapters
             .FirstOrDefaultAsync(c => c.Id == id);
@@ -105,55 +117,45 @@ public class ChaptersController : Controller
         var oldOrder = existing.Order;
 
         var maxOrder = await _context.Chapters
-            .Where(c => c.CourseId == chapter.CourseId &&
-                        c.Id != chapter.Id)
+            .Where(c => c.CourseId == vm.CourseId && c.Id != vm.Id)
             .MaxAsync(c => (int?)c.Order) ?? 0;
 
-        // Normalize order
-        var requestedOrder = chapter.Order < 1 ? 1 :
-                             chapter.Order > maxOrder + 1 ? maxOrder + 1 :
-                             chapter.Order;
+        var requestedOrder = vm.Order < 1 ? 1 :
+                             vm.Order > maxOrder + 1 ? maxOrder + 1 :
+                             vm.Order;
 
-        // SHIFT LOGIC
         if (requestedOrder < oldOrder)
         {
-            // Moving UP → push others down
             var chaptersToShift = await _context.Chapters
-                .Where(c => c.CourseId == chapter.CourseId &&
-                            c.Id != chapter.Id &&
+                .Where(c => c.CourseId == vm.CourseId &&
+                            c.Id != vm.Id &&
                             c.Order >= requestedOrder &&
                             c.Order < oldOrder)
                 .ToListAsync();
 
             foreach (var c in chaptersToShift)
-            {
                 c.Order++;
-            }
         }
         else if (requestedOrder > oldOrder)
         {
-            // Moving DOWN → pull others up
             var chaptersToShift = await _context.Chapters
-                .Where(c => c.CourseId == chapter.CourseId &&
-                            c.Id != chapter.Id &&
+                .Where(c => c.CourseId == vm.CourseId &&
+                            c.Id != vm.Id &&
                             c.Order > oldOrder &&
                             c.Order <= requestedOrder)
                 .ToListAsync();
 
             foreach (var c in chaptersToShift)
-            {
                 c.Order--;
-            }
         }
 
-        // Update chapter
-        existing.Title = chapter.Title;
-        existing.Content = chapter.Content;
+        existing.Title = vm.Title;
+        existing.Content = vm.Content;
         existing.Order = requestedOrder;
 
         await _context.SaveChangesAsync();
 
-        return RedirectToAction("Edit", "Chapters", new { id = chapter.Id });
+        return RedirectToAction("Edit", "Chapters", new { id = vm.Id });
     }
 
     // GET: Chapters/Delete/5
