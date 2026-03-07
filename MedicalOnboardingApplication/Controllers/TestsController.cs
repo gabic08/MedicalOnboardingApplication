@@ -65,7 +65,7 @@ public class TestsController : Controller
 
         if (activeSession != null)
         {
-            TempData["Error"] = "You have an unfinished test. Please complete it before starting a new one.";
+            TempData["Error"] = "Ai un test nefinalizat. Te rugăm să îl completezi înainte de a începe unul nou.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -77,7 +77,7 @@ public class TestsController : Controller
 
         if (allQuestions.Count < TotalQuestions)
         {
-            TempData["Error"] = "Not enough questions available to start a test.";
+            TempData["Error"] = "Nu sunt suficiente întrebări disponibile pentru a începe un test.";
             return RedirectToAction(nameof(Index));
         }
 

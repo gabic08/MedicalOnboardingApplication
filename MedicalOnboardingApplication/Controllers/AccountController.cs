@@ -3,7 +3,6 @@ using MedicalOnboardingApplication.Models;
 using MedicalOnboardingApplication.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-
 namespace MedicalOnboardingApplication.Controllers
 {
     public class AccountController : Controller
@@ -11,7 +10,6 @@ namespace MedicalOnboardingApplication.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly MedicalOnboardingApplicationContext _context;
-
         public AccountController(
             SignInManager<ApplicationUser> signInManager,
             UserManager<ApplicationUser> userManager,
@@ -21,55 +19,43 @@ namespace MedicalOnboardingApplication.Controllers
             _userManager = userManager;
             _context = context;
         }
-
         [HttpGet]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Login(string returnUrl = null)
         {
-            // Redirect already-authenticated users away from login page
             if (User.Identity?.IsAuthenticated == true)
                 return LocalRedirect("/");
-
             return View(new LoginViewModel { ReturnUrl = returnUrl });
         }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel vm)
         {
             if (!ModelState.IsValid)
                 return View(vm);
-
-            // Identity signs in by USERNAME, not email
             var user = await _userManager.FindByEmailAsync(vm.Email);
-
             if (user == null)
             {
-                ModelState.AddModelError("", "Invalid login attempt.");
+                ModelState.AddModelError("", "Încearcare de autentificare invalidă.");
                 return View(vm);
             }
-
             var result = await _signInManager.PasswordSignInAsync(
                 user.UserName,
                 vm.Password,
                 isPersistent: false,
                 lockoutOnFailure: true);
-
             if (result.Succeeded)
             {
                 return LocalRedirect("/");
             }
-
             if (result.IsLockedOut)
             {
-                ModelState.AddModelError("", "Account locked. Try again later.");
+                ModelState.AddModelError("", "Cont blocat. Încearcă din nou mai târziu.");
                 return View(vm);
             }
-
-            ModelState.AddModelError("", "Invalid login attempt.");
+            ModelState.AddModelError("", "Încearcare de autentificare invalidă.");
             return View(vm);
         }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
@@ -77,7 +63,6 @@ namespace MedicalOnboardingApplication.Controllers
             await _signInManager.SignOutAsync();
             return RedirectToAction("Login");
         }
-
         [HttpGet]
         public IActionResult RegisterClinicAdmin(string returnUrl = null)
         {
@@ -86,14 +71,12 @@ namespace MedicalOnboardingApplication.Controllers
                 ReturnUrl = returnUrl
             });
         }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RegisterClinicAdmin(RegisterAdminViewModel vm)
         {
             if (!ModelState.IsValid)
                 return View(vm);
-
             var user = new ApplicationUser
             {
                 UserName = vm.Email,
@@ -102,19 +85,14 @@ namespace MedicalOnboardingApplication.Controllers
                 LastName = vm.LastName,
                 EmailConfirmed = true
             };
-
             var result = await _userManager.CreateAsync(user, vm.Password);
-
             if (!result.Succeeded)
             {
                 foreach (var error in result.Errors)
                     ModelState.AddModelError("", error.Description);
-
                 return View(vm);
             }
-
             await _userManager.AddToRoleAsync(user, "Admin");
-
             return LocalRedirect(vm.ReturnUrl ?? Url.Action("Login", "Account")!);
         }
     }

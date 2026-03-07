@@ -1,4 +1,4 @@
-﻿using MedicalOnboardingApplication.Data;
+﻿using MedicalOnboardingApplication.Enums;
 using System.ComponentModel.DataAnnotations;
 
 namespace MedicalOnboardingApplication.ViewModels;

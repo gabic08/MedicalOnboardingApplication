@@ -80,9 +80,8 @@ public class ClinicController : Controller
             await _context.SaveChangesAsync();
         }
 
-        TempData["Success"] = "Clinic information saved successfully.";
+        TempData["Success"] = "Informațiile clinicii au fost salvate cu succes.";
 
-        // Redirect back to Details (main page)
         return RedirectToAction(nameof(Details));
     }
 }

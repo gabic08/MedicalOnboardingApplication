@@ -146,7 +146,7 @@ namespace MedicalOnboardingApplication.Controllers
             // Title validation
             if (string.IsNullOrWhiteSpace(model.Title))
             {
-                ModelState.AddModelError("Title", "Title is required.");
+                ModelState.AddModelError("Title", "Titlul este obligatoriu.");
             }
             else
             {
@@ -155,7 +155,7 @@ namespace MedicalOnboardingApplication.Controllers
 
                 if (exists)
                 {
-                    ModelState.AddModelError("Title", "A course with this title already exists.");
+                    ModelState.AddModelError("Title", "Un curs cu acest titlu există deja.");
                 }
             }
 
@@ -238,7 +238,7 @@ namespace MedicalOnboardingApplication.Controllers
             // Title validation
             if (string.IsNullOrWhiteSpace(model.Title))
             {
-                ModelState.AddModelError("Title", "Title is required.");
+                ModelState.AddModelError("Title", "Titlul este obligatoriu.");
             }
             else
             {
@@ -249,7 +249,7 @@ namespace MedicalOnboardingApplication.Controllers
 
                 if (exists)
                 {
-                    ModelState.AddModelError("Title", "A course with this title already exists.");
+                    ModelState.AddModelError("Title", "Un curs cu acest titlu există deja.");
                 }
             }
 

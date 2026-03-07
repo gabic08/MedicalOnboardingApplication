@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace MedicalOnboardingApplication.Data;
+namespace MedicalOnboardingApplication.Enums;
 
 public enum QuestionDifficulty
 {

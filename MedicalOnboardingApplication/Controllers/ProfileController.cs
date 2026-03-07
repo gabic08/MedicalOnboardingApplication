@@ -77,7 +77,7 @@ public class ProfileController : Controller
 
             if (!allowedExtensions.Contains(extension))
             {
-                ModelState.AddModelError("NewProfileImage", "Only image files are allowed.");
+                ModelState.AddModelError("NewProfileImage", "Sunt permise doar fișiere imagine.");
                 vm.ExistingProfileImagePath = user.ProfileImagePath;
                 return View(vm);
             }
@@ -123,7 +123,7 @@ public class ProfileController : Controller
         }
 
         await _userManager.UpdateAsync(user);
-        TempData["Success"] = "Profile updated successfully.";
+        TempData["Success"] = "Profilul a fost actualizat cu succes.";
         return RedirectToAction(nameof(UserProfile));
     }
 }
