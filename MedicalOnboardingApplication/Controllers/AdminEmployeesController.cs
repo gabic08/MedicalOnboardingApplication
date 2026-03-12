@@ -90,7 +90,7 @@ public class AdminEmployeesController : Controller
 
         var result = await _userManager.CreateAsync(
             model,
-            "P@ssw0rd"   // default password
+            "P@ssw0rd"
         );
 
         if (result.Succeeded)

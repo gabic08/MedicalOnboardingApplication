@@ -130,8 +130,6 @@ namespace MedicalOnboardingApplication.Controllers
         }
 
         // POST: Courses/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CourseViewModel model)
@@ -223,8 +221,6 @@ namespace MedicalOnboardingApplication.Controllers
 
 
         // POST: Courses/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, CourseViewModel model)
@@ -284,7 +280,6 @@ namespace MedicalOnboardingApplication.Controllers
                 .Where(c => c.Id != course.Id)
                 .MaxAsync(c => (int?)c.Order) ?? 0;
 
-            // Normalize requested order
             var requestedOrder = model.Order < 1 ? 1 :
                                  model.Order > maxOrder + 1 ? maxOrder + 1 :
                                  model.Order;
