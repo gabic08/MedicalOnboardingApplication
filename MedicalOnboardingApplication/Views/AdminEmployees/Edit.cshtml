@@ -1,38 +1,35 @@
 ﻿@model MedicalOnboardingApplication.Models.ApplicationUser
 @{
-    ViewData["Title"] = "Edit Employee";
+    ViewData["Title"] = "Editare Angajat";
 }
 
 <div class="mb-4">
     <a asp-action="Index" class="btn btn-outline-secondary mb-2">
-        <i class="bi bi-arrow-left"></i> Back to Employees
+        <i class="bi bi-arrow-left"></i> Înapoi la Angajați
     </a>
-    <h1 class="mb-0">Edit Employee</h1>
+    <h1 class="mb-0">Editare Angajat</h1>
 </div>
-
 <div class="row">
     <div class="col-12 col-lg-10 mx-auto">
         <div class="card shadow-sm border-0">
             <div class="card-header bg-white border-bottom py-3">
                 <h6 class="mb-0 fw-semibold text-muted text-uppercase">
-                    <i class="bi bi-pencil-square me-2 text-warning"></i> Employee Details
+                    <i class="bi bi-pencil-square me-2 text-warning"></i> Detalii Angajat
                 </h6>
             </div>
             <div class="card-body p-4">
                 <form asp-action="Edit" method="post">
                     <input type="hidden" asp-for="Id" />
-
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold small">First Name</label>
+                            <label class="form-label fw-semibold small">Prenume</label>
                             <input asp-for="FirstName" class="form-control" />
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold small">Last Name</label>
+                            <label class="form-label fw-semibold small">Nume</label>
                             <input asp-for="LastName" class="form-control" />
                         </div>
                     </div>
-
                     <div class="mb-3">
                         <label class="form-label fw-semibold small">Email</label>
                         <div class="input-group">
@@ -40,18 +37,16 @@
                             <input asp-for="Email" class="form-control" />
                         </div>
                     </div>
-
                     <div class="mb-4">
-                        <label class="form-label fw-semibold small">Employee Type</label>
+                        <label class="form-label fw-semibold small">Tip Angajat</label>
                         <select asp-for="EmployeeTypeId"
                                 asp-items="ViewBag.EmployeeTypes"
                                 class="form-select">
                         </select>
                     </div>
-
                     <div class="d-flex justify-content-end">
                         <button type="submit" class="btn btn-primary px-4">
-                            <i class="bi bi-save me-1"></i> Save Changes
+                            <i class="bi bi-save me-1"></i> Salvează Modificările
                         </button>
                     </div>
                 </form>

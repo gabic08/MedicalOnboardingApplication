@@ -90,7 +90,7 @@ public class AdminEmployeesController : Controller
 
         var result = await _userManager.CreateAsync(
             model,
-            "P@ssw0rd"   // default password
+            "P@ssw0rd"
         );
 
         if (result.Succeeded)
@@ -219,16 +219,19 @@ public class AdminEmployeesController : Controller
         if (!isCompliant)
         {
             if (!assignedCourses.Any())
-                nonCompliantReason = "No courses assigned.";
+                nonCompliantReason = "Niciun curs atribuit.";
             else if (!allCoursesCompleted)
             {
                 var remaining = assignedCourses.Count(c => !completedCourseIds.Contains(c.Id));
-                nonCompliantReason = $"{remaining} course(s) not yet completed.";
+                if (remaining == 1)
+                    nonCompliantReason = "Un curs nefinalizat.";
+                else if (remaining > 1)
+                    nonCompliantReason = $"{remaining} cursuri nefinalizate.";
             }
             else if (!testSessions.Any())
-                nonCompliantReason = "No tests taken yet.";
+                nonCompliantReason = "Niciun test susținut încă.";
             else
-                nonCompliantReason = $"Average test score is {averageTestScore:0.0}%, required ≥ {passingScore}%.";
+                nonCompliantReason = $"Scorul mediu la teste este {averageTestScore:0.0}%, necesar ≥ {passingScore}%.";
         }
 
         ViewBag.Employee = employee;

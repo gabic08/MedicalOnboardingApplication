@@ -3,9 +3,12 @@ using MedicalOnboardingApplication.Data;
 using MedicalOnboardingApplication.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
+
+// Database
 builder.Services.AddDbContext<MedicalOnboardingApplicationContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("MedicalOnboardingApplicationContext") ?? throw new InvalidOperationException("Connection string 'MedicalOnboardingApplicationContext' not found.")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("MedicalOnboardingApplicationContext")));
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();

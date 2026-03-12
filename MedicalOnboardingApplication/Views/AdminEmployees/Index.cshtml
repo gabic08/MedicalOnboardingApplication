@@ -2,22 +2,22 @@
 
 <div class="mb-4">
     <a asp-controller="Admin" asp-action="Index" class="btn btn-outline-secondary mb-2">
-        <i class="bi bi-arrow-left"></i> Back to Dashboard
+        <i class="bi bi-arrow-left"></i> Înapoi la Panou
     </a>
-    <h2 class="mb-0">Employees</h2>
+    <h2 class="mb-0">Angajați</h2>
 </div>
 
 <div class="d-flex justify-content-between align-items-center mb-3">
     <div class="d-flex gap-2">
         <a asp-action="Create" class="btn btn-primary">
-            <i class="bi bi-plus"></i> Add Employee
+            <i class="bi bi-plus"></i> Adaugă Angajat
         </a>
     </div>
     <div>
         <a asp-controller="EmployeeTypes"
            asp-action="Index"
            class="btn btn-outline-secondary">
-            <i class="bi bi-briefcase"></i> Manage Employee Types
+            <i class="bi bi-briefcase"></i> Gestionează Tipuri de Angajați
         </a>
     </div>
 </div>
@@ -35,11 +35,11 @@
                    name="search"
                    value="@search"
                    class="form-control"
-                   placeholder="Search by name or email..." />
+                   placeholder="Caută după nume sau email..." />
         </div>
         <div class="col-md-4">
             <select name="employeeTypeId" class="form-select">
-                <option value="">All Employee Types</option>
+                <option value="">Toate Tipurile de Angajați</option>
                 @foreach (var type in employeeTypes)
                 {
                     <option value="@type.Id" selected="@(employeeTypeId == type.Id)">
@@ -50,29 +50,28 @@
         </div>
         <div class="col-md-auto">
             <button type="submit" class="btn btn-primary">
-                <i class="bi bi-search"></i> Search
+                <i class="bi bi-search"></i> Caută
             </button>
         </div>
         @if (!string.IsNullOrEmpty(search) || employeeTypeId.HasValue)
         {
             <div class="col-md-auto">
                 <a asp-action="Index" class="btn btn-outline-secondary">
-                    <i class="bi bi-x"></i> Clear
+                    <i class="bi bi-x"></i> Șterge Filtrele
                 </a>
             </div>
         }
     </form>
 </div>
 
-
 <div class="card shadow-sm border-0">
     <div class="card-body p-0">
         <table class="table table-hover align-middle mb-0">
             <thead class="table-light">
                 <tr>
-                    <th class="ps-4">Employee</th>
+                    <th class="ps-4">Angajat</th>
                     <th>Email</th>
-                    <th>Employee Type</th>
+                    <th>Tip Angajat</th>
                     <th></th>
                 </tr>
             </thead>
@@ -107,10 +106,10 @@
                                asp-action="Report"
                                asp-route-id="@emp.Id"
                                class="btn btn-sm btn-outline-info me-1">
-                                <i class="bi bi-file-earmark-bar-graph me-1"></i> Report
+                                <i class="bi bi-file-earmark-bar-graph me-1"></i> Raport
                             </a>
                             <a asp-action="Edit" asp-route-id="@emp.Id" class="btn btn-sm btn-outline-warning me-1">
-                                <i class="bi bi-pencil me-1"></i> Edit
+                                <i class="bi bi-pencil me-1"></i> Editează
                             </a>
                             <button type="button"
                                     class="btn btn-sm btn-outline-danger"
@@ -118,7 +117,7 @@
                                     data-bs-target="#deleteEmployeeModal"
                                     data-employee-id="@emp.Id"
                                     data-employee-name="@emp.FirstName @emp.LastName">
-                                <i class="bi bi-trash me-1"></i> Delete
+                                <i class="bi bi-trash me-1"></i> Șterge
                             </button>
                         </td>
                     </tr>
@@ -141,23 +140,23 @@
         <div class="modal-content border-0 shadow">
             <div class="modal-header border-0 pb-0">
                 <h5 class="modal-title text-danger">
-                    <i class="bi bi-exclamation-triangle me-2"></i> Delete Employee
+                    <i class="bi bi-exclamation-triangle me-2"></i> Șterge Angajatul
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <p>Are you sure you want to delete <strong id="deleteEmployeeName"></strong>?</p>
+                <p>Ești sigur că vrei să ștergi <strong id="deleteEmployeeName"></strong>?</p>
                 <div class="alert alert-warning small mb-0">
                     <i class="bi bi-info-circle me-1"></i>
-                    This action cannot be undone.
+                    Această acțiune nu poate fi anulată.
                 </div>
             </div>
             <div class="modal-footer border-0 pt-0">
-                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Anulează</button>
                 <button type="button"
                         class="btn btn-danger"
                         onclick="document.getElementById('deleteEmployeeForm').submit();">
-                    <i class="bi bi-trash me-1"></i> Yes, Delete
+                    <i class="bi bi-trash me-1"></i> Da, Șterge
                 </button>
             </div>
         </div>

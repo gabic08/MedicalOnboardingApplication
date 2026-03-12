@@ -1,5 +1,5 @@
 ﻿@{
-    ViewData["Title"] = "Employee Report";
+    ViewData["Title"] = "Raport Angajat";
 
     var employee = ViewBag.Employee as MedicalOnboardingApplication.Models.ApplicationUser;
     var assignedCourses = ViewBag.AssignedCourses as List<MedicalOnboardingApplication.Models.Course> ?? new();
@@ -26,12 +26,12 @@
 <div class="mb-4 d-flex justify-content-between align-items-center">
     <div>
         <a asp-controller="AdminEmployees" asp-action="Index" class="btn btn-outline-secondary mb-2">
-            <i class="bi bi-arrow-left"></i> Back to Employees
+            <i class="bi bi-arrow-left"></i> Înapoi la Angajați
         </a>
-        <h1 class="mb-0">Employee Report</h1>
+        <h1 class="mb-0">Raport Angajat</h1>
     </div>
     <button onclick="window.print()" class="btn btn-outline-primary">
-        <i class="bi bi-printer me-1"></i> Print Report
+        <i class="bi bi-printer me-1"></i> Printează Raportul
     </button>
 </div>
 
@@ -55,7 +55,7 @@
                 </div>
             </div>
             <div class="col-md-3 text-md-end">
-                <div class="text-muted small mb-1">Report generated</div>
+                <div class="text-muted small mb-1">Raport generat la</div>
                 <div class="fw-semibold">@reportDate.ToString("dd MMM yyyy HH:mm")</div>
             </div>
         </div>
@@ -76,12 +76,12 @@
             </div>
             <div class="col">
                 <h4 class="fw-bold mb-1 @(isCompliant ? "text-success" : "text-danger")">
-                    @(isCompliant ? "Compliant" : "Non-Compliant")
+                    @(isCompliant ? "Conform" : "Neconform")
                 </h4>
                 @if (isCompliant)
                 {
                     <p class="text-muted mb-0 small">
-                        All assigned courses have been completed and the average test score meets the required threshold.
+                        Toate cursurile atribuite au fost finalizate și scorul mediu la teste îndeplinește pragul necesar.
                     </p>
                 }
                 else
@@ -94,17 +94,17 @@
             <div class="col-md-5">
                 <div class="row g-3 text-center">
                     <div class="col-4">
-                        <div class="text-muted small mb-1">Courses Done</div>
+                        <div class="text-muted small mb-1">Cursuri Finalizate</div>
                         <div class="fw-bold fs-5">
                             @completedCourseIds.Count / @assignedCourses.Count
                         </div>
                     </div>
                     <div class="col-4">
-                        <div class="text-muted small mb-1">Tests Taken</div>
+                        <div class="text-muted small mb-1">Teste Susținute</div>
                         <div class="fw-bold fs-5">@testSessions.Count</div>
                     </div>
                     <div class="col-4">
-                        <div class="text-muted small mb-1">Avg Score</div>
+                        <div class="text-muted small mb-1">Scor Mediu</div>
                         <div class="fw-bold fs-5 @(averageTestScore >= passingScore ? "text-success" : "text-danger")">
                             @(testSessions.Any() ? $"{averageTestScore:0.0}%" : "—")
                         </div>
@@ -121,8 +121,8 @@
 <div class="card shadow-sm border-0 mb-4">
     <div class="card-header bg-white border-bottom py-3">
         <h5 class="mb-0 fw-semibold">
-            <i class="bi bi-journal-text me-2 text-primary"></i> Course Progress
-            <span class="badge bg-primary bg-opacity-10 text-primary ms-1">@assignedCourses.Count courses</span>
+            <i class="bi bi-journal-text me-2 text-primary"></i> Progres Cursuri
+            <span class="badge bg-primary bg-opacity-10 text-primary ms-1">@assignedCourses.Count cursuri</span>
         </h5>
     </div>
     <div class="card-body p-0">
@@ -130,7 +130,7 @@
         {
             <div class="text-center py-5 text-muted">
                 <i class="bi bi-journal-x fs-1 d-block mb-2 opacity-25"></i>
-                No courses assigned.
+                Niciun curs atribuit.
             </div>
         }
         else
@@ -172,18 +172,18 @@
                                     }
                                     <span class="fw-semibold flex-grow-1">@course.Title</span>
                                     <div class="d-flex align-items-center gap-3 flex-shrink-0">
-                                        <span class="text-muted small">@completedCount / @totalChapters chapters</span>
+                                        <span class="text-muted small">@completedCount / @totalChapters capitole</span>
                                         @if (isCourseCompleted)
                                         {
-                                            <span class="badge bg-success">Completed @completedAt</span>
+                                            <span class="badge bg-success">Finalizat @completedAt</span>
                                         }
                                         else if (isInProgress)
                                         {
-                                            <span class="badge bg-primary bg-opacity-10 text-primary">In Progress</span>
+                                            <span class="badge bg-primary bg-opacity-10 text-primary">În Progres</span>
                                         }
                                         else
                                         {
-                                            <span class="badge bg-secondary bg-opacity-10 text-secondary">Not Started</span>
+                                            <span class="badge bg-secondary bg-opacity-10 text-secondary">Neînceput</span>
                                         }
                                     </div>
                                 </div>
@@ -195,7 +195,7 @@
                                 <!-- Progress bar -->
                                 <div class="mb-3">
                                     <div class="d-flex justify-content-between mb-1">
-                                        <small class="text-muted">Progress</small>
+                                        <small class="text-muted">Progres</small>
                                         <small class="text-muted">@progressPct%</small>
                                     </div>
                                     <div class="progress" style="height: 6px;">
@@ -243,8 +243,8 @@
 <div class="card shadow-sm border-0 mb-4">
     <div class="card-header bg-white border-bottom py-3">
         <h5 class="mb-0 fw-semibold">
-            <i class="bi bi-patch-question me-2 text-warning"></i> Test Performance
-            <span class="badge bg-warning bg-opacity-10 text-warning ms-1">@testSessions.Count tests</span>
+            <i class="bi bi-patch-question me-2 text-warning"></i> Performanță Teste
+            <span class="badge bg-warning bg-opacity-10 text-warning ms-1">@testSessions.Count teste</span>
         </h5>
     </div>
     <div class="card-body p-4">
@@ -252,7 +252,7 @@
         {
             <div class="text-center py-4 text-muted">
                 <i class="bi bi-patch-question fs-1 d-block mb-2 opacity-25"></i>
-                No tests taken yet.
+                Niciun test susținut încă.
             </div>
         }
         else
@@ -261,22 +261,22 @@
             <div class="row g-3 mb-4">
                 <div class="col-md-3">
                     <div class="card border-0 bg-light text-center p-3">
-                        <div class="text-muted small mb-1">Average Score</div>
+                        <div class="text-muted small mb-1">Scor Mediu</div>
                         <div class="fw-bold fs-4 @(averageTestScore >= passingScore ? "text-success" : "text-danger")">
                             @averageTestScore.ToString("0.0")%
                         </div>
-                        <small class="text-muted">Required ≥ @passingScore%</small>
+                        <small class="text-muted">Necesar ≥ @passingScore%</small>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="card border-0 bg-light text-center p-3">
-                        <div class="text-muted small mb-1">Best Score</div>
+                        <div class="text-muted small mb-1">Cel Mai Bun Scor</div>
                         <div class="fw-bold fs-4 text-primary">@bestScore.ToString("0.0")%</div>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="card border-0 bg-light text-center p-3">
-                        <div class="text-muted small mb-1">Latest Score</div>
+                        <div class="text-muted small mb-1">Ultimul Scor</div>
                         <div class="fw-bold fs-4 @(latestScore >= passingScore ? "text-success" : "text-danger")">
                             @latestScore.ToString("0.0")%
                         </div>
@@ -284,7 +284,7 @@
                 </div>
                 <div class="col-md-3">
                     <div class="card border-0 bg-light text-center p-3">
-                        <div class="text-muted small mb-1">Tests Taken</div>
+                        <div class="text-muted small mb-1">Teste Susținute</div>
                         <div class="fw-bold fs-4">@testSessions.Count</div>
                     </div>
                 </div>
@@ -295,11 +295,11 @@
                 <thead class="table-light">
                     <tr>
                         <th>#</th>
-                        <th>Date</th>
-                        <th>Score</th>
-                        <th>Correct</th>
-                        <th>Avg Difficulty</th>
-                        <th>Result</th>
+                        <th>Dată</th>
+                        <th>Scor</th>
+                        <th>Corecte</th>
+                        <th>Dificultate Medie</th>
+                        <th>Rezultat</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -341,13 +341,13 @@
                                 @if (passed)
                                 {
                                     <span class="badge bg-success bg-opacity-10 text-success">
-                                        <i class="bi bi-check-circle me-1"></i> Pass
+                                        <i class="bi bi-check-circle me-1"></i> Promovat
                                     </span>
                                 }
                                 else
                                 {
                                     <span class="badge bg-danger bg-opacity-10 text-danger">
-                                        <i class="bi bi-x-circle me-1"></i> Fail
+                                        <i class="bi bi-x-circle me-1"></i> Nepromovat
                                     </span>
                                 }
                             </td>

@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<MedicalOnboardingApplication.Models.EmployeeType>
 
 @{
-    ViewData["Title"] = "Employee Types";
+    ViewData["Title"] = "Tipuri de Angajați";
     var search = ViewBag.Search as string;
     int? editId = ViewBag.EditId as int?;
 }
@@ -10,9 +10,9 @@
     <a asp-controller="AdminEmployees"
        asp-action="Index"
        class="btn btn-outline-secondary mb-2">
-        <i class="bi bi-arrow-left"></i> Back to Employees
+        <i class="bi bi-arrow-left"></i> Înapoi la Angajați
     </a>
-    <h1 class="mb-0">Employee Types</h1>
+    <h1 class="mb-0">Tipuri de Angajați</h1>
 </div>
 
 @if (TempData["Error"] != null)
@@ -31,11 +31,11 @@
                        name="search"
                        value="@search"
                        class="form-control"
-                       placeholder="Search employee types..." />
+                       placeholder="Caută tipuri de angajați..." />
             </div>
             <div class="col-md-4">
                 <button class="btn btn-primary w-100">
-                    <i class="bi bi-search"></i> Search
+                    <i class="bi bi-search"></i> Caută
                 </button>
             </div>
         </form>
@@ -45,11 +45,11 @@
             <div class="col-md-8">
                 <input name="name"
                        class="form-control"
-                       placeholder="New employee type name..." />
+                       placeholder="Nume tip angajat nou..." />
             </div>
             <div class="col-md-4">
                 <button class="btn btn-success w-100">
-                    <i class="bi bi-plus-circle"></i> Add
+                    <i class="bi bi-plus-circle"></i> Adaugă
                 </button>
             </div>
         </form>
@@ -62,7 +62,7 @@
         <table class="table table-striped align-middle mb-0">
             <thead>
                 <tr>
-                    <th>Name</th>
+                    <th>Nume</th>
                     <th style="width: 220px;"></th>
                 </tr>
             </thead>
@@ -104,17 +104,17 @@
                                 <a asp-action="Index"
                                    asp-route-editId="@type.Id"
                                    class="btn btn-sm btn-outline-secondary me-1">
-                                    <i class="bi bi-pencil"></i> Edit
+                                    <i class="bi bi-pencil"></i> Editează
                                 </a>
 
                                 <form asp-action="Delete"
                                       method="post"
                                       class="d-inline"
-                                      onsubmit="return confirm('Delete this employee type?');">
+                                      onsubmit="return confirm('Ștergi acest tip de angajat?');">
                                     @Html.AntiForgeryToken()
                                     <input type="hidden" name="id" value="@type.Id" />
                                     <button class="btn btn-sm btn-outline-danger">
-                                        <i class="bi bi-trash"></i> Delete
+                                        <i class="bi bi-trash"></i> Șterge
                                     </button>
                                 </form>
                             }

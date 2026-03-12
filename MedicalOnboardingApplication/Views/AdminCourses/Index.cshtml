@@ -1,7 +1,6 @@
-﻿@* @model IEnumerable<MedicalOnboardingApplication.Models.Course>
-
+﻿@model IEnumerable<MedicalOnboardingApplication.Models.Course>
 @{
-    ViewData["Title"] = "AdminCourses";
+    ViewData["Title"] = "Cursuri Admin";
     var employeeTypes = ViewBag.EmployeeTypes as List<MedicalOnboardingApplication.Models.EmployeeType>;
     var selectedTypeId = ViewBag.SelectedEmployeeTypeId as int?;
     var search = ViewBag.Search as string;
@@ -11,108 +10,9 @@
     <a asp-controller="Admin"
        asp-action="Index"
        class="btn btn-outline-secondary mb-2">
-        <i class="bi bi-arrow-left"></i> Back to Dashboard
+        <i class="bi bi-arrow-left"></i> Înapoi la Panou
     </a>
-    <h1 class="mb-0">Courses</h1>
-</div>
-
-<div class="mb-3">
-    <form method="get" class="row g-2 align-items-end">
-        <div class="col-md-4">
-            <label class="form-label">Search</label>
-            <input type="text"
-                   name="search"
-                   value="@search"
-                   class="form-control"
-                   placeholder="Search title or description..." />
-        </div>
-
-        <div class="col-md-4">
-            <label class="form-label">Filter by Employee Type</label>
-            <select name="employeeTypeId" class="form-select">
-                <option value="">All</option>
-                @foreach (var type in employeeTypes)
-                {
-                    <option value="@type.Id" selected="@(selectedTypeId == type.Id)">
-                        @type.Name
-                    </option>
-                }
-            </select>
-        </div>
-
-        <div class="col-md-2">
-            <button type="submit" class="btn btn-primary w-100">
-                <i class="bi bi-search"></i> Apply
-            </button>
-        </div>
-
-        <div class="col-md-2 text-end">
-            <a asp-action="Create" class="btn btn-success w-100">
-                <i class="bi bi-plus-circle"></i> New Course
-            </a>
-        </div>
-    </form>
-</div>
-
-<table class="table table-striped align-middle">
-    <thead>
-        <tr>
-            <th style="width: 80px;">Order</th>
-            <th style="width: 20%;">Title</th> <!-- Reduced width -->
-            <th>Employee Types</th>
-            <th style="width: 220px;"></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var course in Model)
-        {
-            <tr>
-                <td>
-                    <span class="badge bg-secondary">@course.Order</span>
-                </td>
-                <td style="width: 20%;">@course.Title</td> <!-- Match reduced width -->
-
-                <td>
-                    @string.Join(", ", course.CourseEmployeeTypes.Select(cet => cet.EmployeeType.Name))
-                </td>
-                <td>
-                    <div class="d-flex justify-content-end gap-2 flex-nowrap">
-
-                        <a asp-controller="Courses"
-                           asp-action="Details"
-                           asp-route-id="@course.Id"
-                           class="btn btn-sm btn-outline-info">
-                            <i class="bi bi-eye"></i> View
-                        </a>
-
-                        <a asp-action="Manage"
-                           asp-route-id="@course.Id"
-                           class="btn btn-sm btn-outline-primary">
-                            <i class="bi bi-sliders"></i> Manage
-                        </a>
-                    </div>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
- *@
-
-@model IEnumerable<MedicalOnboardingApplication.Models.Course>
-@{
-    ViewData["Title"] = "AdminCourses";
-    var employeeTypes = ViewBag.EmployeeTypes as List<MedicalOnboardingApplication.Models.EmployeeType>;
-    var selectedTypeId = ViewBag.SelectedEmployeeTypeId as int?;
-    var search = ViewBag.Search as string;
-}
-
-<div class="mb-4">
-    <a asp-controller="Admin"
-       asp-action="Index"
-       class="btn btn-outline-secondary mb-2">
-        <i class="bi bi-arrow-left"></i> Back to Dashboard
-    </a>
-    <h1 class="mb-0">Courses</h1>
+    <h1 class="mb-0">Cursuri</h1>
 </div>
 
 <!-- Search & Filter -->
@@ -123,11 +23,11 @@
                    name="search"
                    value="@search"
                    class="form-control"
-                   placeholder="Search title or description..." />
+                   placeholder="Caută după titlu sau descriere..." />
         </div>
         <div class="col-md-3">
             <select name="employeeTypeId" class="form-select">
-                <option value="">All Employee Types</option>
+                <option value="">Toate Tipurile de Angajați</option>
                 @foreach (var type in employeeTypes)
                 {
                     <option value="@type.Id" selected="@(selectedTypeId == type.Id)">
@@ -138,20 +38,20 @@
         </div>
         <div class="col-md-auto">
             <button type="submit" class="btn btn-primary">
-                <i class="bi bi-search"></i> Search
+                <i class="bi bi-search"></i> Caută
             </button>
         </div>
         @if (!string.IsNullOrEmpty(search) || selectedTypeId.HasValue)
         {
             <div class="col-md-auto">
                 <a asp-action="Index" class="btn btn-outline-secondary">
-                    <i class="bi bi-x"></i> Clear
+                    <i class="bi bi-x"></i> Șterge Filtrele
                 </a>
             </div>
         }
         <div class="col-md-auto ms-auto">
             <a asp-action="Create" class="btn btn-success">
-                <i class="bi bi-plus-circle me-1"></i> New Course
+                <i class="bi bi-plus-circle me-1"></i> Curs Nou
             </a>
         </div>
     </form>
@@ -163,9 +63,9 @@
         <table class="table table-hover align-middle mb-0">
             <thead class="table-light">
                 <tr>
-                    <th class="ps-4" style="width: 80px;">Order</th>
-                    <th style="width: 25%;">Title</th>
-                    <th>Employee Types</th>
+                    <th class="ps-4" style="width: 80px;">Ordine</th>
+                    <th style="width: 25%;">Titlu</th>
+                    <th>Tipuri de Angajați</th>
                     <th style="width: 200px;"></th>
                 </tr>
             </thead>
@@ -190,13 +90,14 @@
                                 <a asp-controller="Courses"
                                    asp-action="Details"
                                    asp-route-id="@course.Id"
-                                   class="btn btn-sm btn-outline-info">
-                                    <i class="bi bi-eye me-1"></i> View
+                                   class="btn btn-sm btn-outline-info text-nowrap">
+                                    <i class="bi bi-eye me-1"></i> Vizualizare
                                 </a>
+
                                 <a asp-action="Manage"
                                    asp-route-id="@course.Id"
-                                   class="btn btn-sm btn-outline-primary">
-                                    <i class="bi bi-sliders me-1"></i> Manage
+                                   class="btn btn-sm btn-outline-primary text-nowrap">
+                                    <i class="bi bi-sliders me-1"></i> Gestionează
                                 </a>
                             </div>
                         </td>
@@ -207,7 +108,7 @@
                     <tr>
                         <td colspan="4" class="text-center py-5 text-muted">
                             <i class="bi bi-journal-x fs-1 d-block mb-2 opacity-25"></i>
-                            No courses found.
+                            Niciun curs găsit.
                         </td>
                     </tr>
                 }
@@ -215,3 +116,9 @@
         </table>
     </div>
 </div>
+
+<style>
+    .btn {
+        white-space: nowrap;
+    }
+</style>

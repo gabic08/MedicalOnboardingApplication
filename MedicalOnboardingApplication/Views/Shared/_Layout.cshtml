@@ -4,7 +4,7 @@
 @using Microsoft.EntityFrameworkCore
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ro">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -45,7 +45,7 @@
 
                     <!-- Toggler for small screens -->
                     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarRight"
-                            aria-controls="navbarRight" aria-expanded="false" aria-label="Toggle navigation">
+                            aria-controls="navbarRight" aria-expanded="false" aria-label="Comutare navigare">
                         <span class="navbar-toggler-icon"></span>
                     </button>
 
@@ -58,7 +58,7 @@
                                     class="btn btn-outline-danger btn-sm"
                                     data-bs-toggle="modal"
                                     data-bs-target="#logoutModal">
-                                <i class="bi bi-box-arrow-right"></i> Logout
+                                <i class="bi bi-box-arrow-right"></i> Deconectare
                             </button>
                         </div>
                     </div>
@@ -79,25 +79,25 @@
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Confirm Logout</h5>
+                        <h5 class="modal-title">Confirmare Deconectare</h5>
                         <button type="button"
                                 class="btn-close"
                                 data-bs-dismiss="modal"
-                                aria-label="Close"></button>
+                                aria-label="Închide"></button>
                     </div>
                     <div class="modal-body">
-                        Are you sure you want to logout?
+                        Ești sigur că vrei să te deconectezi?
                     </div>
                     <div class="modal-footer">
                         <button type="button"
                                 class="btn btn-secondary"
                                 data-bs-dismiss="modal">
-                            Cancel
+                            Anulează
                         </button>
                         <button type="button"
                                 class="btn btn-danger"
                                 onclick="document.getElementById('logoutForm').submit();">
-                            Yes, Logout
+                            Da, Deconectează-mă
                         </button>
                     </div>
                 </div>
@@ -115,7 +115,7 @@
     {
         <footer class="border-top footer text-muted mt-4">
             <div class="container">
-                &copy; 2026 - MedicalOnboardingApplication - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                &copy; 2026 - MedicalOnboardingApplication - <a asp-area="" asp-controller="Home" asp-action="Privacy">Confidențialitate</a>
             </div>
         </footer>
     }

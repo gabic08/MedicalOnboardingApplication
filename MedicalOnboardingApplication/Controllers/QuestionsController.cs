@@ -1,4 +1,5 @@
 ﻿using MedicalOnboardingApplication.Data;
+using MedicalOnboardingApplication.Enums;
 using MedicalOnboardingApplication.Models;
 using MedicalOnboardingApplication.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -34,12 +35,12 @@ public class QuestionsController : Controller
     {
         if (vm.Answers.Any(a => string.IsNullOrWhiteSpace(a)) == true)
         {
-            ModelState.AddModelError("", "Please remove any empty answers.");
+            ModelState.AddModelError("", "Vă rugăm să eliminați răspunsurile goale.");
         }
 
         if (vm.Answers.Count < 2)
         {
-            ModelState.AddModelError("", "A question must have at least 2 answers.");
+            ModelState.AddModelError("", "O întrebare trebuie să aibă cel puțin 2 variante de răspuns.");
         }
 
         if (!ModelState.IsValid)
@@ -110,7 +111,7 @@ public class QuestionsController : Controller
 
         if (vm.Answers.Count < 2)
         {
-            ModelState.AddModelError("", "A question must have at least two answers.");
+            ModelState.AddModelError("", "O întrebare trebuie să aibă cel puțin 2 variante de răspuns.");
         }
 
         if (!ModelState.IsValid)

@@ -1,4 +1,5 @@
 ﻿using MedicalOnboardingApplication.Data;
+using MedicalOnboardingApplication.Enums;
 using MedicalOnboardingApplication.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -48,7 +49,7 @@ public class ChapterAttachmentsController : Controller
 
         if (file == null || file.Length == 0)
         {
-            ModelState.AddModelError("", "Please select a file to upload.");
+            ModelState.AddModelError("", "Vă rugăm să selectați un fișier pentru încărcare.");
             ViewBag.ChapterId = chapterId;
             ViewBag.CourseId = chapter.CourseId;
             return View();
@@ -74,7 +75,7 @@ public class ChapterAttachmentsController : Controller
 
         if (!allowedTypes.ContainsKey(extension))
         {
-            ModelState.AddModelError("", "Only images, videos, and PDF files are allowed.");
+            ModelState.AddModelError("", "Sunt permise doar imagini, videoclipuri și fișiere PDF.");
             ViewBag.ChapterId = chapterId;
             ViewBag.CourseId = chapter.CourseId;
             return View();

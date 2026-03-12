@@ -130,8 +130,6 @@ namespace MedicalOnboardingApplication.Controllers
         }
 
         // POST: Courses/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CourseViewModel model)
@@ -146,7 +144,7 @@ namespace MedicalOnboardingApplication.Controllers
             // Title validation
             if (string.IsNullOrWhiteSpace(model.Title))
             {
-                ModelState.AddModelError("Title", "Title is required.");
+                ModelState.AddModelError("Title", "Titlul este obligatoriu.");
             }
             else
             {
@@ -155,7 +153,7 @@ namespace MedicalOnboardingApplication.Controllers
 
                 if (exists)
                 {
-                    ModelState.AddModelError("Title", "A course with this title already exists.");
+                    ModelState.AddModelError("Title", "Un curs cu acest titlu există deja.");
                 }
             }
 
@@ -223,8 +221,6 @@ namespace MedicalOnboardingApplication.Controllers
 
 
         // POST: Courses/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, CourseViewModel model)
@@ -238,7 +234,7 @@ namespace MedicalOnboardingApplication.Controllers
             // Title validation
             if (string.IsNullOrWhiteSpace(model.Title))
             {
-                ModelState.AddModelError("Title", "Title is required.");
+                ModelState.AddModelError("Title", "Titlul este obligatoriu.");
             }
             else
             {
@@ -249,7 +245,7 @@ namespace MedicalOnboardingApplication.Controllers
 
                 if (exists)
                 {
-                    ModelState.AddModelError("Title", "A course with this title already exists.");
+                    ModelState.AddModelError("Title", "Un curs cu acest titlu există deja.");
                 }
             }
 
@@ -284,7 +280,6 @@ namespace MedicalOnboardingApplication.Controllers
                 .Where(c => c.Id != course.Id)
                 .MaxAsync(c => (int?)c.Order) ?? 0;
 
-            // Normalize requested order
             var requestedOrder = model.Order < 1 ? 1 :
                                  model.Order > maxOrder + 1 ? maxOrder + 1 :
                                  model.Order;
@@ -337,28 +332,6 @@ namespace MedicalOnboardingApplication.Controllers
             await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
-        }
-
-        // GET: Courses/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-            var clinicId = await GetCurrentClinicId();
-            if (clinicId == null)
-                return Forbid();
-
-
-            var course = await _context.Courses
-                .FirstOrDefaultAsync(m => m.Id == id && m.ClinicId == clinicId);
-            if (course == null)
-            {
-                return NotFound();
-            }
-
-            return View(course);
         }
 
         // POST: Courses/Delete/5

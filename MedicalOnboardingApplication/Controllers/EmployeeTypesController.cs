@@ -36,7 +36,7 @@ public class EmployeeTypesController : Controller
     {
         if (string.IsNullOrWhiteSpace(name))
         {
-            TempData["Error"] = "Name is required.";
+            TempData["Error"] = "Numele este obligatoriu.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -47,7 +47,7 @@ public class EmployeeTypesController : Controller
 
         if (exists)
         {
-            TempData["Error"] = "This employee type already exists.";
+            TempData["Error"] = "Acest tip de angajat există deja.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -63,7 +63,7 @@ public class EmployeeTypesController : Controller
     {
         if (string.IsNullOrWhiteSpace(name))
         {
-            TempData["Error"] = "Name is required.";
+            TempData["Error"] = "Numele este obligatoriu.";
             return RedirectToAction(nameof(Index), new { editId = id });
         }
 
@@ -74,7 +74,7 @@ public class EmployeeTypesController : Controller
 
         if (exists)
         {
-            TempData["Error"] = "This employee type already exists.";
+            TempData["Error"] = "Acest tip de angajat există deja.";
             return RedirectToAction(nameof(Index), new { editId = id });
         }
 

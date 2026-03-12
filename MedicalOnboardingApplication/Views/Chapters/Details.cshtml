@@ -1,4 +1,4 @@
-﻿@using MedicalOnboardingApplication.Data
+﻿@using MedicalOnboardingApplication.Enums
 @model MedicalOnboardingApplication.Models.Chapter
 
 @{
@@ -24,15 +24,14 @@
        asp-action="Details"
        asp-route-id="@Model.CourseId"
        class="btn btn-outline-secondary btn-sm mb-2">
-        <i class="bi bi-arrow-left"></i> Back to Course
+        <i class="bi bi-arrow-left"></i> Înapoi la Curs
     </a>
-    @* <h1 class="mb-0">@Model.Title</h1> *@
 </div>
 
 <!-- Progress Bar -->
 <div class="mb-4">
     <div class="d-flex justify-content-between align-items-center mb-1">
-        <small class="text-muted">Chapter @(currentIndex + 1) of @totalChapters</small>
+        <small class="text-muted">Capitolul @(currentIndex + 1) din @totalChapters</small>
     </div>
     <div class="progress" style="height: 6px;">
         <div class="progress-bar" role="progressbar"
@@ -55,7 +54,7 @@
                     <a asp-action="Details"
                        asp-route-id="@previousChapter.Id"
                        class="btn btn-outline-secondary">
-                        <i class="bi bi-arrow-left me-1"></i> Previous
+                        <i class="bi bi-arrow-left me-1"></i> Anterior
                     </a>
                 }
             </div>
@@ -67,7 +66,7 @@
                     <a asp-action="Details"
                        asp-route-id="@nextChapter.Id"
                        class="btn btn-primary">
-                        Next <i class="bi bi-arrow-right ms-1"></i>
+                        Următorul <i class="bi bi-arrow-right ms-1"></i>
                     </a>
                 }
             </div>
@@ -86,7 +85,7 @@
             @if (!isAdmin && isCompleted)
             {
                 <span class="badge bg-success ms-auto px-3 py-2">
-                    <i class="bi bi-check-circle-fill me-1"></i> Completed
+                    <i class="bi bi-check-circle-fill me-1"></i> Finalizat
                 </span>
             }
         </div>
@@ -122,7 +121,7 @@
                                style="max-height: 500px;"
                                preload="metadata">
                             <source src="@att.FilePath" type="video/mp4" />
-                            Your browser does not support the video tag.
+                            Browserul tău nu suportă redarea video.
                         </video>
                     }
                     else if (att.Type == AttachmentType.Pdf)
@@ -135,7 +134,7 @@
                             <a href="@att.FilePath"
                                target="_blank"
                                class="btn btn-sm btn-outline-primary">
-                                <i class="bi bi-box-arrow-up-right me-1"></i> Open PDF
+                                <i class="bi bi-box-arrow-up-right me-1"></i> Deschide PDF
                             </a>
                         </div>
                     }
@@ -144,7 +143,6 @@
         </div>
     </div>
 }
-
 
 <!-- Mark as Complete + Navigation -->
 <div class="card shadow-sm border-0 mb-3">
@@ -158,7 +156,7 @@
                     <a asp-action="Details"
                        asp-route-id="@previousChapter.Id"
                        class="btn btn-outline-secondary">
-                        <i class="bi bi-arrow-left me-1"></i> Previous
+                        <i class="bi bi-arrow-left me-1"></i> Anterior
                     </a>
                 }
             </div>
@@ -173,7 +171,7 @@
                                 id="completeBtn"
                                 onclick="toggleComplete(@Model.Id, true)"
                                 class="btn btn-success px-4">
-                            <i class="bi bi-check-circle-fill me-2"></i> Completed — Click to Undo
+                            <i class="bi bi-check-circle-fill me-2"></i> Finalizat — Click pentru Anulare
                         </button>
                     }
                     else
@@ -182,7 +180,7 @@
                                 id="completeBtn"
                                 onclick="toggleComplete(@Model.Id, false)"
                                 class="btn btn-outline-success px-4">
-                            <i class="bi bi-check-circle me-2"></i> Mark as Complete
+                            <i class="bi bi-check-circle me-2"></i> Marchează ca Finalizat
                         </button>
                     }
                 </div>
@@ -195,18 +193,9 @@
                     <a asp-action="Details"
                        asp-route-id="@nextChapter.Id"
                        class="btn btn-primary">
-                        Next <i class="bi bi-arrow-right ms-1"></i>
+                        Următorul <i class="bi bi-arrow-right ms-1"></i>
                     </a>
                 }
-                @* else
-                {
-                    <a asp-controller="Courses"
-                       asp-action="Details"
-                       asp-route-id="@Model.CourseId"
-                       class="btn btn-success">
-                        <i class="bi bi-check-circle me-1"></i> Finish Course
-                    </a>
-                } *@
             </div>
 
         </div>
@@ -218,7 +207,7 @@
        asp-action="Details"
        asp-route-id="@Model.CourseId"
        class="btn btn-outline-secondary btn-sm mb-2">
-        <i class="bi bi-arrow-left"></i> Back to Course
+        <i class="bi bi-arrow-left"></i> Înapoi la Curs
     </a>
 </div>
 
@@ -257,29 +246,26 @@
                     const header = document.querySelector('.badge.bg-success');
 
                     if (isCurrentlyCompleted) {
-                        // Unmark
                         btn.className = 'btn btn-outline-success px-4';
-                        btn.innerHTML = '<i class="bi bi-check-circle me-2"></i> Mark as Complete';
+                        btn.innerHTML = '<i class="bi bi-check-circle me-2"></i> Marchează ca Finalizat';
                         btn.setAttribute('onclick', `toggleComplete(${chapterId}, false)`);
                         if (header) header.remove();
                     } else {
-                        // Mark complete
                         btn.className = 'btn btn-success px-4';
-                        btn.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i> Completed — Click to Undo';
+                        btn.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i> Finalizat — Click pentru Anulare';
                         btn.setAttribute('onclick', `toggleComplete(${chapterId}, true)`);
 
-                        // Add completed badge to header if not there
                         const titleRow = document.querySelector('.d-flex.align-items-center.gap-2.mb-4');
                         if (titleRow && !titleRow.querySelector('.badge.bg-success')) {
                             const badge = document.createElement('span');
                             badge.className = 'badge bg-success ms-auto px-3 py-2';
-                            badge.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> Completed';
+                            badge.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> Finalizat';
                             titleRow.appendChild(badge);
                         }
                     }
                 }
             } catch (err) {
-                console.error('Error toggling chapter completion:', err);
+                console.error('Eroare la schimbarea stării capitolului:', err);
             }
         }
     </script>

@@ -18,13 +18,16 @@ public class UserProfileViewModel
 
     // Password section
     [DataType(DataType.Password)]
+    [Display(Name = "Parola Curentă")]
     public string CurrentPassword { get; set; }
 
     [DataType(DataType.Password)]
     [MinLength(6)]
+    [Display(Name = "Parola Nouă")]
     public string NewPassword { get; set; }
 
     [DataType(DataType.Password)]
     [Compare("NewPassword")]
-    public string? ConfirmNewPassword { get; set; }
+    [Display(Name = "Confirmă Parola Nouă")]
+    public string ConfirmNewPassword { get; set; }
 }

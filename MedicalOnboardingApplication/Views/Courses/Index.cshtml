@@ -1,6 +1,6 @@
 ﻿@model IEnumerable<MedicalOnboardingApplication.Models.Course>
 @{
-    ViewData["Title"] = "Courses";
+    ViewData["Title"] = "Cursuri";
     var search = ViewBag.Search as string;
     var filter = ViewBag.Filter as string ?? "all";
     var completedCourseIds = ViewBag.CompletedCourseIds as List<int> ?? new List<int>();
@@ -9,9 +9,9 @@
 
 <div class="mb-4">
     <a asp-controller="Dashboard" asp-action="Index" class="btn btn-outline-secondary mb-2">
-        <i class="bi bi-arrow-left"></i> Back to Dashboard
+        <i class="bi bi-arrow-left"></i> Înapoi la Panou
     </a>
-    <h1 class="mb-0">Courses</h1>
+    <h1 class="mb-0">Cursuri</h1>
 </div>
 
 <!-- Search & Filter -->
@@ -22,7 +22,7 @@
                    name="search"
                    value="@search"
                    class="form-control"
-                   placeholder="Search courses..." />
+                   placeholder="Caută cursuri..." />
         </div>
         <div class="col-md-auto">
             <div class="btn-group" role="group">
@@ -30,25 +30,25 @@
                    asp-route-search="@search"
                    asp-route-filter="all"
                    class="btn @(filter == "all" ? "btn-primary" : "btn-outline-primary")">
-                    All
+                    Toate
                 </a>
                 <a asp-action="Index"
                    asp-route-search="@search"
                    asp-route-filter="notstarted"
                    class="btn @(filter == "notstarted" ? "btn-secondary" : "btn-outline-secondary")">
-                    <i class="bi bi-circle me-1"></i> Not Started
+                    <i class="bi bi-circle me-1"></i> Neîncepute
                 </a>
                 <a asp-action="Index"
                    asp-route-search="@search"
                    asp-route-filter="inprogress"
                    class="btn @(filter == "inprogress" ? "btn-primary" : "btn-outline-primary")">
-                    <i class="bi bi-hourglass-split me-1"></i> In Progress
+                    <i class="bi bi-hourglass-split me-1"></i> În Progres
                 </a>
                 <a asp-action="Index"
                    asp-route-search="@search"
                    asp-route-filter="completed"
                    class="btn @(filter == "completed" ? "btn-success" : "btn-outline-success")">
-                    <i class="bi bi-check-circle me-1"></i> Completed
+                    <i class="bi bi-check-circle me-1"></i> Finalizate
                 </a>
             </div>
         </div>
@@ -61,7 +61,7 @@
         {
             <div class="col-md-auto">
                 <a asp-action="Index" class="btn btn-outline-secondary">
-                    <i class="bi bi-x"></i> Clear
+                    <i class="bi bi-x"></i> Șterge Filtrele
                 </a>
             </div>
         }
@@ -72,7 +72,7 @@
 {
     <div class="text-center py-5 text-muted">
         <i class="bi bi-journal-x fs-1 d-block mb-2 opacity-25"></i>
-        No courses found.
+        Niciun curs găsit.
     </div>
 }
 else
@@ -96,24 +96,24 @@ else
 
                         <div class="d-flex justify-content-between align-items-start mb-2">
                             <span class="badge bg-secondary bg-opacity-10 text-secondary">
-                                <i class="bi bi-journals me-1"></i> @totalChapters chapters
+                                <i class="bi bi-journals me-1"></i> @totalChapters capitole
                             </span>
                             @if (isCourseCompleted)
                             {
                                 <span class="badge bg-success">
-                                    <i class="bi bi-trophy-fill me-1"></i> Completed
+                                    <i class="bi bi-trophy-fill me-1"></i> Finalizat
                                 </span>
                             }
                             else if (isInProgress)
                             {
                                 <span class="badge bg-primary bg-opacity-10 text-primary">
-                                    <i class="bi bi-hourglass-split me-1"></i> In Progress
+                                    <i class="bi bi-hourglass-split me-1"></i> În Progres
                                 </span>
                             }
                             else
                             {
                                 <span class="badge bg-secondary bg-opacity-10 text-secondary">
-                                    <i class="bi bi-circle me-1"></i> Not Started
+                                    <i class="bi bi-circle me-1"></i> Neînceput
                                 </span>
                             }
                         </div>
@@ -125,7 +125,7 @@ else
                         {
                             <div class="mb-3">
                                 <div class="d-flex justify-content-between mb-1">
-                                    <small class="text-muted">Progress</small>
+                                    <small class="text-muted">Progres</small>
                                     <small class="text-muted">@completedCount / @totalChapters</small>
                                 </div>
                                 <div class="progress" style="height: 6px;">
@@ -143,17 +143,17 @@ else
                             @if (isCourseCompleted)
                             {
                                 <i class="bi bi-check-circle me-1"></i>
-                                <text>Review Course</text>
+                                <text>Revizuiește Cursul</text>
                             }
                             else if (isInProgress)
                             {
                                 <i class="bi bi-play-circle me-1"></i>
-                                <text>Continue</text>
+                                <text>Continuă</text>
                             }
                             else
                             {
                                 <i class="bi bi-play-circle me-1"></i>
-                                <text>Start Course</text>
+                                <text>Începe Cursul</text>
                             }
                         </a>
                     </div>

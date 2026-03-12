@@ -1,9 +1,11 @@
-﻿@model MedicalOnboardingApplication.Models.Chapter
-@using MedicalOnboardingApplication.Data
+﻿@model MedicalOnboardingApplication.ViewModels.EditChapterViewModel
+@using MedicalOnboardingApplication.Enums
 @using MedicalOnboardingApplication.Models
 
 @{
-    ViewData["Title"] = "Edit Chapter";
+    ViewData["Title"] = "Editare Capitol";
+
+    var attachments = ViewBag.Attachments as IEnumerable<MedicalOnboardingApplication.Models.ChapterAttachment>;
 }
 
 <div class="mb-3">
@@ -11,9 +13,9 @@
        asp-action="Manage"
        asp-route-id="@Model.CourseId"
        class="btn btn-outline-secondary mb-2">
-        <i class="bi bi-arrow-left"></i> Back to Course
+        <i class="bi bi-arrow-left"></i> Înapoi la Curs
     </a>
-    <h1 class="mb-0">Edit Chapter</h1>
+    <h1 class="mb-0">Editare Capitol</h1>
 </div>
 
 <div class="row g-3" style="height: calc(100vh - 180px);">
@@ -47,13 +49,13 @@
                         <textarea asp-for="Content"
                                   class="form-control flex-grow-1"
                                   style="resize: none; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.6;"
-                                  placeholder="Write your chapter content here..."></textarea>
+                                  placeholder="Scrie conținutul capitolului aici..."></textarea>
                         <span asp-validation-for="Content" class="text-danger"></span>
                     </div>
 
                     <div class="d-flex justify-content-end">
                         <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-save"></i> Save Changes
+                            <i class="bi bi-save"></i> Salvează Modificările
                         </button>
                     </div>
                 </form>
@@ -66,7 +68,7 @@
         <div class="card shadow-sm h-100">
             <div class="card-body d-flex flex-column">
 
-                <h5 class="mb-3">Attachments</h5>
+                <h5 class="mb-3">Atașamente</h5>
 
                 <!-- UPLOAD FORM -->
                 <form asp-controller="ChapterAttachments"
@@ -87,21 +89,21 @@
                             <i class="bi bi-upload"></i>
                         </button>
                     </div>
-                    <small class="text-muted">Allowed: Images, Videos, PDF</small>
+                    <small class="text-muted">Acceptat: Imagini, Videoclipuri, PDF</small>
                 </form>
 
                 <!-- ATTACHMENTS LIST -->
                 <div class="flex-grow-1 overflow-auto">
-                    @if (Model.Attachments == null || !Model.Attachments.Any())
+                    @if (attachments == null || !attachments.Any())
                     {
                         <div class="alert alert-info">
-                            No attachments added yet.
+                            Niciun atașament adăugat încă.
                         </div>
                     }
                     else
                     {
                         <ul class="list-group list-group-flush">
-                            @foreach (var att in Model.Attachments)
+                            @foreach (var att in attachments)
                             {
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
                                     <div class="d-flex align-items-center gap-2">
@@ -125,13 +127,13 @@
                                         <a href="@att.FilePath"
                                            target="_blank"
                                            class="btn btn-sm btn-outline-secondary">
-                                            Open
+                                            Deschide
                                         </a>
                                         <form asp-controller="ChapterAttachments"
                                               asp-action="Delete"
                                               asp-route-id="@att.Id"
                                               method="post"
-                                              onsubmit="return confirm('Delete this attachment?');">
+                                              onsubmit="return confirm('Ștergi acest atașament?');">
                                             @Html.AntiForgeryToken()
                                             <button type="submit" class="btn btn-sm btn-outline-danger">
                                                 <i class="bi bi-trash"></i>

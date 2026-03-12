@@ -1,26 +1,26 @@
 ﻿@model IEnumerable<MedicalOnboardingApplication.Models.TestSession>
 @{
-    ViewData["Title"] = "Tests";
+    ViewData["Title"] = "Teste";
     var canStart = ViewBag.CanStartTest as bool? ?? false;
     var questionCount = ViewBag.QuestionCount as int? ?? 0;
     var activeSessionId = ViewBag.ActiveSessionId as int?;
 
     Func<int, (string, string)> diffLabel = (int diff) => diff switch
     {
-        1 => ("bg-success", "1 - Very Easy"),
-        2 => ("bg-primary", "2 - Easy"),
-        3 => ("bg-warning text-dark", "3 - Medium"),
-        4 => ("bg-danger bg-opacity-75", "4 - Hard"),
-        5 => ("bg-danger", "5 - Very Hard"),
+        1 => ("bg-success", "1 - Foarte Ușor"),
+        2 => ("bg-primary", "2 - Ușor"),
+        3 => ("bg-warning text-dark", "3 - Mediu"),
+        4 => ("bg-danger bg-opacity-75", "4 - Dificil"),
+        5 => ("bg-danger", "5 - Foarte Dificil"),
         _ => ("bg-secondary", diff.ToString())
     };
 }
 
 <div class="mb-4">
     <a asp-controller="Dashboard" asp-action="Index" class="btn btn-outline-secondary mb-2">
-        <i class="bi bi-arrow-left"></i> Back to Dashboard
+        <i class="bi bi-arrow-left"></i> Înapoi la Panou
     </a>
-    <h1 class="mb-0">Tests</h1>
+    <h1 class="mb-0">Teste</h1>
 </div>
 
 @if (TempData["Error"] != null)
@@ -37,30 +37,30 @@
         <div class="row align-items-center">
             <div class="col-lg-8">
                 <h5 class="fw-semibold mb-1">
-                    <i class="bi bi-patch-question me-2 text-warning"></i> Adaptive Test
+                    <i class="bi bi-patch-question me-2 text-warning"></i> Test Adaptiv
                 </h5>
                 <p class="text-muted small mb-2">
-                    The test consists of 15 questions. Difficulty adjusts automatically based on your last 3 answers.
-                    Questions are drawn from courses assigned to your employee type.
+                    Testul constă în 15 întrebări. Dificultatea se ajustează automat în funcție de ultimele 3 răspunsuri.
+                    Întrebările sunt extrase din cursurile atribuite tipului tău de angajat.
                 </p>
                 <p class="text-muted small mb-0">
                     <i class="bi bi-info-circle me-1"></i>
-                    It is strongly recommended to complete all assigned courses before attempting the test.
+                    Se recomandă insistent să finalizezi toate cursurile atribuite înainte de a susține testul.
                 </p>
 
                 @if (activeSessionId.HasValue)
                 {
                     <div class="alert alert-warning small mt-3 mb-0 py-2">
                         <i class="bi bi-exclamation-triangle me-1"></i>
-                        You have an unfinished test. Complete it before starting a new one.
+                        Ai un test nefinalizat. Completează-l înainte de a începe unul nou.
                     </div>
                 }
                 else if (!canStart)
                 {
                     <div class="alert alert-warning small mt-3 mb-0 py-2">
                         <i class="bi bi-exclamation-triangle me-1"></i>
-                        Not enough questions available (@questionCount found, 15 required).
-                        Ask your admin to add more questions.
+                        Nu sunt suficiente întrebări disponibile (@questionCount găsite, 15 necesare).
+                        Solicită administratorului să adauge mai multe întrebări.
                     </div>
                 }
             </div>
@@ -71,7 +71,7 @@
                     <a asp-action="Question"
                        asp-route-sessionId="@activeSessionId"
                        class="btn btn-warning px-4 py-2">
-                        <i class="bi bi-play-circle me-2"></i> Continue Test
+                        <i class="bi bi-play-circle me-2"></i> Continuă Testul
                     </a>
                 }
                 else if (canStart)
@@ -79,14 +79,14 @@
                     <form asp-action="Start" method="post">
                         @Html.AntiForgeryToken()
                         <button type="submit" class="btn btn-warning px-4 py-2">
-                            <i class="bi bi-play-circle me-2"></i> Start New Test
+                            <i class="bi bi-play-circle me-2"></i> Începe Test Nou
                         </button>
                     </form>
                 }
                 else
                 {
                     <button class="btn btn-warning px-4 py-2" disabled>
-                        <i class="bi bi-play-circle me-2"></i> Start New Test
+                        <i class="bi bi-play-circle me-2"></i> Începe Test Nou
                     </button>
                 }
             </div>
@@ -98,7 +98,7 @@
 <div class="card shadow-sm border-0">
     <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
         <h5 class="mb-0 fw-semibold">
-            <i class="bi bi-clock-history me-2 text-primary"></i> Test History
+            <i class="bi bi-clock-history me-2 text-primary"></i> Istoric Teste
             <span class="badge bg-primary bg-opacity-10 text-primary ms-1">@Model.Count()</span>
         </h5>
     </div>
@@ -107,7 +107,7 @@
         {
             <div class="text-center py-5 text-muted">
                 <i class="bi bi-patch-question fs-1 d-block mb-2 opacity-25"></i>
-                No tests taken yet. Start your first test above!
+                Niciun test susținut încă. Începe primul test de mai sus!
             </div>
         }
         else
@@ -115,10 +115,10 @@
             <table class="table table-hover align-middle mb-0">
                 <thead class="table-light">
                     <tr>
-                        <th class="ps-4">Date</th>
-                        <th>Score</th>
-                        <th>Correct</th>
-                        <th>Avg Difficulty</th>
+                        <th class="ps-4">Dată</th>
+                        <th>Scor</th>
+                        <th>Corecte</th>
+                        <th>Dificultate Medie</th>
                         <th>Status</th>
                         <th></th>
                     </tr>
@@ -184,13 +184,13 @@
                                 @if (session.IsCompleted)
                                 {
                                     <span class="badge bg-success bg-opacity-10 text-success">
-                                        <i class="bi bi-check-circle me-1"></i> Completed
+                                        <i class="bi bi-check-circle me-1"></i> Finalizat
                                     </span>
                                 }
                                 else
                                 {
                                     <span class="badge bg-warning bg-opacity-10 text-warning">
-                                        <i class="bi bi-hourglass-split me-1"></i> In Progress
+                                        <i class="bi bi-hourglass-split me-1"></i> În Progres
                                     </span>
                                 }
                             </td>
@@ -200,7 +200,7 @@
                                     <a asp-action="Results"
                                        asp-route-sessionId="@session.Id"
                                        class="btn btn-sm btn-outline-primary">
-                                        <i class="bi bi-bar-chart me-1"></i> View Results
+                                        <i class="bi bi-bar-chart me-1"></i> Vezi Rezultatele
                                     </a>
                                 }
                                 else
@@ -208,7 +208,7 @@
                                     <a asp-action="Question"
                                        asp-route-sessionId="@session.Id"
                                        class="btn btn-sm btn-outline-warning">
-                                        <i class="bi bi-play-circle me-1"></i> Continue
+                                        <i class="bi bi-play-circle me-1"></i> Continuă
                                     </a>
                                 }
                             </td>
