@@ -19,6 +19,7 @@ namespace MedicalOnboardingApplication.Controllers
             _userManager = userManager;
             _context = context;
         }
+
         [HttpGet]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Login(string returnUrl = null)
@@ -27,6 +28,7 @@ namespace MedicalOnboardingApplication.Controllers
                 return LocalRedirect("/");
             return View(new LoginViewModel { ReturnUrl = returnUrl });
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel vm)
@@ -71,12 +73,21 @@ namespace MedicalOnboardingApplication.Controllers
                 ReturnUrl = returnUrl
             });
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RegisterClinicAdmin(RegisterAdminViewModel vm)
         {
             if (!ModelState.IsValid)
                 return View(vm);
+
+            var existingUser = await _userManager.FindByEmailAsync(vm.Email);
+            if (existingUser != null)
+            {
+                ModelState.AddModelError("", "Un cont cu această adresă de email există deja.");
+                return View(vm);
+            }
+
             var user = new ApplicationUser
             {
                 UserName = vm.Email,
@@ -85,6 +96,7 @@ namespace MedicalOnboardingApplication.Controllers
                 LastName = vm.LastName,
                 EmailConfirmed = true
             };
+
             var result = await _userManager.CreateAsync(user, vm.Password);
             if (!result.Succeeded)
             {
@@ -92,6 +104,7 @@ namespace MedicalOnboardingApplication.Controllers
                     ModelState.AddModelError("", error.Description);
                 return View(vm);
             }
+
             await _userManager.AddToRoleAsync(user, "Admin");
             return LocalRedirect(vm.ReturnUrl ?? Url.Action("Login", "Account")!);
         }

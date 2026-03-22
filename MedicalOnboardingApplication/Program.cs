@@ -8,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Database
 builder.Services.AddDbContext<MedicalOnboardingApplicationContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("MedicalOnboardingApplicationContext")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();

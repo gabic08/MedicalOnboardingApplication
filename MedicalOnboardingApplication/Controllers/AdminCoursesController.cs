@@ -149,8 +149,7 @@ namespace MedicalOnboardingApplication.Controllers
             else
             {
                 var exists = await _context.Courses
-                    .AnyAsync(c => c.Title.ToLower() == model.Title.ToLower());
-
+                    .AnyAsync(c => c.ClinicId == clinicId && c.Title.ToLower() == model.Title.ToLower());
                 if (exists)
                 {
                     ModelState.AddModelError("Title", "Un curs cu acest titlu există deja.");
@@ -174,6 +173,7 @@ namespace MedicalOnboardingApplication.Controllers
 
             // Get max order
             var maxOrder = await _context.Courses
+                .Where(c => c.ClinicId == clinicId)
                 .MaxAsync(c => (int?)c.Order) ?? 0;
 
             // Normalize requested order
@@ -183,7 +183,7 @@ namespace MedicalOnboardingApplication.Controllers
 
             // Shift existing courses down
             var coursesToShift = await _context.Courses
-                .Where(c => c.Order >= requestedOrder)
+                .Where(c => c.ClinicId == clinicId && c.Order >= requestedOrder)
                 .OrderBy(c => c.Order)
                 .ToListAsync();
 
@@ -228,6 +228,10 @@ namespace MedicalOnboardingApplication.Controllers
             if (id != model.Id)
                 return NotFound();
 
+            var clinicId = await GetCurrentClinicId();
+            if (clinicId == null)
+                return Forbid();
+
             // Normalize title
             model.Title = model.Title?.Trim();
 
@@ -241,12 +245,11 @@ namespace MedicalOnboardingApplication.Controllers
                 var exists = await _context.Courses
                     .AnyAsync(c =>
                         c.Id != model.Id &&
+                        c.ClinicId == clinicId &&
                         c.Title.ToLower() == model.Title.ToLower());
 
                 if (exists)
-                {
                     ModelState.AddModelError("Title", "Un curs cu acest titlu există deja.");
-                }
             }
 
             // Reload form if validation fails
@@ -263,9 +266,6 @@ namespace MedicalOnboardingApplication.Controllers
 
                 return View(model);
             }
-            var clinicId = await GetCurrentClinicId();
-            if (clinicId == null)
-                return Forbid();
 
             var course = await _context.Courses
                 .Include(c => c.CourseEmployeeTypes)
@@ -277,7 +277,7 @@ namespace MedicalOnboardingApplication.Controllers
             var oldOrder = course.Order;
 
             var maxOrder = await _context.Courses
-                .Where(c => c.Id != course.Id)
+                .Where(c => c.Id != course.Id && c.ClinicId == clinicId)
                 .MaxAsync(c => (int?)c.Order) ?? 0;
 
             var requestedOrder = model.Order < 1 ? 1 :
@@ -289,27 +289,25 @@ namespace MedicalOnboardingApplication.Controllers
             {
                 var coursesToShift = await _context.Courses
                     .Where(c => c.Id != course.Id &&
+                                c.ClinicId == clinicId &&
                                 c.Order >= requestedOrder &&
                                 c.Order < oldOrder)
                     .ToListAsync();
 
                 foreach (var c in coursesToShift)
-                {
                     c.Order++;
-                }
             }
             else if (requestedOrder > oldOrder)
             {
                 var coursesToShift = await _context.Courses
                     .Where(c => c.Id != course.Id &&
+                                c.ClinicId == clinicId &&
                                 c.Order > oldOrder &&
                                 c.Order <= requestedOrder)
                     .ToListAsync();
 
                 foreach (var c in coursesToShift)
-                {
                     c.Order--;
-                }
             }
 
             // Update course
@@ -335,9 +333,9 @@ namespace MedicalOnboardingApplication.Controllers
         }
 
         // POST: Courses/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             var clinicId = await GetCurrentClinicId();
             if (clinicId == null)
@@ -356,7 +354,7 @@ namespace MedicalOnboardingApplication.Controllers
 
             // Shift everything above it up
             var coursesToShift = await _context.Courses
-                .Where(c => c.Order > deletedOrder)
+                .Where(c => c.ClinicId == clinicId && c.Order > deletedOrder)
                 .OrderBy(c => c.Order)
                 .ToListAsync();
 

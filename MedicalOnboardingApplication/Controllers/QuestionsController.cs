@@ -3,6 +3,7 @@ using MedicalOnboardingApplication.Enums;
 using MedicalOnboardingApplication.Models;
 using MedicalOnboardingApplication.ViewModels;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,15 +13,24 @@ namespace MedicalOnboardingApplication.Controllers;
 public class QuestionsController : Controller
 {
     private readonly MedicalOnboardingApplicationContext _context;
+    private readonly UserManager<ApplicationUser> _userManager;
 
-    public QuestionsController(MedicalOnboardingApplicationContext context)
+    public QuestionsController(MedicalOnboardingApplicationContext context, UserManager<ApplicationUser> userManager)
     {
         _context = context;
+        _userManager = userManager;
     }
 
     // GET: Questions/Create?courseId=5
-    public IActionResult Create(int courseId)
+    public async Task<IActionResult> Create(int courseId)
     {
+        var clinicId = await GetCurrentClinicId();
+        var course = await _context.Courses
+            .FirstOrDefaultAsync(c => c.Id == courseId && c.ClinicId == clinicId);
+
+        if (course == null)
+            return NotFound();
+
         return View(new CreateQuestionViewModel
         {
             CourseId = courseId,
@@ -33,6 +43,14 @@ public class QuestionsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(CreateQuestionViewModel vm)
     {
+        var clinicId = await GetCurrentClinicId();
+
+        var course = await _context.Courses
+            .FirstOrDefaultAsync(c => c.Id == vm.CourseId && c.ClinicId == clinicId);
+
+        if (course == null)
+            return NotFound();
+
         if (vm.Answers.Any(a => string.IsNullOrWhiteSpace(a)) == true)
         {
             ModelState.AddModelError("", "Vă rugăm să eliminați răspunsurile goale.");
@@ -69,9 +87,11 @@ public class QuestionsController : Controller
     // GET: Questions/Edit/5
     public async Task<IActionResult> Edit(int id)
     {
+        var clinicId = await GetCurrentClinicId();
+
         var question = await _context.Questions
             .Include(q => q.Answers)
-            .FirstOrDefaultAsync(q => q.Id == id);
+            .FirstOrDefaultAsync(q => q.Id == id && q.Course.ClinicId == clinicId);
 
         if (question == null)
             return NotFound();
@@ -104,6 +124,8 @@ public class QuestionsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(EditQuestionViewModel vm)
     {
+        var clinicId = await GetCurrentClinicId();
+
         // Remove any empty answers
         vm.Answers = vm.Answers
                        .Where(a => !string.IsNullOrWhiteSpace(a.Text))
@@ -119,7 +141,7 @@ public class QuestionsController : Controller
 
         var question = await _context.Questions
             .Include(q => q.Answers)
-            .FirstOrDefaultAsync(q => q.Id == vm.Id);
+            .FirstOrDefaultAsync(q => q.Id == vm.Id && q.Course.ClinicId == clinicId);
 
         if (question == null)
             return NotFound();
@@ -148,9 +170,11 @@ public class QuestionsController : Controller
     // GET: Questions/Delete/5
     public async Task<IActionResult> Delete(int id)
     {
+        var clinicId = await GetCurrentClinicId();
+
         var question = await _context.Questions
             .Include(q => q.Course)
-            .FirstOrDefaultAsync(q => q.Id == id);
+            .FirstOrDefaultAsync(q => q.Id == id && q.Course.ClinicId == clinicId);
 
         if (question == null)
             return NotFound();
@@ -159,13 +183,15 @@ public class QuestionsController : Controller
     }
 
     // POST: Questions/Delete
-    [HttpPost, ActionName("Delete")]
+    [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(int id, int courseId)
+    public async Task<IActionResult> Delete(int id, int courseId)
     {
+        var clinicId = await GetCurrentClinicId();
+
         var question = await _context.Questions
             .Include(q => q.Answers)
-            .FirstOrDefaultAsync(q => q.Id == id);
+            .FirstOrDefaultAsync(q => q.Id == id && q.Course.ClinicId == clinicId);
 
         if (question != null)
         {
@@ -176,4 +202,10 @@ public class QuestionsController : Controller
         return RedirectToAction("Manage", "AdminCourses", new { id = courseId });
     }
 
+    private async Task<int?> GetCurrentClinicId()
+    {
+        var user = await _userManager.Users
+            .FirstOrDefaultAsync(u => u.UserName == User.Identity.Name);
+        return user?.ClinicId;
+    }
 }

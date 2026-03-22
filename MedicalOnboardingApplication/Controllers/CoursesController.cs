@@ -76,26 +76,41 @@ public class CoursesController : Controller
         if (id == null)
             return NotFound();
 
+        var currentUser = await _context.Users
+            .FirstOrDefaultAsync(u => u.UserName == User.Identity.Name);
+
+        if (currentUser == null)
+            return NotFound();
+
         var course = await _context.Courses
             .Include(c => c.Chapters)
+            .Include(c => c.CourseEmployeeTypes)
             .FirstOrDefaultAsync(c => c.Id == id);
 
         if (course == null)
             return NotFound();
 
+        // Must belong to the same clinic
+        if (course.ClinicId != currentUser.ClinicId)
+            return NotFound();
+
+        // Employees must also be assigned to this course via their employee type
         if (!User.IsInRole("Admin"))
         {
-            var user = await _context.Users
-                .FirstOrDefaultAsync(u => u.UserName == User.Identity.Name);
+            bool isAssigned = course.CourseEmployeeTypes
+                .Any(cet => cet.EmployeeTypeId == currentUser.EmployeeTypeId);
+
+            if (!isAssigned)
+                return NotFound();
 
             ViewBag.CompletedChapterIds = await _context.UserChapterProgress
-                .Where(p => p.UserId == user.Id &&
+                .Where(p => p.UserId == currentUser.Id &&
                             course.Chapters.Select(c => c.Id).Contains(p.ChapterId))
                 .Select(p => p.ChapterId)
                 .ToListAsync();
 
             ViewBag.CompletedCourseIds = await _context.UserCourseProgress
-                .Where(p => p.UserId == user.Id)
+                .Where(p => p.UserId == currentUser.Id)
                 .Select(p => p.CourseId)
                 .ToListAsync();
         }
