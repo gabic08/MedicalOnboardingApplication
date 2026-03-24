@@ -30,4 +30,9 @@ public class UserProfileViewModel
     [Compare("NewPassword")]
     [Display(Name = "Confirmă Parola Nouă")]
     public string ConfirmNewPassword { get; set; }
+
+    [Required(ErrorMessage = "Emailul este obligatoriu")]
+    [EmailAddress(ErrorMessage = "Adresă de email invalidă")]
+    [Display(Name = "Email")]
+    public string Email { get; set; }
 }

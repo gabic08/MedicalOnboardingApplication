@@ -1,20 +1,25 @@
 ﻿using MedicalOnboardingApplication.Models;
 using MedicalOnboardingApplication.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MedicalOnboardingApplication.Controllers;
 
+[Authorize]
 public class ProfileController : Controller
 {
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly IWebHostEnvironment _env;
 
     public ProfileController(
         UserManager<ApplicationUser> userManager,
+        SignInManager<ApplicationUser> signInManager,
         IWebHostEnvironment env)
     {
         _userManager = userManager;
+        _signInManager = signInManager;
         _env = env;
     }
 
@@ -29,6 +34,7 @@ public class ProfileController : Controller
         {
             FirstName = user.FirstName,
             LastName = user.LastName,
+            Email = user.Email,
             ExistingProfileImagePath = user.ProfileImagePath
         };
 
@@ -43,6 +49,16 @@ public class ProfileController : Controller
         if (user == null)
             return RedirectToAction("Login", "Account");
 
+        // Check if email is taken by another user
+        if (vm.Email != user.Email)
+        {
+            var existingUser = await _userManager.FindByEmailAsync(vm.Email);
+            if (existingUser != null && existingUser.Id != user.Id)
+            {
+                ModelState.AddModelError("Email", "Această adresă de email este deja folosită.");
+            }
+        }
+
         if (!ModelState.IsValid)
         {
             vm.ExistingProfileImagePath = user.ProfileImagePath;
@@ -55,6 +71,16 @@ public class ProfileController : Controller
         // Update names
         user.FirstName = vm.FirstName;
         user.LastName = vm.LastName;
+
+        bool emailChanged = vm.Email != user.Email;
+        if (emailChanged)
+        {
+            user.Email = vm.Email;
+            user.UserName = vm.Email;
+            user.NormalizedEmail = vm.Email.ToUpper();
+            user.NormalizedUserName = vm.Email.ToUpper();
+        }
+
 
         // Handle image removal
         if (vm.RemoveProfileImage)
@@ -123,6 +149,11 @@ public class ProfileController : Controller
         }
 
         await _userManager.UpdateAsync(user);
+        if (emailChanged)
+        {
+            await _signInManager.RefreshSignInAsync(user);
+        }
+
         TempData["Success"] = "Profilul a fost actualizat cu succes.";
         return RedirectToAction(nameof(UserProfile));
     }

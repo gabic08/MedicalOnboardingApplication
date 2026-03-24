@@ -1,9 +1,11 @@
 ﻿using MedicalOnboardingApplication.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace MedicalOnboardingApplication.Controllers;
 
+[Authorize]
 public class DashboardController : Controller
 {
     private readonly MedicalOnboardingApplicationContext _context;
