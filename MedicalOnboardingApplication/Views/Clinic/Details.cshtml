@@ -6,47 +6,76 @@
 <div class="container mt-4">
     <div class="mb-4">
         <a asp-controller="Admin"
-           asp-action="Index"
-           class="btn btn-outline-secondary mb-2">
+               asp-action="Index"
+               class="btn btn-outline-secondary mb-2">
             <i class="bi bi-arrow-left"></i> Înapoi la Panou
         </a>
         <h1 class="mb-0">Informații Clinică</h1>
     </div>
 
-    <div class="row g-4">
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle me-2"></i> @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
 
-        <!-- LEFT: Clinic Icon + Edit Button -->
-        <div class="col-lg-3">
-            <div class="card shadow-sm border-0 h-100">
-                <div class="card-body d-flex flex-column align-items-center justify-content-center text-center py-5">
-                    <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
-                         style="width: 90px; height: 90px;">
-                        <i class="bi bi-hospital fs-1 text-primary"></i>
+    <form asp-action="Edit" method="post" enctype="multipart/form-data">
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="ImagePath" />
+
+        <div class="row g-4">
+
+            <!-- LEFT: Clinic Image + Edit Button -->
+            <div class="col-lg-3">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center text-center py-5">
+
+                        <div class="mb-3">
+                            <img id="clinicImagePreview"
+                                 src="@(Model.ImagePath ?? "/required/NoClinicImage.jpg")"
+                                 class="rounded border"
+                                 style="width: 120px; height: 120px; object-fit: cover;" />
+                        </div>
+
+                        <input type="file"
+                               name="image"
+                               id="clinicImageInput"
+                               class="d-none"
+                               accept="image/*"
+                               onchange="previewClinicImage(this)" />
+
+                        <h5 class="fw-semibold mb-1">@Model.Name</h5>
+                        <p class="text-muted small mb-4">Unitate Medicală</p>
+
+                        <button type="button"
+                                class="btn btn-outline-secondary btn-sm w-100 mb-2 d-none"
+                                id="uploadImageBtn"
+                                onclick="document.getElementById('clinicImageInput').click()">
+                            <i class="bi bi-upload me-1"></i> Schimbă Imaginea
+                        </button>
+
+                        <button type="button"
+                                class="btn btn-outline-primary w-100"
+                                onclick="enableEdit()"
+                                id="editButton">
+                            <i class="bi bi-pencil me-1"></i> Editează Clinica
+                        </button>
+
                     </div>
-                    <h5 class="fw-semibold mb-1">@Model.Name</h5>
-                    <p class="text-muted small mb-4">Unitate Medicală</p>
-
-                    <button type="button"
-                            class="btn btn-outline-primary w-100"
-                            onclick="enableEdit()"
-                            id="editButton">
-                        <i class="bi bi-pencil me-1"></i> Editează Clinica
-                    </button>
                 </div>
             </div>
-        </div>
 
-        <!-- RIGHT: Clinic Details Form -->
-        <div class="col-lg-9">
-            <div class="card shadow-sm border-0 h-100">
-                <div class="card-header bg-white border-bottom py-3">
-                    <h6 class="mb-0 fw-semibold text-muted text-uppercase">
-                        <i class="bi bi-info-circle me-2"></i> Detalii Clinică
-                    </h6>
-                </div>
-                <div class="card-body p-4">
-                    <form asp-action="Edit" method="post">
-                        <input type="hidden" asp-for="Id" />
+            <!-- RIGHT: Clinic Details -->
+            <div class="col-lg-9">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-header bg-white border-bottom py-3">
+                        <h6 class="mb-0 fw-semibold text-muted text-uppercase">
+                            <i class="bi bi-info-circle me-2"></i> Detalii Clinică
+                        </h6>
+                    </div>
+                    <div class="card-body p-4">
 
                         <div class="mb-4">
                             <label class="form-label fw-semibold small text-muted text-uppercase">
@@ -72,9 +101,53 @@
 
                         <div class="mb-4">
                             <label class="form-label fw-semibold small text-muted text-uppercase">
+                                <i class="bi bi-map me-1"></i> Oraș
+                            </label>
+                            <input asp-for="City"
+                                   class="form-control-plaintext editable"
+                                   readonly />
+                        </div>
+
+                        <hr />
+
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold small text-muted text-uppercase">
+                                <i class="bi bi-flag me-1"></i> Țară
+                            </label>
+                            <input asp-for="Country"
+                                   class="form-control-plaintext editable"
+                                   readonly />
+                        </div>
+
+                        <hr />
+
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold small text-muted text-uppercase">
                                 <i class="bi bi-telephone me-1"></i> Telefon
                             </label>
                             <input asp-for="Phone"
+                                   class="form-control-plaintext editable"
+                                   readonly />
+                        </div>
+
+                        <hr />
+
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold small text-muted text-uppercase">
+                                <i class="bi bi-envelope me-1"></i> Email
+                            </label>
+                            <input asp-for="Email"
+                                   class="form-control-plaintext editable"
+                                   readonly />
+                        </div>
+
+                        <hr />
+
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold small text-muted text-uppercase">
+                                <i class="bi bi-globe me-1"></i> Website
+                            </label>
+                            <input asp-for="Website"
                                    class="form-control-plaintext editable"
                                    readonly />
                         </div>
@@ -89,12 +162,13 @@
                                 <i class="bi bi-save me-1"></i> Salvează Modificările
                             </button>
                         </div>
-                    </form>
+
+                    </div>
                 </div>
             </div>
-        </div>
 
-    </div>
+        </div>
+    </form>
 </div>
 
 <script>
@@ -110,6 +184,7 @@
         });
         document.getElementById('saveSection').classList.remove('d-none');
         document.getElementById('editButton').classList.add('d-none');
+        document.getElementById('uploadImageBtn').classList.remove('d-none');
     }
 
     function cancelEdit() {
@@ -122,6 +197,17 @@
         });
         document.getElementById('saveSection').classList.add('d-none');
         document.getElementById('editButton').classList.remove('d-none');
+        document.getElementById('uploadImageBtn').classList.add('d-none');
+        document.getElementById('clinicImagePreview').src = '@(Model.ImagePath ?? "/required/NoClinicImage.jpg")';
+        document.getElementById('clinicImageInput').value = '';
+    }
+
+    function previewClinicImage(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = e => document.getElementById('clinicImagePreview').src = e.target.result;
+            reader.readAsDataURL(input.files[0]);
+        }
     }
 
     if (@Json.Serialize(ViewBag.AutoEdit)) {

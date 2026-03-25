@@ -12,13 +12,16 @@ public class ClinicController : Controller
 {
     private readonly MedicalOnboardingApplicationContext _context;
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly IWebHostEnvironment _env;
 
     public ClinicController(
         MedicalOnboardingApplicationContext context,
-        UserManager<ApplicationUser> userManager)
+        UserManager<ApplicationUser> userManager,
+        IWebHostEnvironment env)
     {
         _context = context;
         _userManager = userManager;
+        _env = env;
     }
 
     // ===============================
@@ -43,7 +46,7 @@ public class ClinicController : Controller
     // ===============================
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(Clinic clinic)
+    public async Task<IActionResult> Edit(Clinic clinic, IFormFile? image)
     {
         var user = await _userManager.Users
             .Include(u => u.Clinic)
@@ -55,18 +58,53 @@ public class ClinicController : Controller
         if (!ModelState.IsValid)
             return View("Details", clinic);
 
+        // Handle image upload
+        if (image != null && image.Length > 0)
+        {
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+            var extension = Path.GetExtension(image.FileName).ToLower();
+
+            if (!allowedExtensions.Contains(extension))
+            {
+                ModelState.AddModelError("", "Sunt permise doar fișiere imagine.");
+                return View("Details", clinic);
+            }
+
+            var uploadsFolder = Path.Combine(_env.WebRootPath, "uploads", "clinics");
+            Directory.CreateDirectory(uploadsFolder);
+
+            // Delete old image if exists
+            if (!string.IsNullOrEmpty(user.Clinic?.ImagePath))
+            {
+                var oldPath = Path.Combine(_env.WebRootPath,
+                    user.Clinic.ImagePath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
+                if (System.IO.File.Exists(oldPath))
+                    System.IO.File.Delete(oldPath);
+            }
+
+            var fileName = $"{Guid.NewGuid()}{extension}";
+            var filePath = Path.Combine(uploadsFolder, fileName);
+
+            using var stream = new FileStream(filePath, FileMode.Create);
+            await image.CopyToAsync(stream);
+
+            clinic.ImagePath = $"/uploads/clinics/{fileName}";
+        }
+        else
+        {
+            // Keep existing image
+            clinic.ImagePath = user.Clinic?.ImagePath;
+        }
+
         if (user.ClinicId == null)
         {
-            // CREATE new clinic
             _context.Clinics.Add(clinic);
             await _context.SaveChangesAsync();
-
             user.ClinicId = clinic.Id;
             await _userManager.UpdateAsync(user);
         }
         else
         {
-            // UPDATE existing clinic
             var existingClinic = await _context.Clinics
                 .FirstOrDefaultAsync(c => c.Id == user.ClinicId);
 
@@ -76,12 +114,15 @@ public class ClinicController : Controller
             existingClinic.Name = clinic.Name;
             existingClinic.Address = clinic.Address;
             existingClinic.Phone = clinic.Phone;
-
+            existingClinic.Email = clinic.Email;
+            existingClinic.Website = clinic.Website;
+            existingClinic.City = clinic.City;
+            existingClinic.Country = clinic.Country;
+            existingClinic.ImagePath = clinic.ImagePath;
             await _context.SaveChangesAsync();
         }
 
         TempData["Success"] = "Informațiile clinicii au fost salvate cu succes.";
-
         return RedirectToAction(nameof(Details));
     }
 }
