@@ -1,6 +1,8 @@
 ﻿using MedicalOnboardingApplication;
 using MedicalOnboardingApplication.Data;
 using MedicalOnboardingApplication.Models;
+using MedicalOnboardingApplication.Services;
+using MedicalOnboardingApplication.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,7 +15,7 @@ builder.Services.AddDbContext<MedicalOnboardingApplicationContext>(options =>
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-
+builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
 {
     options.Password.RequireDigit = true;
@@ -21,6 +23,7 @@ builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
     options.Password.RequireLowercase = false;
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequiredLength = 6;
+    options.SignIn.RequireConfirmedAccount = true;
 
     options.User.RequireUniqueEmail = true;
 })

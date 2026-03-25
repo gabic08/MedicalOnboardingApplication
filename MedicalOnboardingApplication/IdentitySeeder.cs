@@ -18,19 +18,5 @@ public static class IdentitySeeder
                 await roleManager.CreateAsync(new ApplicationRole { Name = role });
             }
         }
-
-        var adminEmail = "admin@local.com";
-        var adminUser = await userManager.FindByEmailAsync(adminEmail);
-        if (adminUser == null)
-        {
-            adminUser = new ApplicationUser
-            {
-                UserName = adminEmail,
-                Email = adminEmail,
-                EmailConfirmed = true
-            };
-            await userManager.CreateAsync(adminUser, "Admin123!");
-            await userManager.AddToRoleAsync(adminUser, "Admin");
-        }
     }
 }
