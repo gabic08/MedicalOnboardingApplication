@@ -65,6 +65,10 @@ namespace MedicalOnboardingApplication.Data
                     .WithMany(r => r.UserRoles)
                     .HasForeignKey(ur => ur.RoleId);
             });
+
+            modelBuilder.Entity<Clinic>()
+                .HasIndex(c => c.Subdomain)
+                .IsUnique();
         }
     }
 }

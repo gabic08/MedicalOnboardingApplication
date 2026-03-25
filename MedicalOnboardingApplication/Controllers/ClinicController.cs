@@ -46,7 +46,7 @@ public class ClinicController : Controller
     // ===============================
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(Clinic clinic, IFormFile? image)
+    public async Task<IActionResult> Edit(Clinic clinic, IFormFile image)
     {
         var user = await _userManager.Users
             .Include(u => u.Clinic)
@@ -57,6 +57,12 @@ public class ClinicController : Controller
 
         if (!ModelState.IsValid)
             return View("Details", clinic);
+
+        if (string.IsNullOrWhiteSpace(clinic.Subdomain))
+        {
+            ModelState.AddModelError("", "Subdomeniul este obligatoriu.");
+            return View("Details", clinic);
+        }
 
         // Handle image upload
         if (image != null && image.Length > 0)
@@ -96,6 +102,18 @@ public class ClinicController : Controller
             clinic.ImagePath = user.Clinic?.ImagePath;
         }
 
+        clinic.Subdomain = clinic.Subdomain.Trim().ToLower();
+
+        var subdomainTaken = await _context.Clinics
+            .AnyAsync(c => c.Id != clinic.Id && c.Subdomain == clinic.Subdomain);
+
+        if (subdomainTaken)
+        {
+            ModelState.AddModelError("Subdomain", "Acest subdomeniu este deja folosit.");
+            return View("Details", clinic);
+        }
+
+
         if (user.ClinicId == null)
         {
             _context.Clinics.Add(clinic);
@@ -119,6 +137,7 @@ public class ClinicController : Controller
             existingClinic.City = clinic.City;
             existingClinic.Country = clinic.Country;
             existingClinic.ImagePath = clinic.ImagePath;
+            existingClinic.Subdomain = clinic.Subdomain;
             await _context.SaveChangesAsync();
         }
 

@@ -5,6 +5,7 @@ using MedicalOnboardingApplication.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
 using System.Text;
 namespace MedicalOnboardingApplication.Controllers
 {
@@ -14,17 +15,20 @@ namespace MedicalOnboardingApplication.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly MedicalOnboardingApplicationContext _context;
         private readonly IEmailService _emailService;
+        private readonly IConfiguration _configuration;
 
         public AccountController(
             SignInManager<ApplicationUser> signInManager,
             UserManager<ApplicationUser> userManager,
             MedicalOnboardingApplicationContext context,
-            IEmailService emailService)
+            IEmailService emailService,
+            IConfiguration configuration)
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _context = context;
             _emailService = emailService;
+            _configuration = configuration;
         }
 
         [HttpGet]
@@ -42,12 +46,14 @@ namespace MedicalOnboardingApplication.Controllers
         {
             if (!ModelState.IsValid)
                 return View(vm);
+
             var user = await _userManager.FindByEmailAsync(vm.Email);
             if (user == null)
             {
                 ModelState.AddModelError("", "Încearcare de autentificare invalidă.");
                 return View(vm);
             }
+
             if (!user.EmailConfirmed)
             {
                 ModelState.AddModelError("", "Trebuie să îți confirmi contul înainte de autentificare.");
@@ -62,13 +68,28 @@ namespace MedicalOnboardingApplication.Controllers
 
             if (result.Succeeded)
             {
+                var clinic = await _context.Clinics
+                    .FirstOrDefaultAsync(c => c.Id == user.ClinicId);
+
+                if (clinic != null && !string.IsNullOrEmpty(clinic.Subdomain))
+                {
+                    var baseDomain = _configuration["AppSettings:BaseDomain"];
+                    var basePort = _configuration["AppSettings:BasePort"];
+
+                    var redirectTo = $"http://{clinic.Subdomain}.{baseDomain}:{basePort}";
+                    return Redirect(redirectTo);
+                }
+
+                // Fallback — no subdomain set yet
                 return LocalRedirect("/");
             }
+
             if (result.IsLockedOut)
             {
                 ModelState.AddModelError("", "Cont blocat. Încearcă din nou mai târziu.");
                 return View(vm);
             }
+
             ModelState.AddModelError("", "Încearcare de autentificare invalidă.");
             return View(vm);
         }
@@ -84,10 +105,10 @@ namespace MedicalOnboardingApplication.Controllers
         [HttpGet]
         public IActionResult RegisterClinicAdmin(string returnUrl = null)
         {
-            return View(new RegisterAdminViewModel
-            {
-                ReturnUrl = returnUrl
-            });
+            ViewBag.BaseDomain = _configuration["AppSettings:BaseDomain"];
+            ViewBag.BasePort = _configuration["AppSettings:BasePort"];
+
+            return View(new RegisterAdminViewModel { ReturnUrl = returnUrl });
         }
 
         [HttpPost]
@@ -100,28 +121,53 @@ namespace MedicalOnboardingApplication.Controllers
             var existingUser = await _userManager.FindByEmailAsync(vm.Email);
             if (existingUser != null)
             {
-                ModelState.AddModelError("", "Un cont cu această adresă de email există deja.");
+                ModelState.AddModelError("Email", "Un cont cu această adresă de email există deja.");
                 return View(vm);
             }
 
+            // Check subdomain uniqueness
+            var subdomainTaken = await _context.Clinics
+                .AnyAsync(c => c.Subdomain == vm.Subdomain.Trim().ToLower());
+
+            if (subdomainTaken)
+            {
+                ModelState.AddModelError("Subdomain", "Acest subdomeniu este deja folosit.");
+                return View(vm);
+            }
+
+            // Create clinic first
+            var clinic = new Clinic
+            {
+                Name = vm.ClinicName.Trim(),
+                Subdomain = vm.Subdomain.Trim().ToLower()
+            };
+
+            _context.Clinics.Add(clinic);
+            await _context.SaveChangesAsync();
+
+            // Create user and link to clinic
             var user = new ApplicationUser
             {
                 UserName = vm.Email,
                 Email = vm.Email,
                 FirstName = vm.FirstName,
-                LastName = vm.LastName
+                LastName = vm.LastName,
+                ClinicId = clinic.Id
             };
 
             var result = await _userManager.CreateAsync(user, vm.Password);
             if (!result.Succeeded)
             {
+                // Rollback clinic creation
+                _context.Clinics.Remove(clinic);
+                await _context.SaveChangesAsync();
+
                 foreach (var error in result.Errors)
                     ModelState.AddModelError("", error.Description);
                 return View(vm);
             }
 
             await _userManager.AddToRoleAsync(user, "Admin");
-
 
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             var confirmationLink = Url.Action(
@@ -134,13 +180,14 @@ namespace MedicalOnboardingApplication.Controllers
                 user.Email,
                 "Bun venit în MedicalOnboarding!",
                 $"""
-                <h2>Bun venit, {user.FirstName} {user.LastName}!</h2>
-                <p>Contul tău de administrator a fost creat cu succes.</p>
-                <p>Te poți autentifica folosind adresa de email: <strong>{user.Email}</strong> dupa ce confirmi adresa de email.</p>
-                <p><a href="{confirmationLink}">Confirmă contul</a></p>
-                <br/>
-                <p>Îți dorim succes!</p>
-                """
+                    <h2>Bun venit, {user.FirstName} {user.LastName}!</h2>
+                    <p>Clinica <strong>{clinic.Name}</strong> a fost creată cu succes.</p>
+                    <p>Subdomeniul tău este: <strong>{clinic.Subdomain}.{_configuration["AppSettings:BaseDomain"]}:{_configuration["AppSettings:BasePort"]}</strong></p>
+                    <p>Te poți autentifica folosind adresa de email: <strong>{user.Email}</strong> după ce confirmi adresa de email.</p>
+                    <p><a href="{confirmationLink}">Confirmă contul</a></p>
+                    <br/>
+                    <p>Îți dorim succes!</p>
+                    """
             );
 
             return LocalRedirect(vm.ReturnUrl ?? Url.Action("Login", "Account")!);

@@ -1,5 +1,6 @@
 ﻿using MedicalOnboardingApplication;
 using MedicalOnboardingApplication.Data;
+using MedicalOnboardingApplication.Middleware;
 using MedicalOnboardingApplication.Models;
 using MedicalOnboardingApplication.Services;
 using MedicalOnboardingApplication.Services.Interfaces;
@@ -7,6 +8,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.WebHost.UseUrls("http://localtest.me:5000");
 
 // Database
 builder.Services.AddDbContext<MedicalOnboardingApplicationContext>(options =>
@@ -30,6 +33,15 @@ builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
 .AddEntityFrameworkStores<MedicalOnboardingApplicationContext>()
 .AddDefaultTokenProviders();
 
+var baseDomain = builder.Configuration["AppSettings:BaseDomain"];
+
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.Cookie.Domain = $".{baseDomain}";
+    options.LoginPath = "/Account/Login";
+    options.LogoutPath = "/Account/Logout";
+});
+
 var app = builder.Build();
 
 // Auto-run migrations on startup
@@ -47,7 +59,8 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
+app.UseMiddleware<SubdomainMiddleware>();
 app.UseRouting();
 
 app.UseAuthentication();

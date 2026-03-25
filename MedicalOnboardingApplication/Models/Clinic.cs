@@ -10,6 +10,8 @@ public class Clinic
     public string Website { get; set; }
     public string City { get; set; }
     public string Country { get; set; }
-    public string? ImagePath { get; set; }
+    public string ImagePath { get; set; }
     public ICollection<Course> Courses { get; set; }
+
+    public string Subdomain { get; set; }
 }

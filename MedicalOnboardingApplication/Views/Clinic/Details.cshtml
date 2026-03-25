@@ -79,6 +79,24 @@
 
                         <div class="mb-4">
                             <label class="form-label fw-semibold small text-muted text-uppercase">
+                                <i class="bi bi-link-45deg me-1"></i> Subdomeniu
+                            </label>
+                            <div class="input-group">
+                                <input asp-for="Subdomain"
+                                       class="form-control-plaintext editable"
+                                       readonly />
+                                <span class="input-group-text text-muted small d-none" id="subdomainSuffix">.localtest.me:5000</span>
+                            </div>
+                            <small class="text-muted d-none" id="subdomainHint">
+                                ex: "clinica-mea" → clinica-mea.localtest.me:5000
+                            </small>
+                        </div>
+
+                        <hr />
+
+
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold small text-muted text-uppercase">
                                 <i class="bi bi-building me-1"></i> Nume Clinică
                             </label>
                             <input asp-for="Name"
@@ -185,6 +203,9 @@
         document.getElementById('saveSection').classList.remove('d-none');
         document.getElementById('editButton').classList.add('d-none');
         document.getElementById('uploadImageBtn').classList.remove('d-none');
+
+        document.getElementById('subdomainSuffix').classList.remove('d-none');
+        document.getElementById('subdomainHint').classList.remove('d-none');
     }
 
     function cancelEdit() {
@@ -200,6 +221,9 @@
         document.getElementById('uploadImageBtn').classList.add('d-none');
         document.getElementById('clinicImagePreview').src = '@(Model.ImagePath ?? "/required/NoClinicImage.jpg")';
         document.getElementById('clinicImageInput').value = '';
+
+        document.getElementById('subdomainSuffix').classList.add('d-none');
+        document.getElementById('subdomainHint').classList.add('d-none');
     }
 
     function previewClinicImage(input) {

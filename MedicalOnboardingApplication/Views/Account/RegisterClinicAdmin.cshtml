@@ -47,6 +47,29 @@
                     </div>
 
                     <div class="mb-3">
+                        <label asp-for="ClinicName" class="form-label"></label>
+                        <input asp-for="ClinicName"
+                               class="form-control"
+                               placeholder="ex: Clinica Dr. Popescu" />
+                        <span asp-validation-for="ClinicName" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Subdomain" class="form-label"></label>
+                        <div class="input-group">
+                            <input asp-for="Subdomain"
+                                   class="form-control"
+                                   placeholder="ex: clinica-popescu"
+                                   oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9-]/g, '')" />
+                            <span class="input-group-text text-muted small">
+                                .@ViewBag.BaseDomain:@ViewBag.BasePort
+                            </span>
+                        </div>
+                        <span asp-validation-for="Subdomain" class="text-danger"></span>
+                        <small class="text-muted">Doar litere mici, cifre și cratime.</small>
+                    </div>
+
+                    <div class="mb-3">
                         <label asp-for="Password" class="form-label fw-semibold small"></label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="bi bi-lock"></i></span>
