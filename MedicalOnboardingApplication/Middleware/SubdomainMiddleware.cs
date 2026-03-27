@@ -95,6 +95,7 @@ public class SubdomainMiddleware
             };
 
             bool isAccountPath = accountPaths.Any(p => path?.StartsWith(p) == true);
+            bool isPrivacyPath = path == "/privacy";
             bool isRootPath = path == "/" || string.IsNullOrEmpty(path);
             bool isStaticFile = path?.StartsWith("/_framework") == true ||
                     path?.StartsWith("/css") == true ||
@@ -106,7 +107,7 @@ public class SubdomainMiddleware
                     path?.Contains('.') == true; // catches .css, .js, .png, .ico etc.
 
 
-            if (!isAccountPath && !isRootPath && !isStaticFile)
+            if (!isAccountPath && !isPrivacyPath && !isRootPath && !isStaticFile)
             {
                 if (context.User.Identity?.IsAuthenticated == true)
                 {
