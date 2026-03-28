@@ -1,6 +1,6 @@
 ﻿@{
     ViewData["Title"] = "Bun venit";
-    Layout = null; // standalone page, no nav
+    Layout = null;
 }
 
 <!DOCTYPE html>
@@ -10,107 +10,247 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MedicalOnboarding</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" />
+    <link rel="stylesheet" href="~/css/landing.css" />
 </head>
-<body class="bg-light">
+<body>
 
     <!-- NAVBAR -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
-        <div class="container">
-            <a class="navbar-brand fw-bold text-primary" href="/">
-                <i class="bi bi-hospital me-2"></i>MedicalOnboarding
-            </a>
-            <div class="ms-auto d-flex gap-2">
-                <a asp-controller="Account"
-                       asp-action="Login"
-                       class="btn btn-outline-primary">
-                    <i class="bi bi-box-arrow-in-right me-1"></i> Autentificare
-                </a>
-                <a asp-controller="Account"
-                       asp-action="RegisterClinicAdmin"
-                       class="btn btn-primary">
-                    <i class="bi bi-plus-circle me-1"></i> Înregistrare
-                </a>
+    <nav class="landing-nav">
+        <a href="/" class="landing-brand">
+            <i class="bi bi-hospital landing-brand-icon"></i>
+            <div class="landing-brand-text">
+                <strong>MEDICAL ONBOARDING</strong>
+                <span>Platforma ta medicală</span>
             </div>
+        </a>
+        <div class="landing-nav-right">
+            <a asp-controller="Account" asp-action="Login" class="btn-nav-login">
+                <i class="bi bi-box-arrow-in-right me-1"></i> Autentificare
+            </a>
         </div>
     </nav>
 
-    <!-- HERO -->
-    <section class="py-5">
-        <div class="container">
-            <div class="row align-items-center g-5">
-                <div class="col-lg-6">
-                    <h1 class="display-5 fw-bold mb-3">
-                        Onboarding medical <span class="text-primary">simplu și eficient</span>
-                    </h1>
-                    <p class="lead text-muted mb-4">
-                        Platformă dedicată clinicilor medicale pentru gestionarea cursurilor,
-                        testelor adaptive și progresului angajaților.
-                    </p>
-                    <div class="d-flex gap-3">
-                        <a asp-controller="Account"
-                               asp-action="RegisterClinicAdmin"
-                               class="btn btn-primary btn-lg px-4">
-                            <i class="bi bi-rocket me-2"></i> Începe Acum
-                        </a>
-                        <a asp-controller="Account"
-                               asp-action="Login"
-                               class="btn btn-outline-secondary btn-lg px-4">
-                            Autentificare
-                        </a>
-                    </div>
-                </div>
-                <div class="col-lg-6 text-center">
-                    <div class="bg-primary bg-opacity-10 rounded-4 p-5">
-                        <i class="bi bi-hospital text-primary" style="font-size: 8rem;"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+    <!-- CONTENT -->
+    <div class="landing-wrapper">
 
-    <!-- FEATURES -->
-    <section class="py-5 bg-white">
-        <div class="container">
-            <h2 class="text-center fw-bold mb-5">De ce MedicalOnboarding?</h2>
-            <div class="row g-4">
-                <div class="col-md-4">
-                    <div class="card border-0 shadow-sm h-100 text-center p-4">
-                        <i class="bi bi-book text-primary mb-3" style="font-size: 2.5rem;"></i>
-                        <h5 class="fw-semibold">Cursuri Structurate</h5>
-                        <p class="text-muted">
-                            Organizează cursurile pe capitole cu atașamente, videoclipuri și documente PDF.
-                        </p>
-                    </div>
+        <!-- HERO -->
+        <div class="hero-card">
+            <div class="hero-content">
+                <h1>Onboarding medical <span>simplu și eficient</span></h1>
+                <p>
+                    Platformă dedicată clinicilor medicale pentru gestionarea cursurilor,
+                    testelor adaptive și progresului angajaților — totul într-un singur loc.
+                </p>
+                <div class="hero-actions">
+                    <a asp-controller="Account" asp-action="RegisterClinicAdmin" class="btn-hero-primary">
+                        <i class="bi bi-rocket me-1"></i> Începe Acum
+                    </a>
+                    <a asp-controller="Home" asp-action="Privacy" class="btn-hero-secondary">
+                        <i class="bi bi-shield-lock me-1"></i> Confidențialitate
+                    </a>
                 </div>
-                <div class="col-md-4">
-                    <div class="card border-0 shadow-sm h-100 text-center p-4">
-                        <i class="bi bi-graph-up text-primary mb-3" style="font-size: 2.5rem;"></i>
-                        <h5 class="fw-semibold">Teste Adaptive</h5>
-                        <p class="text-muted">
-                            Sistem de testare care se adaptează automat la nivelul fiecărui angajat.
-                        </p>
-                    </div>
+            </div>
+            <div class="hero-image"></div>
+        </div>
+
+        <!-- STATS -->
+        <div class="stats-card">
+            <div class="stat-item">
+                <div class="stat-number">100%</div>
+                <div class="stat-label">Onboarding digital</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">Adaptiv</div>
+                <div class="stat-label">Sistem de testare inteligent</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">GDPR</div>
+                <div class="stat-label">Date protejate și conforme</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">HIPAA</div>
+                <div class="stat-label">Conformitate medicală</div>
+            </div>
+        </div>
+
+        <!-- FEATURES -->
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon icon-red">
+                    <i class="bi bi-book"></i>
                 </div>
-                <div class="col-md-4">
-                    <div class="card border-0 shadow-sm h-100 text-center p-4">
-                        <i class="bi bi-people text-primary mb-3" style="font-size: 2.5rem;"></i>
-                        <h5 class="fw-semibold">Rapoarte Detaliate</h5>
-                        <p class="text-muted">
-                            Monitorizează progresul angajaților și conformitatea cu cerințele clinicii.
-                        </p>
-                    </div>
+                <h5>Cursuri Structurate</h5>
+                <p>Organizează cursurile pe capitole cu atașamente, videoclipuri și documente PDF, adaptate fiecărui tip de angajat.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon icon-blue">
+                    <i class="bi bi-lightning-charge"></i>
+                </div>
+                <h5>Teste Adaptive</h5>
+                <p>Sistemul ajustează automat dificultatea întrebărilor în funcție de performanța fiecărui angajat.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon icon-green">
+                    <i class="bi bi-clipboard2-check"></i>
+                </div>
+                <h5>Rapoarte de Conformitate</h5>
+                <p>Monitorizează progresul, scorurile și statusul de conformitate al fiecărui angajat în timp real.</p>
+            </div>
+        </div>
+
+        <!-- DETAILED: COURSES -->
+        <div class="detail-section-card">
+            <div class="detail-section-icon icon-red">
+                <i class="bi bi-journal-richtext"></i>
+            </div>
+            <div class="detail-section-content">
+                <h3>Cursuri complete pentru fiecare rol</h3>
+                <p>
+                    Administratorii clinicii pot crea cursuri dedicate fiecărui tip de angajat —
+                    asistenți medicali, recepționiști, îngrijitori sau personal de suport.
+                    Fiecare curs este organizat în <strong>capitole ordonate</strong>, fiecare capitol
+                    putând conține text formatat, imagini, videoclipuri și fișiere PDF atașate.
+                    Angajații parcurg capitolele în propriul ritm și marchează fiecare capitol ca finalizat,
+                    iar cursul este marcat automat ca finalizat când toate capitolele sunt parcurse.
+                </p>
+                <div class="detail-tags">
+                    <span class="tag tag-red">Capitole ordonate</span>
+                    <span class="tag tag-red">Atașamente PDF</span>
+                    <span class="tag tag-red">Videoclipuri</span>
+                    <span class="tag tag-red">Imagini</span>
+                    <span class="tag tag-red">Acces pe tipuri de angajați</span>
+                    <span class="tag tag-red">Finalizare automată</span>
                 </div>
             </div>
         </div>
-    </section>
+
+        <!-- DETAILED: EMPLOYEES -->
+        <div class="detail-section-card">
+            <div class="detail-section-icon icon-blue">
+                <i class="bi bi-people-fill"></i>
+            </div>
+            <div class="detail-section-content">
+                <h3>Gestionare completă a angajaților</h3>
+                <p>
+                    Fiecare clinică are propriul spațiu de lucru izolat, accesibil printr-un
+                    <strong>subdomeniu unic</strong> ales la înregistrare. Administratorul adaugă angajați,
+                    le atribuie tipuri de roluri și urmărește progresul fiecăruia în timp real.
+                    Angajații se autentifică exclusiv pe subdomeniul clinicii lor și accesează doar
+                    cursurile relevante rolului lor — nicio informație nu este accesibilă între clinici.
+                    Fiecare angajat are propriul profil cu imagine, iar parola poate fi schimbată oricând.
+                </p>
+                <div class="detail-tags">
+                    <span class="tag tag-blue">Subdomeniu dedicat</span>
+                    <span class="tag tag-blue">Roluri personalizate</span>
+                    <span class="tag tag-blue">Progres individual</span>
+                    <span class="tag tag-blue">Acces controlat</span>
+                    <span class="tag tag-blue">Profil cu imagine</span>
+                    <span class="tag tag-blue">Izolare completă între clinici</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- DETAILED: ADAPTIVE TESTS -->
+        <div class="detail-section-card">
+            <div class="detail-section-icon icon-purple">
+                <i class="bi bi-lightning-charge-fill"></i>
+            </div>
+            <div class="detail-section-content">
+                <h3>Teste adaptive cu dificultate dinamică</h3>
+                <p>
+                    Sistemul de testare adaptivă selectează <strong>15 întrebări</strong> din baza
+                    de întrebări a clinicii și ajustează automat dificultatea în funcție de
+                    performanța angajatului. Dacă răspunzi corect la mai mult de <strong>80%</strong>
+                    din ultimele 3 întrebări, dificultatea crește. Dacă scazi sub <strong>50%</strong>,
+                    dificultatea scade. Întrebările au 5 niveluri: Foarte Ușor, Ușor, Mediu, Dificil
+                    și Foarte Dificil. Fiecare test nou pornește de la dificultatea medie a testului
+                    anterior, asigurând o progresie continuă. La finalul fiecărei întrebări, angajatul
+                    primește feedback imediat cu răspunsul corect.
+                </p>
+                <div class="detail-tags">
+                    <span class="tag tag-purple">5 niveluri de dificultate</span>
+                    <span class="tag tag-purple">15 întrebări per test</span>
+                    <span class="tag tag-purple">Ajustare automată</span>
+                    <span class="tag tag-purple">Progresie continuă</span>
+                    <span class="tag tag-purple">Feedback imediat</span>
+                    <span class="tag tag-purple">Răspunsuri amestecate</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- DETAILED: REPORTS -->
+        <div class="detail-section-card">
+            <div class="detail-section-icon icon-green">
+                <i class="bi bi-clipboard2-data-fill"></i>
+            </div>
+            <div class="detail-section-content">
+                <h3>Rapoarte de conformitate și progres</h3>
+                <p>
+                    Administratorii pot vizualiza rapoarte detaliate pentru fiecare angajat:
+                    cursuri finalizate, capitole parcurse, istoricul testelor și scorurile obținute.
+                    Un angajat este considerat <strong>conform</strong> dacă a finalizat toate cursurile
+                    atribuite și are un scor mediu de cel puțin <strong>70%</strong> la teste.
+                    Rapoartele includ data finalizării fiecărui curs și capitol, istoricul complet al
+                    testelor cu scorul și dificultatea medie, și sunt pregătite pentru audit intern.
+                </p>
+                <div class="detail-tags">
+                    <span class="tag tag-green">Status conformitate</span>
+                    <span class="tag tag-green">Scor minim 70%</span>
+                    <span class="tag tag-green">Date finalizare</span>
+                    <span class="tag tag-green">Istoric teste</span>
+                    <span class="tag tag-green">Dificultate medie</span>
+                    <span class="tag tag-green">Pregătit pentru audit</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- DETAILED: CLINIC MANAGEMENT -->
+        <div class="detail-section-card">
+            <div class="detail-section-icon icon-pink">
+                <i class="bi bi-hospital-fill"></i>
+            </div>
+            <div class="detail-section-content">
+                <h3>Administrare completă a clinicii</h3>
+                <p>
+                    Administratorul clinicii gestionează toate aspectele platformei dintr-un singur panou:
+                    informațiile clinicii (nume, adresă, oraș, țară, telefon, email, website și logo),
+                    tipurile de angajați, angajații, cursurile și întrebările pentru teste.
+                    Fiecare administrator are propriul profil cu imagine și poate schimba parola și
+                    adresa de email oricând. La înregistrare, clinica primește automat un subdomeniu
+                    unic și un email de confirmare a contului.
+                </p>
+                <div class="detail-tags">
+                    <span class="tag tag-pink">Panou de administrare</span>
+                    <span class="tag tag-pink">Profil clinică</span>
+                    <span class="tag tag-pink">Tipuri de angajați</span>
+                    <span class="tag tag-pink">Logo clinică</span>
+                    <span class="tag tag-pink">Subdomeniu unic</span>
+                    <span class="tag tag-pink">Email de confirmare</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- CTA -->
+        <div class="cta-card">
+            <h2>Pregătește-ți echipa medicală</h2>
+            <p>Înregistrează-ți clinica și începe onboardingul digital al angajaților tăi astăzi.</p>
+            <div class="cta-actions">
+                <a asp-controller="Account" asp-action="RegisterClinicAdmin" class="btn-cta-white">
+                    <i class="bi bi-rocket me-1"></i> Începe Acum
+                </a>
+                <a asp-controller="Home" asp-action="Privacy" class="btn-cta-outline">
+                    <i class="bi bi-shield-lock me-1"></i> Politica de Confidențialitate
+                </a>
+            </div>
+        </div>
+
+    </div>
 
     <!-- FOOTER -->
-    <footer class="py-4 bg-white border-top mt-5">
-        <div class="container text-center text-muted small">
-            © @DateTime.Now.Year MedicalOnboarding. Toate drepturile rezervate.
-        </div>
+    <footer class="landing-footer">
+        <p>© @DateTime.Now.Year MedicalOnboarding. Toate drepturile rezervate.</p>
+        <a asp-controller="Home" asp-action="Privacy">Politica de Confidențialitate</a>
     </footer>
 
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
