@@ -1,0 +1,49 @@
+﻿<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] — MedicalOnboarding</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" />
+    <link rel="stylesheet" href="~/css/public.css" />
+</head>
+<body>
+
+    <div class="landing-wrapper">
+
+        <!-- NAVBAR CARD -->
+        <div class="public-nav-card">
+            <a href="/" class="landing-brand">
+                <i class="bi bi-hospital landing-brand-icon"></i>
+                <div class="landing-brand-text">
+                    <strong>MEDICAL ONBOARDING</strong>
+                    <span>Platforma ta medicală</span>
+                </div>
+            </a>
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <a href="/" class="btn-nav-login">
+                    <i class="bi bi-house me-1"></i> Acasă
+                </a>
+                <a asp-controller="Account" asp-action="Login" class="btn-nav-login">
+                    <i class="bi bi-person me-1"></i> Intră în cont
+                </a>
+            </div>
+        </div>
+
+        <!-- PAGE CONTENT -->
+        @RenderBody()
+
+        <!-- FOOTER -->
+        <div class="landing-footer">
+            <p>© @DateTime.Now.Year MedicalOnboarding. Toate drepturile rezervate.</p>
+            <a asp-controller="Home" asp-action="Privacy">Politica de Confidențialitate</a>
+        </div>
+
+    </div>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+
+</body>
+</html>
