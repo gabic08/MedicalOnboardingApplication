@@ -87,6 +87,7 @@ public class AdminEmployeesController : Controller
 
         model.UserName = model.Email;
         model.ClinicId = admin.ClinicId;
+        model.EmailConfirmed = true;
 
         var result = await _userManager.CreateAsync(
             model,
