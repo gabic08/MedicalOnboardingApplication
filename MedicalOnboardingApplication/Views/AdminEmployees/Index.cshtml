@@ -119,6 +119,11 @@
                                     data-employee-name="@emp.FirstName @emp.LastName">
                                 <i class="bi bi-trash me-1"></i> Șterge
                             </button>
+
+                            <a asp-action="Schedule" asp-route-id="@emp.Id"
+                                   class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-calendar-week"></i> Program
+                            </a>
                         </td>
                     </tr>
                 }

@@ -1,11 +1,13 @@
 ﻿using MedicalOnboardingApplication.Data;
+using MedicalOnboardingApplication.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace MedicalOnboardingApplication.Controllers;
 
-[Authorize] // any authenticated user
+[Authorize]
+[WorkingHours]
 public class CoursesController : Controller
 {
     private readonly MedicalOnboardingApplicationContext _context;

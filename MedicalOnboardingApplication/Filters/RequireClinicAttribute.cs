@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace MedicalOnboardingApplication;
+namespace MedicalOnboardingApplication.Filters;
 
 public class RequireClinicAttribute : AuthorizeAttribute, IAsyncAuthorizationFilter
 {

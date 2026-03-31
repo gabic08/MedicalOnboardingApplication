@@ -1,0 +1,133 @@
+﻿@model List<MedicalOnboardingApplication.ViewModels.EmployeeScheduleDayViewModel>
+@{
+    var dayNames = ViewBag.DayNames as Dictionary<DayOfWeek, string>;
+    string prefix = ViewData["Prefix"] as string ?? "Schedule";
+}
+
+<div class="card shadow-sm border-0 mt-4">
+    <div class="card-header bg-white border-bottom py-3">
+        <h6 class="mb-0 fw-semibold text-muted text-uppercase">
+            <i class="bi bi-calendar-week me-2 text-primary"></i> Program Săptămânal
+        </h6>
+    </div>
+    <div class="card-body p-0">
+        @for (int i = 0; i < Model.Count; i++)
+        {
+            var day = Model[i];
+            var fieldPrefix = $"{prefix}[{i}]";
+
+            <div class="border-bottom px-4 py-3" id="day-row-@i">
+                <input type="hidden" name="@($"{fieldPrefix}.Day")" value="@((int)day.Day)" />
+
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="fw-semibold">@dayNames[day.Day]</span>
+                    <div class="form-check form-switch mb-0">
+                        <input type="checkbox"
+                               class="form-check-input day-off-toggle"
+                               name="@($"{fieldPrefix}.IsDayOff")"
+                               value="true"
+                               id="dayoff-@i"
+                               data-index="@i"
+                        @(day.IsDayOff ? "checked" : "") />
+                        <input type="hidden" name="@($"{fieldPrefix}.IsDayOff")" value="false" />
+                        <label class="form-check-label text-muted small" for="dayoff-@i">
+                            Zi liberă
+                        </label>
+                    </div>
+                </div>
+
+                <div class="shifts-container" id="shifts-@i" style="@(day.IsDayOff ? "display:none;" : "")">
+                    @for (int j = 0; j < day.Shifts.Count; j++)
+                    {
+                        var shiftPrefix = $"{fieldPrefix}.Shifts[{j}]";
+                        <div class="d-flex align-items-center gap-2 mb-2 shift-row">
+                            <input type="time"
+                                   name="@($"{shiftPrefix}.StartTime")"
+                                   value="@day.Shifts[j].StartTime.ToString("HH:mm")"
+                                   class="form-control"
+                                   required />
+                            <span class="text-muted">—</span>
+                            <input type="time"
+                                   name="@($"{shiftPrefix}.EndTime")"
+                                   value="@day.Shifts[j].EndTime.ToString("HH:mm")"
+                                   class="form-control"
+                                   required />
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-danger remove-shift-btn"
+                                    onclick="removeShift(this)">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    }
+                    <button type="button"
+                            class="btn btn-sm btn-outline-secondary mt-1"
+                            onclick="addShift(this, @i, '@prefix')">
+                        <i class="bi bi-plus-circle me-1"></i> Adaugă Tură
+                    </button>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<script>
+    document.querySelectorAll('.day-off-toggle').forEach(toggle => {
+        toggle.addEventListener('change', function () {
+            const index = this.dataset.index;
+            const shiftsContainer = document.getElementById('shifts-' + index);
+            shiftsContainer.style.display = this.checked ? 'none' : '';
+
+            // disable/enable required on time inputs
+            shiftsContainer.querySelectorAll('input[type="time"]').forEach(input => {
+                input.required = !this.checked;
+            });
+        });
+    });
+
+    function addShift(btn, dayIndex, prefix) {
+        const container = btn.closest('.shifts-container');
+        const shiftRows = container.querySelectorAll('.shift-row');
+        const newIndex = shiftRows.length;
+
+        const row = document.createElement('div');
+        row.className = 'd-flex align-items-center gap-2 mb-2 shift-row';
+        row.innerHTML = `
+            <input type="time"
+                   name="${prefix}[${dayIndex}].Shifts[${newIndex}].StartTime"
+                   class="form-control"
+                   required />
+            <span class="text-muted">—</span>
+            <input type="time"
+                   name="${prefix}[${dayIndex}].Shifts[${newIndex}].EndTime"
+                   class="form-control"
+                   required />
+            <button type="button"
+                    class="btn btn-sm btn-outline-danger remove-shift-btn"
+                    onclick="removeShift(this)">
+                <i class="bi bi-trash"></i>
+            </button>
+        `;
+        container.insertBefore(row, btn);
+    }
+
+    function removeShift(btn) {
+        const row = btn.closest('.shift-row');
+        const container = row.closest('.shifts-container');
+        if (container.querySelectorAll('.shift-row').length > 1) {
+            row.remove();
+            reindexShifts(container);
+        }
+    }
+
+    function reindexShifts(container) {
+        const dayRow = container.closest('[id^="day-row-"]');
+        const dayIndex = dayRow.id.replace('day-row-', '');
+        const prefix = container.closest('form').dataset.prefix || 'Schedule';
+
+        container.querySelectorAll('.shift-row').forEach((row, i) => {
+            const inputs = row.querySelectorAll('input[type="time"]');
+            inputs[0].name = `${prefix}[${dayIndex}].Shifts[${i}].StartTime`;
+            inputs[1].name = `${prefix}[${dayIndex}].Shifts[${i}].EndTime`;
+        });
+    }
+</script>

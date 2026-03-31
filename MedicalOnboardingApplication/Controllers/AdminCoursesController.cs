@@ -1,4 +1,5 @@
 ﻿using MedicalOnboardingApplication.Data;
+using MedicalOnboardingApplication.Filters;
 using MedicalOnboardingApplication.Models;
 using MedicalOnboardingApplication.ViewModels;
 using Microsoft.AspNetCore.Authorization;

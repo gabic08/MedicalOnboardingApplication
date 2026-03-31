@@ -247,7 +247,7 @@ body {
     grid-column: 2;
     grid-row: 2;
     background-color: rgb(242, 243, 243);
-    background-image: url('/required/auth-bg.jpg');
+    background-image: url('/required/landing.jpg');
     background-size: cover;
     background-position: center top;
     min-height: 360px;

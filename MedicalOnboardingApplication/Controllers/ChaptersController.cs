@@ -1,4 +1,5 @@
 ﻿using MedicalOnboardingApplication.Data;
+using MedicalOnboardingApplication.Filters;
 using MedicalOnboardingApplication.Models;
 using MedicalOnboardingApplication.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -8,6 +9,8 @@ using Microsoft.EntityFrameworkCore;
 namespace MedicalOnboardingApplication.Controllers;
 
 [Authorize]
+[WorkingHours]
+[WorkingHours]
 public class ChaptersController : Controller
 {
     private readonly MedicalOnboardingApplicationContext _context;

@@ -27,6 +27,7 @@ namespace MedicalOnboardingApplication.Data
         public DbSet<UserCourseProgress> UserCourseProgress { get; set; }
         public DbSet<TestSession> TestSessions { get; set; }
         public DbSet<TestSessionQuestion> TestSessionQuestions { get; set; }
+        public DbSet<WorkSchedule> WorkSchedules { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

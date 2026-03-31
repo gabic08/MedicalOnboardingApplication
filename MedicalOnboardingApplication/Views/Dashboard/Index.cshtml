@@ -1,56 +1,119 @@
 ﻿@{
     ViewData["Title"] = "Panou Principal";
+    bool isWorkingNow = ViewBag.IsWorkingNow ?? true;
+    string nextShiftInfo = ViewBag.NextShiftInfo ?? "";
 }
+
 <div class="container py-5">
     <div class="text-center mb-5">
         <h1 class="fw-bold">Bine ai revenit!</h1>
         <p class="text-muted">Continuă procesul de integrare de unde ai rămas</p>
     </div>
+
+    @if (!isWorkingNow)
+    {
+        <div class="alert alert-warning d-flex align-items-center gap-3 mb-4 rounded-3 shadow-sm">
+            <i class="bi bi-clock-history fs-4"></i>
+            <div>
+                <strong>În afara orelor de lucru.</strong>
+                Cursurile și testele sunt disponibile doar în timpul programului tău.
+                @if (!string.IsNullOrEmpty(nextShiftInfo))
+                {
+                    <span class="ms-1">@nextShiftInfo</span>
+                }
+            </div>
+        </div>
+    }
+
     <div class="row justify-content-center g-4">
+
         <!-- Courses Card -->
         <div class="col-md-5 col-lg-4">
-            <a asp-controller="Courses" asp-action="Index" class="text-decoration-none">
-                <div class="card shadow-lg border-0 h-100 dashboard-card">
+            @if (isWorkingNow)
+            {
+                <a asp-controller="Courses" asp-action="Index" class="text-decoration-none">
+                    <div class="card shadow-lg border-0 h-100 dashboard-card">
+                        <div class="card-body text-center p-5">
+                            <div class="mb-4 text-primary">
+                                <i class="bi bi-journal-text display-3"></i>
+                            </div>
+                            <h3 class="fw-bold mb-2">Cursuri</h3>
+                            <p class="text-muted">
+                                Explorează și finalizează cursurile de integrare atribuite
+                            </p>
+                            <div class="mt-4">
+                                <span class="btn btn-primary px-4">Vezi Cursurile</span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            }
+            else
+            {
+                <div class="card shadow-sm border-0 h-100 dashboard-card disabled-card">
                     <div class="card-body text-center p-5">
-                        <div class="mb-4 text-primary">
+                        <div class="mb-4 text-secondary">
                             <i class="bi bi-journal-text display-3"></i>
                         </div>
-                        <h3 class="fw-bold mb-2">Cursuri</h3>
+                        <h3 class="fw-bold mb-2 text-secondary">Cursuri</h3>
                         <p class="text-muted">
                             Explorează și finalizează cursurile de integrare atribuite
                         </p>
                         <div class="mt-4">
-                            <span class="btn btn-primary px-4">
-                                Vezi Cursurile
+                            <span class="btn btn-secondary px-4 disabled">
+                                <i class="bi bi-lock me-1"></i> Indisponibil
                             </span>
                         </div>
                     </div>
                 </div>
-            </a>
+            }
         </div>
+
         <!-- Tests Card -->
         <div class="col-md-5 col-lg-4">
-            <a asp-controller="Tests" asp-action="Index" class="text-decoration-none">
-                <div class="card shadow-lg border-0 h-100 dashboard-card">
+            @if (isWorkingNow)
+            {
+                <a asp-controller="Tests" asp-action="Index" class="text-decoration-none">
+                    <div class="card shadow-lg border-0 h-100 dashboard-card">
+                        <div class="card-body text-center p-5">
+                            <div class="mb-4 text-warning">
+                                <i class="bi bi-patch-question display-3"></i>
+                            </div>
+                            <h3 class="fw-bold mb-2">Teste</h3>
+                            <p class="text-muted">
+                                Susține teste adaptive pentru a-ți evalua cunoștințele și a urmări progresul
+                            </p>
+                            <div class="mt-4">
+                                <span class="btn btn-warning px-4">Vezi Testele</span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            }
+            else
+            {
+                <div class="card shadow-sm border-0 h-100 dashboard-card disabled-card">
                     <div class="card-body text-center p-5">
-                        <div class="mb-4 text-warning">
+                        <div class="mb-4 text-secondary">
                             <i class="bi bi-patch-question display-3"></i>
                         </div>
-                        <h3 class="fw-bold mb-2">Teste</h3>
+                        <h3 class="fw-bold mb-2 text-secondary">Teste</h3>
                         <p class="text-muted">
                             Susține teste adaptive pentru a-ți evalua cunoștințele și a urmări progresul
                         </p>
                         <div class="mt-4">
-                            <span class="btn btn-warning px-4">
-                                Vezi Testele
+                            <span class="btn btn-secondary px-4 disabled">
+                                <i class="bi bi-lock me-1"></i> Indisponibil
                             </span>
                         </div>
                     </div>
                 </div>
-            </a>
+            }
         </div>
+
     </div>
 </div>
+
 <style>
     .dashboard-card {
         transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -69,7 +132,7 @@
     }
 
         .disabled-card:hover {
-            transform: none;
-            box-shadow: none;
+            transform: none !important;
+            box-shadow: none !important;
         }
 </style>

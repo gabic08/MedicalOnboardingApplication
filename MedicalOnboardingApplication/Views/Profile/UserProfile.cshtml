@@ -187,6 +187,137 @@
 
 </form>
 
+@{
+    var clinic = ViewBag.Clinic as MedicalOnboardingApplication.Models.Clinic;
+    var isEmployee = (bool)(ViewBag.IsEmployee ?? false);
+    var schedules = ViewBag.Schedules as List<MedicalOnboardingApplication.Models.WorkSchedule>;
+    var dayNames = ViewBag.DayNames as Dictionary<DayOfWeek, string>;
+
+    var order = new[] {
+        DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday,
+        DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday, DayOfWeek.Sunday
+    };
+}
+
+
+@if (clinic != null)
+{
+    <div class="row g-4 mt-1">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body py-3">
+                    <h6 class="text-muted text-uppercase fw-semibold mb-3">
+                        <i class="bi bi-hospital me-1"></i> Clinica Mea
+                    </h6>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-center gap-2">
+                                @if (!string.IsNullOrEmpty(clinic.ImagePath))
+                                {
+                                    <img src="@clinic.ImagePath"
+                                         class="rounded border"
+                                         style="width: 48px; height: 48px; object-fit: cover;" />
+                                }
+                                else
+                                {
+                                    <div class="rounded border d-flex align-items-center justify-content-center bg-light"
+                                         style="width: 48px; height: 48px;">
+                                        <i class="bi bi-hospital text-muted"></i>
+                                    </div>
+                                }
+                                <div>
+                                    <div class="fw-semibold">@clinic.Name</div>
+                                    @if (!string.IsNullOrEmpty(clinic.City))
+                                    {
+                                        <div class="text-muted small">@clinic.City@(!string.IsNullOrEmpty(clinic.Country) ? $", {clinic.Country}" : "")</div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        @if (!string.IsNullOrEmpty(clinic.Address))
+                        {
+                            <div class="col-md-4">
+                                <div class="text-muted small text-uppercase fw-semibold mb-1">Adresă</div>
+                                <div class="small">@clinic.Address</div>
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(clinic.Phone) || !string.IsNullOrEmpty(clinic.Email))
+                        {
+                            <div class="col-md-4">
+                                @if (!string.IsNullOrEmpty(clinic.Phone))
+                                {
+                                    <div class="small mb-1">
+                                        <i class="bi bi-telephone me-1 text-muted"></i> @clinic.Phone
+                                    </div>
+                                }
+                                @if (!string.IsNullOrEmpty(clinic.Email))
+                                {
+                                    <div class="small mb-1">
+                                        <i class="bi bi-envelope me-1 text-muted"></i> @clinic.Email
+                                    </div>
+                                }
+                                @if (!string.IsNullOrEmpty(clinic.Website))
+                                {
+                                    <div class="small">
+                                        <i class="bi bi-globe me-1 text-muted"></i>
+                                        <a href="@clinic.Website" target="_blank" class="text-decoration-none">@clinic.Website</a>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@* WORK SCHEDULE — employees only *@
+@if (isEmployee && schedules != null)
+{
+    <div class="row g-4 mt-1">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h6 class="mb-0 fw-semibold text-muted text-uppercase">
+                        <i class="bi bi-calendar-week me-1"></i> Programul Meu
+                    </h6>
+                </div>
+                <div class="card-body p-0">
+                    @foreach (var day in order)
+                    {
+                        var dayShifts = schedules.Where(s => s.Day == day).ToList();
+                        <div class="d-flex align-items-center px-4 py-3 border-bottom">
+                            <div style="width: 120px;" class="fw-semibold small">
+                                @dayNames[day]
+                            </div>
+                            @if (!dayShifts.Any())
+                            {
+                                <span class="badge bg-secondary bg-opacity-10 text-secondary px-3 py-2 rounded-pill">
+                                    <i class="bi bi-moon me-1"></i> Zi liberă
+                                </span>
+                            }
+                            else
+                            {
+                                <div class="d-flex flex-wrap gap-2">
+                                    @foreach (var shift in dayShifts)
+                                    {
+                                        <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill">
+                                            <i class="bi bi-clock me-1"></i>
+                                            @shift.StartTime.ToString("HH:mm") — @shift.EndTime.ToString("HH:mm")
+                                        </span>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>

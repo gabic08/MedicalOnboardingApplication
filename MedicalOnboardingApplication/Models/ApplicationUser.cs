@@ -15,4 +15,5 @@ public class ApplicationUser : IdentityUser<int>
     public List<UserChapterProgress> ChapterProgress { get; set; } = new();
     public List<UserCourseProgress> CourseProgress { get; set; } = new();
     public List<TestSession> TestSessions { get; set; } = new();
+    public ICollection<WorkSchedule> WorkSchedules { get; set; }
 }

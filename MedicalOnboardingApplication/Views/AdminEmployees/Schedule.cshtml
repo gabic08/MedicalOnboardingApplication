@@ -1,0 +1,63 @@
+﻿@{
+    ViewData["Title"] = "Program Angajat";
+    var employee = ViewBag.Employee as MedicalOnboardingApplication.Models.ApplicationUser;
+    var schedules = ViewBag.Schedules as List<MedicalOnboardingApplication.Models.WorkSchedule>;
+    var dayNames = ViewBag.DayNames as Dictionary<DayOfWeek, string>;
+
+    var order = new[] {
+        DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday,
+        DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday, DayOfWeek.Sunday
+    };
+}
+
+<div class="mb-4">
+    <a asp-action="Index" class="btn btn-outline-secondary mb-2">
+        <i class="bi bi-arrow-left"></i> Înapoi la Angajați
+    </a>
+    <div class="d-flex align-items-center justify-content-between">
+        <div>
+            <h1 class="mb-0">Program — @employee.FirstName @employee.LastName</h1>
+            <p class="text-muted mt-1 mb-0">@employee.EmployeeType?.Name</p>
+        </div>
+        <a asp-action="Edit" asp-route-id="@employee.Id" class="btn btn-outline-primary">
+            <i class="bi bi-pencil me-1"></i> Editează Programul
+        </a>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-white border-bottom py-3">
+        <h6 class="mb-0 fw-semibold text-muted text-uppercase">
+            <i class="bi bi-calendar-week me-2 text-primary"></i> Program Săptămânal
+        </h6>
+    </div>
+    <div class="card-body p-0">
+        @foreach (var day in order)
+        {
+            var dayShifts = schedules.Where(s => s.Day == day).ToList();
+            <div class="d-flex align-items-center px-4 py-3 border-bottom">
+                <div style="width: 120px;" class="fw-semibold">
+                    @dayNames[day]
+                </div>
+                @if (!dayShifts.Any())
+                {
+                    <span class="badge bg-secondary bg-opacity-10 text-secondary px-3 py-2 rounded-pill">
+                        <i class="bi bi-moon me-1"></i> Zi liberă
+                    </span>
+                }
+                else
+                {
+                    <div class="d-flex flex-wrap gap-2">
+                        @foreach (var shift in dayShifts)
+                        {
+                            <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill">
+                                <i class="bi bi-clock me-1"></i>
+                                @shift.StartTime.ToString("HH:mm") — @shift.EndTime.ToString("HH:mm")
+                            </span>
+                        }
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>

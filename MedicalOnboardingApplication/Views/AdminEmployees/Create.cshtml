@@ -1,35 +1,73 @@
-﻿@model MedicalOnboardingApplication.Models.ApplicationUser
+﻿@model MedicalOnboardingApplication.ViewModels.CreateEmployeeViewModel
+@{
+    ViewData["Title"] = "Creare Angajat";
+}
 
 <div class="mb-4">
     <a asp-controller="AdminEmployees" asp-action="Index" class="btn btn-outline-secondary mb-2">
         <i class="bi bi-arrow-left"></i> Înapoi la Angajați
     </a>
-    <h2 class="mb-0">Creare Angajat</h2>
+    <h1 class="mb-0">Creare Angajat</h1>
 </div>
-<form asp-action="Create" method="post">
-    <div class="mb-3">
-        <label>Email</label>
-        <input asp-for="Email" class="form-control" />
+
+<div class="row">
+    <div class="col-12 col-lg-10 mx-auto">
+        <form asp-action="Create" method="post" data-prefix="Schedule">
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small mb-3"></div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h6 class="mb-0 fw-semibold text-muted text-uppercase">
+                        <i class="bi bi-person me-2 text-primary"></i> Detalii Angajat
+                    </h6>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="FirstName" class="form-label fw-semibold small"></label>
+                            <input asp-for="FirstName" class="form-control" placeholder="Prenume" />
+                            <span asp-validation-for="FirstName" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="LastName" class="form-label fw-semibold small"></label>
+                            <input asp-for="LastName" class="form-control" placeholder="Nume" />
+                            <span asp-validation-for="LastName" class="text-danger small"></span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label fw-semibold small"></label>
+                        <input asp-for="Email" class="form-control" placeholder="email@exemplu.com" />
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="EmployeeTypeId" class="form-label fw-semibold small"></label>
+                        <select asp-for="EmployeeTypeId"
+                                asp-items="ViewBag.EmployeeTypes"
+                                class="form-select">
+                            <option value="">— Selectează tipul —</option>
+                        </select>
+                        <span asp-validation-for="EmployeeTypeId" class="text-danger small"></span>
+                    </div>
+                    <div class="alert alert-info mb-0">
+                        Parola implicită va fi: <strong>P@ssw0rd</strong>
+                    </div>
+                </div>
+            </div>
+
+            @await Html.PartialAsync("_SchedulePartial", Model.Schedule,
+                new ViewDataDictionary(ViewData) { { "Prefix", "Schedule" } })
+
+            <div class="d-flex justify-content-end mt-4">
+                <button type="submit" class="btn btn-primary px-4">
+                    <i class="bi bi-person-check me-1"></i> Creare Angajat
+                </button>
+            </div>
+        </form>
     </div>
-    <div class="mb-3">
-        <label>Prenume</label>
-        <input asp-for="FirstName" class="form-control" />
-    </div>
-    <div class="mb-3">
-        <label>Nume</label>
-        <input asp-for="LastName" class="form-control" />
-    </div>
-    <div class="mb-3">
-        <label>Tip Angajat</label>
-        <select asp-for="EmployeeTypeId"
-                asp-items="ViewBag.EmployeeTypes"
-                class="form-select">
-        </select>
-    </div>
-    <div class="alert alert-info">
-        Parola implicită va fi: <strong>P@ssw0rd</strong>
-    </div>
-    <button type="submit" class="btn btn-primary">
-        Creare Angajat
-    </button>
-</form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
