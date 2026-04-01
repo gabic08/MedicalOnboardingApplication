@@ -1,124 +1,136 @@
 ﻿@model IEnumerable<MedicalOnboardingApplication.Models.Course>
 @{
-    ViewData["Title"] = "Cursuri Admin";
+    ViewData["Title"] = "Cursuri";
     var employeeTypes = ViewBag.EmployeeTypes as List<MedicalOnboardingApplication.Models.EmployeeType>;
     var selectedTypeId = ViewBag.SelectedEmployeeTypeId as int?;
     var search = ViewBag.Search as string;
 }
 
-<div class="mb-4">
-    <a asp-controller="Admin"
-       asp-action="Index"
-       class="btn btn-outline-secondary mb-2">
-        <i class="bi bi-arrow-left"></i> Înapoi la Panou
-    </a>
-    <h1 class="mb-0">Cursuri</h1>
+<!-- Page Header -->
+<div class="rm-page-header">
+    <div class="d-flex align-items-start justify-content-between flex-wrap gap-3">
+        <div>
+            <div class="breadcrumb-label">
+                <a asp-controller="Admin" asp-action="Index" class="text-decoration-none" style="color:inherit;">
+                    Panou Admin
+                </a>
+                <i class="bi bi-chevron-right mx-1" style="font-size:0.65rem;"></i>
+                Cursuri
+            </div>
+            <h1>Cursuri</h1>
+            <p>Gestionează cursurile de onboarding pentru angajați</p>
+        </div>
+        <a asp-action="Create" class="btn-rm-success align-self-end">
+            <i class="bi bi-plus-lg"></i> Curs Nou
+        </a>
+    </div>
 </div>
 
-<!-- Search & Filter -->
-<div class="mb-3">
-    <form method="get" class="row g-2 align-items-center">
-        <div class="col-md-4">
+<!-- Filter Bar -->
+<form method="get" class="rm-filter-bar">
+    <div style="flex:1;min-width:220px;">
+        <div style="position:relative;">
+            <i class="bi bi-search" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#bbb;font-size:0.85rem;"></i>
             <input type="text"
                    name="search"
                    value="@search"
                    class="form-control"
+                   style="padding-left:36px;"
                    placeholder="Caută după titlu sau descriere..." />
         </div>
-        <div class="col-md-3">
-            <select name="employeeTypeId" class="form-select">
-                <option value="">Toate Tipurile de Angajați</option>
-                @foreach (var type in employeeTypes)
-                {
-                    <option value="@type.Id" selected="@(selectedTypeId == type.Id)">
-                        @type.Name
-                    </option>
-                }
-            </select>
-        </div>
-        <div class="col-md-auto">
-            <button type="submit" class="btn btn-primary">
-                <i class="bi bi-search"></i> Caută
-            </button>
-        </div>
-        @if (!string.IsNullOrEmpty(search) || selectedTypeId.HasValue)
-        {
-            <div class="col-md-auto">
-                <a asp-action="Index" class="btn btn-outline-secondary">
-                    <i class="bi bi-x"></i> Șterge Filtrele
-                </a>
-            </div>
-        }
-        <div class="col-md-auto ms-auto">
-            <a asp-action="Create" class="btn btn-success">
-                <i class="bi bi-plus-circle me-1"></i> Curs Nou
-            </a>
-        </div>
-    </form>
-</div>
+    </div>
+    <div style="min-width:200px;">
+        <select name="employeeTypeId" class="form-select">
+            <option value="">Toate Tipurile de Angajați</option>
+            @foreach (var type in employeeTypes)
+            {
+                <option value="@type.Id" selected="@(selectedTypeId == type.Id)">
+                    @type.Name
+                </option>
+            }
+        </select>
+    </div>
+    <button type="submit" class="btn-rm-primary">
+        <i class="bi bi-search"></i> Caută
+    </button>
+    @if (!string.IsNullOrEmpty(search) || selectedTypeId.HasValue)
+    {
+        <a asp-action="Index" class="btn-rm-secondary">
+            <i class="bi bi-x"></i> Resetează
+        </a>
+    }
+</form>
+
+<!-- Results summary -->
+@if (Model.Any())
+{
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <p class="mb-0" style="font-size:0.85rem;color:var(--rm-text-muted);">
+            <strong style="color:var(--rm-text);">@Model.Count()</strong> cursuri găsite
+        </p>
+    </div>
+}
 
 <!-- Courses Table -->
-<div class="card shadow-sm border-0">
-    <div class="card-body p-0">
-        <table class="table table-hover align-middle mb-0">
-            <thead class="table-light">
+<div class="rm-table-card">
+    <table class="rm-table">
+        <thead>
+            <tr>
+                <th style="width:80px;">Nr.</th>
+                <th style="width:30%;">Titlu</th>
+                <th>Tipuri de Angajați</th>
+                <th style="width:210px;text-align:right;">Acțiuni</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var course in Model)
+            {
                 <tr>
-                    <th class="ps-4" style="width: 80px;">Ordine</th>
-                    <th style="width: 25%;">Titlu</th>
-                    <th>Tipuri de Angajați</th>
-                    <th style="width: 200px;"></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var course in Model)
-                {
-                    <tr>
-                        <td class="ps-4">
-                            <span class="badge bg-secondary rounded-pill">@course.Order</span>
-                        </td>
-                        <td class="fw-semibold">@course.Title</td>
-                        <td>
+                    <td>
+                        <span class="rm-badge rm-badge-order">@course.Order</span>
+                    </td>
+                    <td>
+                        <span style="font-weight:600;color:var(--rm-text);">@course.Title</span>
+                    </td>
+                    <td>
+                        <div style="display:flex;flex-wrap:wrap;gap:5px;">
                             @foreach (var cet in course.CourseEmployeeTypes)
                             {
-                                <span class="badge bg-secondary bg-opacity-10 text-secondary me-1">
-                                    <i class="bi bi-person-badge me-1"></i>@cet.EmployeeType.Name
+                                <span class="rm-badge">
+                                    <i class="bi bi-person-badge" style="font-size:0.7rem;"></i>
+                                    @cet.EmployeeType.Name
                                 </span>
                             }
-                        </td>
-                        <td class="text-end pe-4">
-                            <div class="d-flex justify-content-end gap-2">
-                                <a asp-controller="Courses"
+                        </div>
+                    </td>
+                    <td>
+                        <div class="rm-table-actions">
+                            <a asp-controller="Courses"
                                    asp-action="Details"
                                    asp-route-id="@course.Id"
-                                   class="btn btn-sm btn-outline-info text-nowrap">
-                                    <i class="bi bi-eye me-1"></i> Vizualizare
-                                </a>
-
-                                <a asp-action="Manage"
+                                   class="btn-rm-outline">
+                                <i class="bi bi-eye"></i> Vizualizare
+                            </a>
+                            <a asp-action="Manage"
                                    asp-route-id="@course.Id"
-                                   class="btn btn-sm btn-outline-primary text-nowrap">
-                                    <i class="bi bi-sliders me-1"></i> Gestionează
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                }
-                @if (!Model.Any())
-                {
-                    <tr>
-                        <td colspan="4" class="text-center py-5 text-muted">
-                            <i class="bi bi-journal-x fs-1 d-block mb-2 opacity-25"></i>
-                            Niciun curs găsit.
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
+                                   class="btn-rm-outline">
+                                <i class="bi bi-sliders"></i> Gestionează
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            }
+            @if (!Model.Any())
+            {
+                <tr>
+                    <td colspan="4">
+                        <div class="rm-empty-state">
+                            <i class="bi bi-journal-x"></i>
+                            <p>Niciun curs găsit. Încearcă să modifici filtrele sau adaugă un curs nou.</p>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 </div>
-
-<style>
-    .btn {
-        white-space: nowrap;
-    }
-</style>

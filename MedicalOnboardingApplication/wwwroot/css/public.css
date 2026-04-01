@@ -710,3 +710,12 @@ body {
         gap: 16px;
     }
 }
+
+/* In site.css — widen the content wrapper */
+.page-content {
+    flex: 1;
+    max-width: 1400px; /* was 1100px */
+    margin: 32px auto;
+    padding: 0 24px;
+    width: 100%;
+}

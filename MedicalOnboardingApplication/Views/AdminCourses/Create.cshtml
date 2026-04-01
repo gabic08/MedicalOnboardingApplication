@@ -4,67 +4,83 @@
     ViewData["Title"] = "Creare Curs";
 }
 
-<div class="mb-4">
-    <a asp-action="Index" class="btn btn-outline-secondary mb-2">
-        <i class="bi bi-arrow-left"></i> Înapoi la Cursuri
-    </a>
-    <h1 class="mb-0">Creare Curs</h1>
+<!-- Page Header -->
+<div class="rm-page-header">
+    <div class="d-flex align-items-start justify-content-between flex-wrap gap-3">
+        <div>
+            <div class="breadcrumb-label">
+                <a asp-controller="Admin" asp-action="Index" class="text-decoration-none" style="color:inherit;">Panou Admin</a>
+                <i class="bi bi-chevron-right mx-1" style="font-size:0.65rem;"></i>
+                <a asp-action="Index" class="text-decoration-none" style="color:inherit;">Cursuri</a>
+                <i class="bi bi-chevron-right mx-1" style="font-size:0.65rem;"></i>
+                Creare
+            </div>
+            <h1>Creare Curs</h1>
+            <p>Completează detaliile pentru a adăuga un curs nou</p>
+        </div>
+    </div>
 </div>
 
 <div class="row">
-    <div class="col-12 col-lg-10 mx-auto">
+    <div class="col-12 col-lg-9 mx-auto">
         <form asp-action="Create" method="post">
             @Html.AntiForgeryToken()
 
-            <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small mb-3"></div>
+            @if (ViewData.ModelState.ErrorCount > 0)
+            {
+                <div class="rm-alert rm-alert-error mb-4">
+                    <i class="bi bi-exclamation-circle-fill"></i>
+                    <div asp-validation-summary="ModelOnly"></div>
+                </div>
+            }
 
             <!-- Course Details -->
-            <div class="card shadow-sm border-0 mb-3">
-                <div class="card-header bg-white border-bottom py-3">
-                    <h6 class="mb-0 fw-semibold text-muted text-uppercase">
-                        <i class="bi bi-journal-text me-2 text-primary"></i> Detalii Curs
-                    </h6>
+            <div class="rm-form-card mb-4">
+                <div class="rm-form-card-header">
+                    <i class="bi bi-journal-text" style="color:var(--rm-red);"></i>
+                    Detalii Curs
                 </div>
-                <div class="card-body p-4">
-                    <div class="mb-3">
-                        <label asp-for="Title" class="form-label fw-semibold small"></label>
-                        <input asp-for="Title" class="form-control" placeholder="Introdu titlul cursului..." />
-                        <span asp-validation-for="Title" class="text-danger small"></span>
+                <div class="rm-form-card-body">
+                    <div class="rm-field mb-3">
+                        <label asp-for="Title" class="rm-label"></label>
+                        <input asp-for="Title" class="rm-input" placeholder="Introdu titlul cursului..." />
+                        <span asp-validation-for="Title" class="rm-field-error"></span>
                     </div>
-                    <div class="mb-3">
-                        <label asp-for="Description" class="form-label fw-semibold small"></label>
-                        <input asp-for="Description" class="form-control" placeholder="Introdu descrierea cursului..." />
-                        <span asp-validation-for="Description" class="text-danger small"></span>
+                    <div class="rm-field mb-3">
+                        <label asp-for="Description" class="rm-label"></label>
+                        <input asp-for="Description" class="rm-input" placeholder="Introdu descrierea cursului..." />
+                        <span asp-validation-for="Description" class="rm-field-error"></span>
                     </div>
-                    <div class="mb-0" style="max-width: 150px;">
-                        <label asp-for="Order" class="form-label fw-semibold small"></label>
-                        <input asp-for="Order" class="form-control" />
-                        <span asp-validation-for="Order" class="text-danger small"></span>
+                    <div class="rm-field" style="max-width:160px;">
+                        <label asp-for="Order" class="rm-label"></label>
+                        <input asp-for="Order" class="rm-input" />
+                        <span asp-validation-for="Order" class="rm-field-error"></span>
                     </div>
                 </div>
             </div>
 
             <!-- Employee Types -->
-            <div class="card shadow-sm border-0 mb-4">
-                <div class="card-header bg-white border-bottom py-3">
-                    <h6 class="mb-0 fw-semibold text-muted text-uppercase">
-                        <i class="bi bi-people me-2 text-primary"></i> Atribuie Tipurilor de Angajați
-                    </h6>
+            <div class="rm-form-card mb-4">
+                <div class="rm-form-card-header">
+                    <i class="bi bi-people" style="color:var(--rm-red);"></i>
+                    Atribuie Tipurilor de Angajați
                 </div>
-                <div class="card-body p-4">
+                <div class="rm-form-card-body">
+                    <p style="font-size:0.85rem;color:var(--rm-text-muted);margin-bottom:16px;">
+                        Selectează tipurile de angajați care vor avea acces la acest curs.
+                    </p>
                     <div class="d-flex flex-wrap gap-2">
                         @for (int i = 0; i < Model?.EmployeeTypes?.Count; i++)
                         {
                             var checkId = $"empType_{i}";
                             <div>
                                 <input type="checkbox"
-                                       class="btn-check"
+                                       class="rm-btn-check"
                                        asp-for="EmployeeTypes[i].IsSelected"
                                        id="@checkId"
                                        autocomplete="off" />
-                                <label class="btn btn-outline-primary btn-sm rounded-pill px-3"
-                                       for="@checkId">
-                                    <i class="bi bi-person-badge me-1"></i>
+                                <label class="rm-toggle-btn" for="@checkId">
+                                    <i class="bi bi-person-badge"></i>
                                     @Model.EmployeeTypes[i].Name
                                 </label>
                                 <input type="hidden" asp-for="EmployeeTypes[i].Id" />
@@ -74,10 +90,13 @@
                 </div>
             </div>
 
+            <!-- Actions -->
             <div class="d-flex justify-content-end gap-2">
-                <a asp-action="Index" class="btn btn-outline-secondary px-4">Anulează</a>
-                <button type="submit" class="btn btn-primary px-4">
-                    <i class="bi bi-save me-1"></i> Salvează Cursul
+                <a asp-action="Index" class="btn-rm-secondary">
+                    <i class="bi bi-x"></i> Anulează
+                </a>
+                <button type="submit" class="btn-rm-primary">
+                    <i class="bi bi-save"></i> Salvează Cursul
                 </button>
             </div>
         </form>
