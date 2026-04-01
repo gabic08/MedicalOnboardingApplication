@@ -2,157 +2,115 @@
     ViewData["Title"] = "Panou Administrator";
     var hasClinic = ViewBag.HasClinic as bool? ?? false;
 }
-<div class="container py-5">
-    <div class="text-center mb-5">
-        <h1 class="fw-bold">Panou Administrator</h1>
-        <p class="text-muted">Gestionează sistemul de integrare dintr-un singur loc</p>
-    </div>
 
-    @if (!hasClinic)
-    {
-        <div class="alert alert-warning d-flex align-items-center gap-3 mb-4 shadow-sm" role="alert">
-            <i class="bi bi-exclamation-triangle-fill fs-4 flex-shrink-0"></i>
-            <div>
-                <strong>Clinica nu este configurată.</strong>
-                Trebuie să îți configurezi clinica înainte de a putea gestiona angajații și cursurile.
-                <a asp-controller="Clinic" asp-action="Details" class="alert-link ms-1">
-                    Configurează clinica →
-                </a>
-            </div>
-        </div>
-    }
-
-    <div class="row justify-content-center g-4">
-        <!-- Courses Card -->
-        <div class="col-md-5 col-lg-4">
-            @if (hasClinic)
-            {
-                <a asp-controller="AdminCourses" asp-action="Index" class="text-decoration-none">
-                    <div class="card shadow-lg border-0 h-100 admin-card">
-                        <div class="card-body text-center p-5">
-                            <div class="mb-4 text-primary">
-                                <i class="bi bi-journal-text display-3"></i>
-                            </div>
-                            <h3 class="fw-bold mb-2">Cursuri</h3>
-                            <p class="text-muted">
-                                Creează, editează și organizează cursuri de integrare pentru angajați
-                            </p>
-                            <div class="mt-4">
-                                <span class="btn btn-primary px-4">
-                                    Gestionează Cursurile
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-            }
-            else
-            {
-                <div class="card shadow-lg border-0 h-100 admin-card disabled-card">
-                    <div class="card-body text-center p-5">
-                        <div class="mb-4 text-primary">
-                            <i class="bi bi-journal-text display-3"></i>
-                        </div>
-                        <h3 class="fw-bold mb-2">Cursuri</h3>
-                        <p class="text-muted">
-                            Creează, editează și organizează cursuri de integrare pentru angajați
-                        </p>
-                        <div class="mt-4">
-                            <span class="btn btn-primary px-4">
-                                Gestionează Cursurile
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            }
-        </div>
-
-        <!-- Clinic Card -->
-        <div class="col-md-5 col-lg-4">
-            <a asp-controller="Clinic" asp-action="Details" class="text-decoration-none">
-                <div class="card shadow-lg border-0 h-100 admin-card">
-                    <div class="card-body text-center p-5">
-                        <div class="mb-4 text-danger">
-                            <i class="bi bi-hospital display-3"></i>
-                        </div>
-                        <h3 class="fw-bold mb-2">Clinică</h3>
-                        <p class="text-muted">
-                            Vizualizează și gestionează informațiile clinicii tale
-                        </p>
-                        <div class="mt-4">
-                            <span class="btn btn-danger px-4">
-                                Gestionează Clinica
-                            </span>
-                        </div>
-                    </div>
-                </div>
+@if (!hasClinic)
+{
+    <div class="alert alert-warning d-flex align-items-center gap-3 mb-4 rounded-3 shadow-sm">
+        <i class="bi bi-exclamation-triangle-fill fs-4 flex-shrink-0"></i>
+        <div>
+            <strong>Clinica nu este configurată.</strong>
+            Trebuie să îți configurezi clinica înainte de a putea gestiona angajații și cursurile.
+            <a asp-controller="Clinic" asp-action="Details" class="alert-link ms-1">
+                Configurează clinica →
             </a>
         </div>
-
-        <!-- Employees Card -->
-        <div class="col-md-5 col-lg-4">
-            @if (hasClinic)
-            {
-                <a asp-controller="AdminEmployees" asp-action="Index" class="text-decoration-none">
-                    <div class="card shadow-lg border-0 h-100 admin-card">
-                        <div class="card-body text-center p-5">
-                            <div class="mb-4 text-success">
-                                <i class="bi bi-people-fill display-3"></i>
-                            </div>
-                            <h3 class="fw-bold mb-2">Angajați</h3>
-                            <p class="text-muted">
-                                Gestionează angajații, atribuie roluri și actualizează informațiile acestora
-                            </p>
-                            <div class="mt-4">
-                                <span class="btn btn-success px-4">
-                                    Gestionează Angajații
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-            }
-            else
-            {
-                <div class="card shadow-lg border-0 h-100 admin-card disabled-card">
-                    <div class="card-body text-center p-5">
-                        <div class="mb-4 text-success">
-                            <i class="bi bi-people-fill display-3"></i>
-                        </div>
-                        <h3 class="fw-bold mb-2">Angajați</h3>
-                        <p class="text-muted">
-                            Gestionează angajații, atribuie roluri și actualizează informațiile acestora
-                        </p>
-                        <div class="mt-4">
-                            <span class="btn btn-success px-4">
-                                Gestionează Angajații
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            }
-        </div>
     </div>
+}
+
+<div class="admin-page-header">
+    <h1>Panou Administrator</h1>
+    <p>Gestionează sistemul de integrare dintr-un singur loc</p>
 </div>
-<style>
-    .admin-card {
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-        border-radius: 1rem;
-    }
 
-        .admin-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.15);
-        }
+<p class="section-title">Gestionare</p>
+<div class="row g-3 mb-4">
 
-    .disabled-card {
-        opacity: 0.5;
-        pointer-events: none;
-        cursor: not-allowed;
-    }
+    <div class="col-md-4">
+        <a asp-controller="AdminEmployees" asp-action="Index"
+               class="admin-nav-card @(!hasClinic ? "disabled" : "")">
+            <div class="admin-nav-card-top bg-success"></div>
+            <div class="admin-nav-card-body">
+                <div class="admin-nav-icon icon-green">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+                <h5>Angajați</h5>
+                <p>Gestionează angajații, atribuie roluri și urmărește progresul fiecăruia.</p>
+                <span class="admin-nav-link text-success">
+                    Gestionează <i class="bi bi-arrow-right"></i>
+                </span>
+            </div>
+        </a>
+    </div>
 
-        .disabled-card:hover {
-            transform: none;
-            box-shadow: none;
-        }
-</style>
+    <div class="col-md-4">
+        <a asp-controller="AdminCourses" asp-action="Index"
+               class="admin-nav-card @(!hasClinic ? "disabled" : "")">
+            <div class="admin-nav-card-top bg-primary"></div>
+            <div class="admin-nav-card-body">
+                <div class="admin-nav-icon icon-blue">
+                    <i class="bi bi-journal-text"></i>
+                </div>
+                <h5>Cursuri</h5>
+                <p>Creează, editează și organizează cursuri de integrare pentru angajați.</p>
+                <span class="admin-nav-link text-primary">
+                    Gestionează <i class="bi bi-arrow-right"></i>
+                </span>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-md-4">
+        <a asp-controller="Clinic" asp-action="Details" class="admin-nav-card">
+            <div class="admin-nav-card-top" style="background: #c8102e;"></div>
+            <div class="admin-nav-card-body">
+                <div class="admin-nav-icon icon-red">
+                    <i class="bi bi-hospital"></i>
+                </div>
+                <h5>Clinică</h5>
+                <p>Vizualizează și actualizează informațiile clinicii, subdomeniu și contact.</p>
+                <span class="admin-nav-link" style="color: #c8102e;">
+                    Gestionează <i class="bi bi-arrow-right"></i>
+                </span>
+            </div>
+        </a>
+    </div>
+
+</div>
+
+<p class="section-title">Setări</p>
+<div class="row g-3">
+
+    <div class="col-md-4">
+        <a asp-controller="EmployeeTypes" asp-action="Index"
+               class="admin-nav-card @(!hasClinic ? "disabled" : "")">
+            <div class="admin-nav-card-top" style="background: #7c3aed;"></div>
+            <div class="admin-nav-card-body">
+                <div class="admin-nav-icon icon-purple">
+                    <i class="bi bi-tags"></i>
+                </div>
+                <h5>Tipuri de Angajați</h5>
+                <p>Definește și gestionează tipurile de roluri din clinica ta.</p>
+                <span class="admin-nav-link" style="color: #7c3aed;">
+                    Gestionează <i class="bi bi-arrow-right"></i>
+                </span>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-md-4">
+        <a asp-controller="Profile" asp-action="UserProfile" class="admin-nav-card">
+            <div class="admin-nav-card-top" style="background: #e8607a;"></div>
+            <div class="admin-nav-card-body">
+                <div class="admin-nav-icon icon-pink">
+                    <i class="bi bi-person-circle"></i>
+                </div>
+                <h5>Profilul Meu</h5>
+                <p>Actualizează datele contului tău, parola și imaginea de profil.</p>
+                <span class="admin-nav-link" style="color: #e8607a;">
+                    Vezi Profilul <i class="bi bi-arrow-right"></i>
+                </span>
+            </div>
+        </a>
+    </div>
+
+</div>

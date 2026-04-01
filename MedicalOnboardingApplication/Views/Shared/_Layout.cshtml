@@ -8,64 +8,66 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - MedicalOnboardingApplication</title>
+    <title>@ViewData["Title"] - MedicalOnboarding</title>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/MedicalOnboardingApplication.styles.css" asp-append-version="true" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 </head>
 <body>
 
     @if (User.Identity?.IsAuthenticated == true)
     {
-        <header>
-            <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom box-shadow mb-3">
-                <div class="container-fluid">
+        var layoutUser = await LayoutUserManager.Users
+            .Include(u => u.Clinic)
+            .FirstOrDefaultAsync(u => u.UserName == User.Identity.Name);
 
-                    @{
-                        var layoutUser = await LayoutUserManager.Users
-                        .Include(u => u.Clinic)
-                        .FirstOrDefaultAsync(u => u.UserName == User.Identity.Name);
+        bool isAdmin = User.IsInRole("Admin");
+        string clinicName = layoutUser?.Clinic?.Name ?? "MedicalOnboarding";
 
-                        if (layoutUser?.Clinic == null)
-                        {
-                            <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
-                                MedicalOnboardingApplication
-                            </a>
-                        }
-                        else
-                        {
-                            <a class="navbar-brand fw-semibold" asp-area="" asp-controller="Home" asp-action="Index">
-                                <i class="bi bi-hospital me-1"></i> @layoutUser.Clinic.Name
-                            </a>
-                        }
-                    }
-
-                    <!-- Toggler for small screens -->
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarRight"
-                            aria-controls="navbarRight" aria-expanded="false" aria-label="Comutare navigare">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
-
-                    <!-- Right-side buttons -->
-                    <div class="collapse navbar-collapse justify-content-end" id="navbarRight">
-                        <div class="d-flex align-items-center gap-2 ms-auto">
-                            <partial name="_ProfileButtonPartial" />
-
-                            <button type="button"
-                                    class="btn btn-outline-danger btn-sm"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#logoutModal">
-                                <i class="bi bi-box-arrow-right"></i> Deconectare
-                            </button>
-                        </div>
-                    </div>
-
+        <!-- TOP BAR -->
+        <div class="top-bar">
+            <a href="/" class="top-bar-brand">
+                <i class="bi bi-hospital top-bar-brand-icon"></i>
+                <div class="top-bar-brand-text">
+                    <strong>@clinicName.ToUpper()</strong>
+                    <span>Platforma medicală</span>
                 </div>
-            </nav>
-        </header>
+            </a>
+
+            <div class="top-bar-right">
+                <div class="top-bar-user" id="userMenuTrigger" onclick="toggleUserMenu()">
+                    @if (!string.IsNullOrEmpty(layoutUser?.ProfileImagePath))
+                    {
+                        <img src="@layoutUser.ProfileImagePath" class="user-avatar" />
+                    }
+                    else
+                    {
+                        <div class="user-avatar-placeholder">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
+                    }
+                    <span class="top-bar-user-name">
+                        @layoutUser?.FirstName @layoutUser?.LastName
+                        <small>@(isAdmin ? "Administrator" : "Angajat")</small>
+                    </span>
+                    <i class="bi bi-chevron-down" style="font-size: 0.7rem; color: rgba(255,255,255,0.7);"></i>
+
+                    <div class="user-dropdown" id="userDropdown">
+                        <a asp-controller="Profile" asp-action="UserProfile" class="user-dropdown-item">
+                            <i class="bi bi-person-circle"></i> Profilul meu
+                        </a>
+                        <div class="user-dropdown-divider"></div>
+                        <button class="user-dropdown-item logout"
+                                data-bs-toggle="modal"
+                                data-bs-target="#logoutModal">
+                            <i class="bi bi-box-arrow-right"></i> Ieși din cont
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <form id="logoutForm"
               asp-controller="Account"
@@ -77,25 +79,19 @@
 
         <div class="modal fade" id="logoutModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Confirmare Deconectare</h5>
-                        <button type="button"
-                                class="btn-close"
-                                data-bs-dismiss="modal"
-                                aria-label="Închide"></button>
+                <div class="modal-content border-0 rounded-3">
+                    <div class="modal-header border-0 pb-0">
+                        <h5 class="modal-title fw-semibold">Confirmare Deconectare</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
-                    <div class="modal-body">
+                    <div class="modal-body text-muted">
                         Ești sigur că vrei să te deconectezi?
                     </div>
-                    <div class="modal-footer">
-                        <button type="button"
-                                class="btn btn-secondary"
-                                data-bs-dismiss="modal">
+                    <div class="modal-footer border-0 pt-0">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                             Anulează
                         </button>
-                        <button type="button"
-                                class="btn btn-danger"
+                        <button type="button" class="btn btn-danger"
                                 onclick="document.getElementById('logoutForm').submit();">
                             Da, Deconectează-mă
                         </button>
@@ -105,24 +101,38 @@
         </div>
     }
 
-    <div class="container">
-        <main role="main" class="pb-3">
+    <!-- PAGE CONTENT -->
+    <div class="page-content">
+        <main role="main">
             @RenderBody()
         </main>
     </div>
 
     @if (User.Identity?.IsAuthenticated == true)
     {
-        <footer class="border-top footer text-muted mt-4">
-            <div class="container">
-                &copy; 2026 - MedicalOnboardingApplication - <a asp-area="" asp-controller="Home" asp-action="Privacy">Confidențialitate</a>
-            </div>
+        <footer class="app-footer">
+            &copy; @DateTime.Now.Year MedicalOnboarding —
+            <a asp-controller="Home" asp-action="Privacy">Politica de Confidențialitate</a>
         </footer>
     }
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+            function toggleUserMenu() {
+                const dropdown = document.getElementById('userDropdown');
+                dropdown.classList.toggle('show');
+            }
+
+            document.addEventListener('click', function (e) {
+                const trigger = document.getElementById('userMenuTrigger');
+                const dropdown = document.getElementById('userDropdown');
+                if (trigger && !trigger.contains(e.target)) {
+                    dropdown?.classList.remove('show');
+                }
+            });
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
     @RenderSection("Styles", required: false)
 </body>
