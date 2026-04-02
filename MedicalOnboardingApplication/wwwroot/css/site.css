@@ -1312,3 +1312,467 @@ body {
         grid-template-columns: 1fr;
     }
 }
+
+/* ============================================================
+   SHIFT BADGE (schedule view)
+   ============================================================ */
+.rm-shift-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 12px;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    background: #eff6ff;
+    color: #2563eb;
+    border: 1px solid #bfdbfe;
+    font-variant-numeric: tabular-nums;
+}
+
+
+/* ============================================================
+   REPORT — STAT CELLS (compliance row)
+   ============================================================ */
+.rm-stat-cell {
+    text-align: center;
+}
+
+.rm-stat-label {
+    font-size: 0.75rem;
+    color: var(--rm-text-muted);
+    margin-bottom: 3px;
+}
+
+.rm-stat-value {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--rm-text);
+    line-height: 1;
+}
+
+.rm-stat-total {
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: var(--rm-text-muted);
+}
+
+/* ============================================================
+   REPORT — STATUS BADGES
+   ============================================================ */
+.rm-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.rm-status-green {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.rm-status-blue {
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+.rm-status-gray {
+    background: #f5f5f5;
+    color: #888;
+}
+
+.rm-status-red {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+.rm-status-yellow {
+    background: #fef9c3;
+    color: #ca8a04;
+}
+
+/* ============================================================
+   REPORT — COURSE ACCORDION
+   ============================================================ */
+.rm-accordion-flush {
+    display: flex;
+    flex-direction: column;
+}
+
+.rm-report-course-item {
+    border-bottom: 1px solid var(--rm-border);
+}
+
+    .rm-report-course-item:last-child {
+        border-bottom: none;
+    }
+
+.rm-report-course-btn {
+    width: 100%;
+    background: white;
+    border: none;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.9rem;
+    color: var(--rm-text);
+    text-align: left;
+    transition: background 0.15s;
+}
+
+    .rm-report-course-btn:hover {
+        background: #fafafa;
+    }
+
+    .rm-report-course-btn:not(.collapsed) {
+        background: #fafafa;
+    }
+
+        .rm-report-course-btn:not(.collapsed) .rm-accordion-chevron {
+            transform: rotate(180deg);
+        }
+
+.rm-report-course-body {
+    padding: 16px 24px 20px 60px;
+    border-top: 1px solid var(--rm-border);
+    background: #fafafa;
+}
+
+/* ============================================================
+   REPORT — PROGRESS BAR
+   ============================================================ */
+.rm-progress-bar {
+    height: 6px;
+    background: #f0f0f0;
+    border-radius: 50px;
+    overflow: hidden;
+}
+
+.rm-progress-fill {
+    height: 100%;
+    border-radius: 50px;
+    transition: width 0.4s ease;
+}
+
+.rm-progress-green {
+    background: #16a34a;
+}
+
+.rm-progress-blue {
+    background: #2563eb;
+}
+
+/* ============================================================
+   REPORT — CHAPTER LIST
+   ============================================================ */
+.rm-chapter-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.rm-chapter-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+    .rm-chapter-item:last-child {
+        border-bottom: none;
+    }
+
+/* ============================================================
+   REPORT — STAT CARDS GRID
+   ============================================================ */
+.rm-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+
+.rm-stat-card {
+    background: #fafafa;
+    border: 1px solid var(--rm-border);
+    border-radius: var(--rm-radius-sm);
+    padding: 18px 16px;
+    text-align: center;
+}
+
+.rm-stat-card-label {
+    font-size: 0.75rem;
+    color: var(--rm-text-muted);
+    margin-bottom: 6px;
+}
+
+.rm-stat-card-value {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--rm-text);
+    line-height: 1;
+    margin-bottom: 4px;
+}
+
+.rm-stat-card-sub {
+    font-size: 0.72rem;
+    color: var(--rm-text-muted);
+}
+
+@media (max-width: 768px) {
+    .rm-stat-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* ============================================================
+   TEXTAREA
+   ============================================================ */
+.rm-textarea {
+    resize: vertical;
+    flex: 1;
+    min-height: 320px;
+    line-height: 1.65;
+    font-family: inherit;
+}
+
+/* ============================================================
+   UPLOAD BUTTON
+   ============================================================ */
+.rm-upload-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border: 1.5px dashed var(--rm-border);
+    border-radius: var(--rm-radius-sm);
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    background: white;
+}
+
+    .rm-upload-btn:hover {
+        border-color: var(--rm-red);
+        background: var(--rm-red-light);
+    }
+
+        .rm-upload-btn:hover i.bi-plus-lg {
+            color: var(--rm-red) !important;
+        }
+
+/* ============================================================
+   CHAPTER LAYOUT
+   ============================================================ */
+.rm-chapter-layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 0;
+    min-height: calc(100vh - 120px);
+    margin: -36px -28px 0;
+}
+
+.rm-chapter-sidebar {
+    background: white;
+    border-right: 1px solid var(--rm-border);
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 68px;
+    height: calc(100vh - 68px);
+    overflow: hidden;
+}
+
+.rm-chapter-sidebar-inner {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+}
+
+.rm-chapter-sidebar-header {
+    padding: 24px 20px 16px;
+    border-bottom: 1px solid var(--rm-border);
+    flex-shrink: 0;
+}
+
+.rm-chapter-back-link {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--rm-red);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 10px;
+    transition: opacity 0.2s;
+}
+
+    .rm-chapter-back-link:hover {
+        opacity: 0.75;
+        color: var(--rm-red);
+    }
+
+.rm-chapter-course-name {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--rm-text);
+    margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+.rm-chapter-progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.72rem;
+    color: var(--rm-text-muted);
+}
+
+/* Chapter nav list */
+.rm-chapter-nav {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px 0;
+}
+
+.rm-chapter-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    text-decoration: none;
+    color: var(--rm-text-muted);
+    font-size: 0.82rem;
+    transition: background 0.15s, color 0.15s;
+    border-left: 3px solid transparent;
+}
+
+    .rm-chapter-nav-item:hover {
+        background: #fafafa;
+        color: var(--rm-text);
+    }
+
+.rm-chapter-nav-item--active {
+    background: var(--rm-red-light);
+    color: var(--rm-red);
+    border-left-color: var(--rm-red);
+    font-weight: 600;
+}
+
+.rm-chapter-nav-item--done {
+    color: #16a34a;
+}
+
+    .rm-chapter-nav-item--done.rm-chapter-nav-item--active {
+        background: #dcfce7;
+        border-left-color: #16a34a;
+        color: #16a34a;
+    }
+
+.rm-chapter-nav-dot {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid currentColor;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.rm-chapter-nav-item--active .rm-chapter-nav-dot {
+    background: var(--rm-red);
+    border-color: var(--rm-red);
+    color: white;
+}
+
+.rm-chapter-nav-item--done .rm-chapter-nav-dot {
+    background: #16a34a;
+    border-color: #16a34a;
+    color: white;
+}
+
+.rm-chapter-nav-title {
+    flex: 1;
+    line-height: 1.4;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+/* Main area */
+.rm-chapter-main {
+    padding: 36px 48px;
+    max-width: 860px;
+}
+
+/* Top progress strip */
+.rm-chapter-progress-bar {
+    position: fixed;
+    top: 68px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--rm-border);
+    z-index: 99;
+}
+
+.rm-chapter-progress-fill {
+    height: 100%;
+    background: var(--rm-red);
+    transition: width 0.3s ease;
+}
+
+/* Chapter heading */
+.rm-chapter-header {
+    margin-bottom: 24px;
+}
+
+.rm-chapter-title {
+    font-size: 1.7rem;
+    font-weight: 800;
+    color: var(--rm-text);
+    margin: 0;
+    line-height: 1.25;
+}
+
+/* Content text */
+.rm-chapter-content {
+    font-size: 1rem;
+    color: #333;
+    line-height: 1.85;
+}
+
+/* Bottom nav bar */
+.rm-chapter-nav-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 0 40px;
+    gap: 12px;
+}
+
+@media (max-width: 900px) {
+    .rm-chapter-layout {
+        grid-template-columns: 1fr;
+        margin: -36px -16px 0;
+    }
+
+    .rm-chapter-sidebar {
+        position: static;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--rm-border);
+    }
+
+    .rm-chapter-main {
+        padding: 24px 20px;
+    }
+}

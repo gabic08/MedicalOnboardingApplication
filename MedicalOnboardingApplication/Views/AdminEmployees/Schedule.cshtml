@@ -10,53 +10,75 @@
     };
 }
 
-<div class="mb-4">
-    <a asp-action="Index" class="btn btn-outline-secondary mb-2">
-        <i class="bi bi-arrow-left"></i> Înapoi la Angajați
-    </a>
-    <div class="d-flex align-items-center justify-content-between">
+<!-- Page Header -->
+<div class="rm-page-header">
+    <div class="d-flex align-items-start justify-content-between flex-wrap gap-3">
         <div>
-            <h1 class="mb-0">Program — @employee.FirstName @employee.LastName</h1>
-            <p class="text-muted mt-1 mb-0">@employee.EmployeeType?.Name</p>
+            <div class="breadcrumb-label">
+                <a asp-controller="Admin" asp-action="Index" class="text-decoration-none" style="color:inherit;">Panou Admin</a>
+                <i class="bi bi-chevron-right mx-1" style="font-size:0.65rem;"></i>
+                <a asp-action="Index" class="text-decoration-none" style="color:inherit;">Angajați</a>
+                <i class="bi bi-chevron-right mx-1" style="font-size:0.65rem;"></i>
+                Program
+            </div>
+            <h1>@employee.FirstName @employee.LastName</h1>
+            @if (employee.EmployeeType != null)
+            {
+                <p>
+                    <span class="rm-badge" style="font-size:0.8rem;">
+                        <i class="bi bi-person-badge" style="font-size:0.7rem;"></i>
+                        @employee.EmployeeType.Name
+                    </span>
+                </p>
+            }
         </div>
-        <a asp-action="Edit" asp-route-id="@employee.Id" class="btn btn-outline-primary">
-            <i class="bi bi-pencil me-1"></i> Editează Programul
+        <a asp-action="Edit" asp-route-id="@employee.Id" class="btn-rm-secondary align-self-end">
+            <i class="bi bi-pencil"></i> Editează Programul
         </a>
     </div>
 </div>
 
-<div class="card shadow-sm border-0">
-    <div class="card-header bg-white border-bottom py-3">
-        <h6 class="mb-0 fw-semibold text-muted text-uppercase">
-            <i class="bi bi-calendar-week me-2 text-primary"></i> Program Săptămânal
-        </h6>
+<!-- Schedule Card -->
+<div class="rm-form-card" style="max-width:680px;">
+    <div class="rm-form-card-header">
+        <i class="bi bi-calendar-week" style="color:var(--rm-red);"></i>
+        Program Săptămânal
     </div>
-    <div class="card-body p-0">
+    <div class="rm-schedule-list">
         @foreach (var day in order)
         {
             var dayShifts = schedules.Where(s => s.Day == day).ToList();
-            <div class="d-flex align-items-center px-4 py-3 border-bottom">
-                <div style="width: 120px;" class="fw-semibold">
-                    @dayNames[day]
-                </div>
-                @if (!dayShifts.Any())
-                {
-                    <span class="badge bg-secondary bg-opacity-10 text-secondary px-3 py-2 rounded-pill">
-                        <i class="bi bi-moon me-1"></i> Zi liberă
-                    </span>
-                }
-                else
-                {
-                    <div class="d-flex flex-wrap gap-2">
-                        @foreach (var shift in dayShifts)
+            bool isDayOff = !dayShifts.Any();
+            bool isWeekend = day == DayOfWeek.Saturday || day == DayOfWeek.Sunday;
+
+            <div class="rm-schedule-row" style="@(isDayOff ? "opacity:0.5;" : "")">
+                <div class="d-flex align-items-center justify-content-between">
+                    <span class="rm-schedule-day-name" style="width:110px;flex-shrink:0;">
+                        @dayNames[day]
+                        @if (isWeekend)
                         {
-                            <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill">
-                                <i class="bi bi-clock me-1"></i>
-                                @shift.StartTime.ToString("HH:mm") — @shift.EndTime.ToString("HH:mm")
-                            </span>
+                            <span style="font-size:0.65rem;color:var(--rm-text-muted);font-weight:400;margin-left:4px;">WE</span>
                         }
-                    </div>
-                }
+                    </span>
+                    @if (isDayOff)
+                    {
+                        <span class="rm-badge">
+                            <i class="bi bi-moon" style="font-size:0.7rem;"></i> Zi liberă
+                        </span>
+                    }
+                    else
+                    {
+                        <div class="d-flex flex-wrap gap-2">
+                            @foreach (var shift in dayShifts)
+                            {
+                                <span class="rm-shift-badge">
+                                    <i class="bi bi-clock" style="font-size:0.7rem;"></i>
+                                    @shift.StartTime.ToString("HH:mm") — @shift.EndTime.ToString("HH:mm")
+                                </span>
+                            }
+                        </div>
+                    }
+                </div>
             </div>
         }
     </div>
