@@ -6,122 +6,168 @@
     int? editId = ViewBag.EditId as int?;
 }
 
-<div class="mb-4">
-    <a asp-controller="AdminEmployees"
-       asp-action="Index"
-       class="btn btn-outline-secondary mb-2">
-        <i class="bi bi-arrow-left"></i> Înapoi la Angajați
-    </a>
-    <h1 class="mb-0">Tipuri de Angajați</h1>
+<!-- Page Header -->
+<div class="rm-page-header">
+    <div class="d-flex align-items-start justify-content-between flex-wrap gap-3">
+        <div>
+            <div class="breadcrumb-label">
+                <a asp-controller="Admin" asp-action="Index" class="text-decoration-none" style="color:inherit;">Panou Admin</a>
+                <i class="bi bi-chevron-right mx-1" style="font-size:0.65rem;"></i>
+                <a asp-controller="AdminEmployees" asp-action="Index" class="text-decoration-none" style="color:inherit;">Angajați</a>
+                <i class="bi bi-chevron-right mx-1" style="font-size:0.65rem;"></i>
+                Tipuri de Angajați
+            </div>
+            <h1>Tipuri de Angajați</h1>
+            <p>Definește și gestionează categoriile de angajați</p>
+        </div>
+    </div>
 </div>
 
 @if (TempData["Error"] != null)
 {
-    <div class="alert alert-danger">
+    <div class="rm-alert rm-alert-error mb-4">
+        <i class="bi bi-exclamation-circle-fill"></i>
         @TempData["Error"]
     </div>
 }
 
-<!-- SEARCH + CREATE -->
-<div class="card shadow-sm mb-4">
-    <div class="card-body">
-        <form method="get" class="row g-2 mb-3">
-            <div class="col-md-8">
-                <input type="text"
-                       name="search"
-                       value="@search"
-                       class="form-control"
-                       placeholder="Caută tipuri de angajați..." />
-            </div>
-            <div class="col-md-4">
-                <button class="btn btn-primary w-100">
-                    <i class="bi bi-search"></i> Caută
-                </button>
-            </div>
-        </form>
+<div class="rm-two-col" style="grid-template-columns: 320px 1fr; align-items: start;">
 
-        <form asp-action="Create" method="post" class="row g-2">
-            @Html.AntiForgeryToken()
-            <div class="col-md-8">
-                <input name="name"
-                       class="form-control"
-                       placeholder="Nume tip angajat nou..." />
+    <!-- LEFT: Search + Create -->
+    <div class="rm-two-col-main">
+
+        <!-- Search -->
+        <div class="rm-form-card mb-3">
+            <div class="rm-form-card-header">
+                <i class="bi bi-search" style="color:var(--rm-red);"></i>
+                Caută
             </div>
-            <div class="col-md-4">
-                <button class="btn btn-success w-100">
-                    <i class="bi bi-plus-circle"></i> Adaugă
-                </button>
+            <div class="rm-form-card-body">
+                <form method="get">
+                    <div style="position:relative;">
+                        <i class="bi bi-search" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#bbb;font-size:0.85rem;"></i>
+                        <input type="text"
+                               name="search"
+                               value="@search"
+                               class="rm-input"
+                               style="padding-left:36px;"
+                               placeholder="Caută tipuri de angajați..." />
+                    </div>
+                    <div class="d-flex gap-2 mt-3">
+                        <button type="submit" class="btn-rm-primary" style="flex:1;justify-content:center;">
+                            <i class="bi bi-search"></i> Caută
+                        </button>
+                        @if (!string.IsNullOrEmpty(search))
+                        {
+                            <a asp-action="Index" class="btn-rm-secondary">
+                                <i class="bi bi-x"></i>
+                            </a>
+                        }
+                    </div>
+                </form>
             </div>
-        </form>
+        </div>
+
+        <!-- Create -->
+        <div class="rm-form-card">
+            <div class="rm-form-card-header">
+                <i class="bi bi-plus-lg" style="color:var(--rm-red);"></i>
+                Tip Nou
+            </div>
+            <div class="rm-form-card-body">
+                <form asp-action="Create" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="rm-field mb-3">
+                        <label class="rm-label">Nume Tip Angajat</label>
+                        <input name="name"
+                               class="rm-input"
+                               placeholder="ex: Asistent Medical, Doctor..." />
+                    </div>
+                    <button type="submit" class="btn-rm-success" style="width:100%;justify-content:center;">
+                        <i class="bi bi-plus-lg"></i> Adaugă Tipul
+                    </button>
+                </form>
+            </div>
+        </div>
+
     </div>
-</div>
 
-<!-- TABLE -->
-<div class="card shadow-sm">
-    <div class="card-body p-0">
-        <table class="table table-striped align-middle mb-0">
-            <thead>
-                <tr>
-                    <th>Nume</th>
-                    <th style="width: 220px;"></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var type in Model)
-                {
+    <!-- RIGHT: Table -->
+    <div class="rm-two-col-side">
+        <div class="rm-table-card">
+            <table class="rm-table">
+                <thead>
                     <tr>
-                        <td>
-                            @if (editId == type.Id)
-                            {
-                                <form asp-action="Edit" method="post" class="d-flex gap-2">
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="id" value="@type.Id" />
-
-                                    <input name="name"
-                                           value="@type.Name"
-                                           class="form-control form-control-sm"
-                                           autofocus />
-
-                                    <button class="btn btn-sm btn-primary">
-                                        <i class="bi bi-save"></i>
-                                    </button>
-
-                                    <a asp-action="Index"
-                                       class="btn btn-sm btn-outline-secondary">
-                                        <i class="bi bi-x"></i>
-                                    </a>
-                                </form>
-                            }
-                            else
-                            {
-                                @type.Name
-                            }
-                        </td>
-
-                        <td class="text-end">
-                            @if (editId != type.Id)
-                            {
-                                <a asp-action="Index"
-                                   asp-route-editId="@type.Id"
-                                   class="btn btn-sm btn-outline-secondary me-1">
-                                    <i class="bi bi-pencil"></i> Editează
-                                </a>
-
-                                <form asp-action="Delete"
-                                      method="post"
-                                      class="d-inline"
-                                      onsubmit="return confirm('Ștergi acest tip de angajat?');">
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="id" value="@type.Id" />
-                                    <button class="btn btn-sm btn-outline-danger">
-                                        <i class="bi bi-trash"></i> Șterge
-                                    </button>
-                                </form>
-                            }
-                        </td>
+                        <th>Nume</th>
+                        <th style="width:200px;text-align:right;">Acțiuni</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var type in Model)
+                    {
+                        <tr>
+                            <td>
+                                @if (editId == type.Id)
+                                {
+                                    <form asp-action="Edit" method="post" style="display:flex;gap:8px;align-items:center;">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@type.Id" />
+                                        <input name="name"
+                                               value="@type.Name"
+                                               class="rm-input"
+                                               style="max-width:260px;"
+                                               autofocus />
+                                        <button type="submit" class="btn-rm-primary" style="padding:7px 12px;">
+                                            <i class="bi bi-save"></i>
+                                        </button>
+                                        <a asp-action="Index" class="btn-rm-secondary" style="padding:7px 12px;">
+                                            <i class="bi bi-x"></i>
+                                        </a>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <span style="font-weight:600;font-size:0.9rem;">@type.Name</span>
+                                }
+                            </td>
+                            <td>
+                                @if (editId != type.Id)
+                                {
+                                    <div class="rm-table-actions">
+                                        <a asp-action="Index"
+                                               asp-route-editId="@type.Id"
+                                               class="btn-rm-outline">
+                                            <i class="bi bi-pencil"></i> Editează
+                                        </a>
+                                        <form asp-action="Delete"
+                                              method="post"
+                                              class="d-inline"
+                                              onsubmit="return confirm('Ștergi acest tip de angajat?');">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@type.Id" />
+                                            <button type="submit" class="btn-rm-outline btn-rm-outline-danger">
+                                                <i class="bi bi-trash"></i> Șterge
+                                            </button>
+                                        </form>
+                                    </div>
+                                }
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="2">
+                                <div class="rm-empty-state">
+                                    <i class="bi bi-briefcase"></i>
+                                    <p>Niciun tip de angajat găsit.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
+
 </div>

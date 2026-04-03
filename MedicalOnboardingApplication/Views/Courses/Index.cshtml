@@ -7,170 +7,154 @@
     var completedChapterIds = ViewBag.CompletedChapterIds as List<int> ?? new List<int>();
 }
 
-<div class="mb-4">
-    <a asp-controller="Dashboard" asp-action="Index" class="btn btn-outline-secondary mb-2">
-        <i class="bi bi-arrow-left"></i> Înapoi la Panou
-    </a>
-    <h1 class="mb-0">Cursuri</h1>
+<!-- Page Header -->
+<div class="rm-page-header">
+    <div class="d-flex align-items-start justify-content-between flex-wrap gap-3">
+        <div>
+            <div class="breadcrumb-label">
+                <a asp-controller="Dashboard" asp-action="Index" class="text-decoration-none" style="color:inherit;">Panou</a>
+                <i class="bi bi-chevron-right mx-1" style="font-size:0.65rem;"></i>
+                Cursuri
+            </div>
+            <h1>Cursurile Mele</h1>
+            <p>Parcurge cursurile atribuite și urmărește-ți progresul</p>
+        </div>
+    </div>
 </div>
 
-<!-- Search & Filter -->
-<div class="mb-4">
-    <form method="get" class="row g-2 align-items-center">
-        <div class="col-md-4">
-            <input type="text"
-                   name="search"
-                   value="@search"
-                   class="form-control"
-                   placeholder="Caută cursuri..." />
-        </div>
-        <div class="col-md-auto">
-            <div class="btn-group" role="group">
-                <a asp-action="Index"
-                   asp-route-search="@search"
-                   asp-route-filter="all"
-                   class="btn @(filter == "all" ? "btn-primary" : "btn-outline-primary")">
-                    Toate
-                </a>
-                <a asp-action="Index"
-                   asp-route-search="@search"
-                   asp-route-filter="notstarted"
-                   class="btn @(filter == "notstarted" ? "btn-secondary" : "btn-outline-secondary")">
-                    <i class="bi bi-circle me-1"></i> Neîncepute
-                </a>
-                <a asp-action="Index"
-                   asp-route-search="@search"
-                   asp-route-filter="inprogress"
-                   class="btn @(filter == "inprogress" ? "btn-primary" : "btn-outline-primary")">
-                    <i class="bi bi-hourglass-split me-1"></i> În Progres
-                </a>
-                <a asp-action="Index"
-                   asp-route-search="@search"
-                   asp-route-filter="completed"
-                   class="btn @(filter == "completed" ? "btn-success" : "btn-outline-success")">
-                    <i class="bi bi-check-circle me-1"></i> Finalizate
-                </a>
-            </div>
-        </div>
-        <div class="col-md-auto">
-            <button type="submit" class="btn btn-primary">
-                <i class="bi bi-search"></i>
-            </button>
-        </div>
-        @if (!string.IsNullOrEmpty(search) || filter != "all")
-        {
-            <div class="col-md-auto">
-                <a asp-action="Index" class="btn btn-outline-secondary">
-                    <i class="bi bi-x"></i> Șterge Filtrele
-                </a>
-            </div>
-        }
-    </form>
-</div>
+<!-- Filter Bar -->
+<form method="get" class="rm-filter-bar">
+    <div style="flex:1;min-width:220px;position:relative;">
+        <i class="bi bi-search" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#bbb;font-size:0.85rem;"></i>
+        <input type="text"
+               name="search"
+               value="@search"
+               class="form-control"
+               style="padding-left:36px;"
+               placeholder="Caută cursuri..." />
+    </div>
+
+    <!-- Filter pills -->
+    <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <a asp-action="Index" asp-route-search="@search" asp-route-filter="all"
+           class="rm-filter-pill @(filter == "all" ? "rm-filter-pill--active" : "")">
+            Toate
+        </a>
+        <a asp-action="Index" asp-route-search="@search" asp-route-filter="notstarted"
+           class="rm-filter-pill @(filter == "notstarted" ? "rm-filter-pill--active" : "")">
+            <i class="bi bi-circle"></i> Neîncepute
+        </a>
+        <a asp-action="Index" asp-route-search="@search" asp-route-filter="inprogress"
+           class="rm-filter-pill @(filter == "inprogress" ? "rm-filter-pill--active rm-filter-pill--blue" : "")">
+            <i class="bi bi-hourglass-split"></i> În Progres
+        </a>
+        <a asp-action="Index" asp-route-search="@search" asp-route-filter="completed"
+           class="rm-filter-pill @(filter == "completed" ? "rm-filter-pill--active rm-filter-pill--green" : "")">
+            <i class="bi bi-check-circle"></i> Finalizate
+        </a>
+    </div>
+
+    @if (!string.IsNullOrEmpty(search) || filter != "all")
+    {
+        <a asp-action="Index" class="btn-rm-secondary">
+            <i class="bi bi-x"></i> Resetează
+        </a>
+    }
+</form>
 
 @if (!Model.Any())
 {
-    <div class="text-center py-5 text-muted">
-        <i class="bi bi-journal-x fs-1 d-block mb-2 opacity-25"></i>
-        Niciun curs găsit.
+    <div class="rm-form-card">
+        <div class="rm-form-card-body">
+            <div class="rm-empty-state">
+                <i class="bi bi-journal-x"></i>
+                <p>Niciun curs găsit.</p>
+            </div>
+        </div>
     </div>
 }
 else
 {
-    <div class="row g-4">
+    <div class="rm-course-grid">
         @foreach (var course in Model)
         {
             var isCourseCompleted = completedCourseIds.Contains(course.Id);
             var totalChapters = course.Chapters?.Count ?? 0;
-            var completedCount = course.Chapters?
-            .Count(ch => completedChapterIds.Contains(ch.Id)) ?? 0;
-            var progressPct = totalChapters > 0
-            ? (int)Math.Round((double)completedCount / totalChapters * 100)
-            : 0;
-            var isNotStarted = completedCount == 0 && !isCourseCompleted;
+            var completedCount = course.Chapters?.Count(ch => completedChapterIds.Contains(ch.Id)) ?? 0;
+            var progressPct = totalChapters > 0 ? (int)Math.Round((double)completedCount / totalChapters * 100) : 0;
             var isInProgress = completedCount > 0 && !isCourseCompleted;
 
-            <div class="col-md-4">
-                <div class="card shadow-sm border-0 h-100 course-card">
-                    <div class="card-body p-4 d-flex flex-column">
+            <a asp-action="Details" asp-route-id="@course.Id" class="rm-course-card">
 
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <span class="badge bg-secondary bg-opacity-10 text-secondary">
-                                <i class="bi bi-journals me-1"></i> @totalChapters capitole
-                            </span>
-                            @if (isCourseCompleted)
-                            {
-                                <span class="badge bg-success">
-                                    <i class="bi bi-trophy-fill me-1"></i> Finalizat
-                                </span>
-                            }
-                            else if (isInProgress)
-                            {
-                                <span class="badge bg-primary bg-opacity-10 text-primary">
-                                    <i class="bi bi-hourglass-split me-1"></i> În Progres
-                                </span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-secondary bg-opacity-10 text-secondary">
-                                    <i class="bi bi-circle me-1"></i> Neînceput
-                                </span>
-                            }
-                        </div>
+                <!-- Top stripe -->
+                <div class="rm-course-card-stripe @(isCourseCompleted ? "rm-course-stripe-green" : isInProgress ? "rm-course-stripe-blue" : "rm-course-stripe-gray")"></div>
 
-                        <h5 class="fw-semibold mt-2">@course.Title</h5>
-                        <p class="text-muted small flex-grow-1">@course.Description</p>
+                <div class="rm-course-card-body">
 
-                        @if (totalChapters > 0)
+                    <!-- Header row -->
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
+                        <span class="rm-badge">
+                            <i class="bi bi-journals" style="font-size:0.7rem;"></i>
+                            @totalChapters capitole
+                        </span>
+                        @if (isCourseCompleted)
                         {
-                            <div class="mb-3">
-                                <div class="d-flex justify-content-between mb-1">
-                                    <small class="text-muted">Progres</small>
-                                    <small class="text-muted">@completedCount / @totalChapters</small>
-                                </div>
-                                <div class="progress" style="height: 6px;">
-                                    <div class="progress-bar @(isCourseCompleted ? "bg-success" : "")"
-                                         role="progressbar"
-                                         style="width: @progressPct%">
-                                    </div>
-                                </div>
-                            </div>
+                            <span class="rm-status-badge rm-status-green">
+                                <i class="bi bi-trophy-fill"></i> Finalizat
+                            </span>
                         }
-
-                        <a asp-action="Details"
-                           asp-route-id="@course.Id"
-                           class="btn @(isCourseCompleted ? "btn-outline-success" : isInProgress ? "btn-primary" : "btn-outline-primary") btn-sm mt-auto">
-                            @if (isCourseCompleted)
-                            {
-                                <i class="bi bi-check-circle me-1"></i>
-                                <text>Revizuiește Cursul</text>
-                            }
-                            else if (isInProgress)
-                            {
-                                <i class="bi bi-play-circle me-1"></i>
-                                <text>Continuă</text>
-                            }
-                            else
-                            {
-                                <i class="bi bi-play-circle me-1"></i>
-                                <text>Începe Cursul</text>
-                            }
-                        </a>
+                        else if (isInProgress)
+                        {
+                            <span class="rm-status-badge rm-status-blue">
+                                <i class="bi bi-hourglass-split"></i> În Progres
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="rm-status-badge rm-status-gray">
+                                <i class="bi bi-circle"></i> Neînceput
+                            </span>
+                        }
                     </div>
+
+                    <!-- Title & description -->
+                    <h5 class="rm-course-card-title">@course.Title</h5>
+                    <p class="rm-course-card-desc">@course.Description</p>
+
+                    <!-- Progress bar -->
+                    @if (totalChapters > 0)
+                    {
+                        <div style="margin-bottom:16px;">
+                            <div style="display:flex;justify-content:space-between;font-size:0.72rem;color:var(--rm-text-muted);margin-bottom:5px;">
+                                <span>Progres</span>
+                                <span>@completedCount / @totalChapters</span>
+                            </div>
+                            <div class="rm-progress-bar">
+                                <div class="rm-progress-fill @(isCourseCompleted ? "rm-progress-green" : "rm-progress-blue")"
+                                     style="width:@progressPct%;"></div>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- CTA -->
+                    <div class="rm-course-card-cta @(isCourseCompleted ? "rm-course-cta-green" : isInProgress ? "rm-course-cta-blue" : "rm-course-cta-default")">
+                        @if (isCourseCompleted)
+                        {
+                            <i class="bi bi-check-circle"></i> <span>Revizuiește Cursul</span>
+                        }
+                        else if (isInProgress)
+                        {
+                            <i class="bi bi-play-circle-fill"></i> <span>Continuă</span>
+                        }
+                        else
+                        {
+                            <i class="bi bi-play-circle"></i> <span>Începe Cursul</span>
+                        }
+                        <i class="bi bi-arrow-right ms-auto"></i>
+                    </div>
+
                 </div>
-            </div>
+            </a>
         }
     </div>
 }
-
-<style>
-    .course-card {
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-        border-radius: 0.75rem;
-    }
-
-        .course-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 0.75rem 1.5rem rgba(0,0,0,0.1) !important;
-        }
-</style>

@@ -2,45 +2,70 @@
 @model UserProfileViewModel
 @{
     ViewData["Title"] = "Profilul Meu";
-}
-
-@{
     var backUrl = User.IsInRole("Admin")
         ? Url.Action("Index", "Admin")
         : Url.Action("Index", "Dashboard");
+
+    var clinic = ViewBag.Clinic as MedicalOnboardingApplication.Models.Clinic;
+    var isEmployee = (bool)(ViewBag.IsEmployee ?? false);
+    var schedules = ViewBag.Schedules as List<MedicalOnboardingApplication.Models.WorkSchedule>;
+    var dayNames = ViewBag.DayNames as Dictionary<DayOfWeek, string>;
+    var order = new[] {
+        DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday,
+        DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday, DayOfWeek.Sunday
+    };
 }
 
-<div class="mb-4">
-    <a href="@backUrl" class="btn btn-outline-secondary mb-2">
-        <i class="bi bi-arrow-left"></i> Înapoi la Panou
-    </a>
-    <h1 class="mb-0">Profilul Meu</h1>
+<!-- Page Header -->
+<div class="rm-page-header">
+    <div class="d-flex align-items-start justify-content-between flex-wrap gap-3">
+        <div>
+            <div class="breadcrumb-label">
+                <a href="@backUrl" class="text-decoration-none" style="color:inherit;">Panou</a>
+                <i class="bi bi-chevron-right mx-1" style="font-size:0.65rem;"></i>
+                Profilul Meu
+            </div>
+            <h1>Profilul Meu</h1>
+            <p>Gestionează informațiile tale de cont și parola</p>
+        </div>
+    </div>
 </div>
 
 @if (TempData["Success"] != null)
 {
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        <i class="bi bi-check-circle me-2"></i> @TempData["Success"]
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    <div class="rm-alert mb-4" style="background:#dcfce7;border:1px solid #bbf7d0;color:#16a34a;">
+        <i class="bi bi-check-circle-fill"></i>
+        @TempData["Success"]
     </div>
 }
 
 <form method="post" enctype="multipart/form-data" novalidate>
     @Html.AntiForgeryToken()
-    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-    <div class="row g-4">
+    @if (ViewData.ModelState.ErrorCount > 0)
+    {
+        <div class="rm-alert rm-alert-error mb-4">
+            <i class="bi bi-exclamation-circle-fill"></i>
+            <div asp-validation-summary="ModelOnly"></div>
+        </div>
+    }
 
-        <!-- LEFT: Avatar + Name -->
-        <div class="col-lg-4">
-            <div class="card shadow-sm h-100">
-                <div class="card-body d-flex flex-column align-items-center text-center py-4">
+    <div class="rm-two-col" style="grid-template-columns: 300px 1fr; align-items: start;">
 
-                    <div class="mb-3">
+        <!-- LEFT: Avatar + Basic Info -->
+        <div class="rm-two-col-main">
+            <div class="rm-form-card">
+                <div class="rm-form-card-header">
+                    <i class="bi bi-person-circle" style="color:var(--rm-red);"></i>
+                    Informații Personale
+                </div>
+                <div class="rm-form-card-body" style="display:flex;flex-direction:column;align-items:center;text-align:center;">
+
+                    <!-- Avatar -->
+                    <div style="position:relative;margin-bottom:16px;">
                         <img id="avatarPreview"
                              src="@(Model.ExistingProfileImagePath ?? "/required/NoProfileImage.jpg")"
-                             class="rounded-circle border"
-                             style="width: 130px; height: 130px; object-fit: cover;" />
+                             style="width:110px;height:110px;border-radius:50%;object-fit:cover;border:3px solid var(--rm-border);" />
                     </div>
 
                     <input asp-for="NewProfileImage"
@@ -49,59 +74,50 @@
                            class="d-none"
                            accept="image/*"
                            onchange="previewAvatar(this)" />
-                    <span asp-validation-for="NewProfileImage" class="text-danger small"></span>
-
                     <input type="hidden" id="removeProfileImageHidden" name="RemoveProfileImage" value="false" />
+                    <span asp-validation-for="NewProfileImage" class="rm-field-error mb-2"></span>
 
-                    <div class="d-flex gap-2 flex-wrap justify-content-center mb-3">
-                        <!-- Upload -->
-                        <button type="button"
-                                class="btn btn-outline-primary btn-sm"
+                    <!-- Avatar actions -->
+                    <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-bottom:20px;">
+                        <button type="button" class="btn-rm-secondary" style="font-size:0.78rem;padding:6px 12px;"
                                 onclick="document.getElementById('NewProfileImage').click()">
-                            <i class="bi bi-upload me-1"></i> Încarcă
+                            <i class="bi bi-upload"></i> Încarcă
                         </button>
-
-                        <!-- View -->
                         @if (!string.IsNullOrEmpty(Model.ExistingProfileImagePath))
                         {
-                            <a href="@Model.ExistingProfileImagePath"
-                               target="_blank"
-                               class="btn btn-outline-secondary btn-sm">
-                                <i class="bi bi-eye me-1"></i> Vizualizează
+                            <a href="@Model.ExistingProfileImagePath" target="_blank"
+                                   class="btn-rm-secondary" style="font-size:0.78rem;padding:6px 12px;">
+                                <i class="bi bi-eye"></i> Vizualizează
                             </a>
-                        }
-
-                        <!-- Remove -->
-                        @if (!string.IsNullOrEmpty(Model.ExistingProfileImagePath))
-                        {
-                            <button type="button"
-                                    id="removeBtn"
-                                    class="btn btn-outline-danger btn-sm"
+                            <button type="button" id="removeBtn"
+                                    class="btn-rm-outline btn-rm-outline-danger"
+                                    style="font-size:0.78rem;padding:6px 12px;"
                                     onclick="toggleRemoveImage(this)">
-                                <i class="bi bi-trash me-1"></i> Șterge
+                                <i class="bi bi-trash"></i> Șterge
                             </button>
                         }
                     </div>
 
-                    <h5 class="mb-0">@Model.FirstName @Model.LastName</h5>
+                    <h5 style="font-weight:700;margin-bottom:0;font-size:1rem;">@Model.FirstName @Model.LastName</h5>
 
-                    <hr class="w-100 my-4" />
+                    <div style="width:100%;border-top:1px solid var(--rm-border);margin:20px 0;"></div>
 
-                    <div class="w-100">
-                        <div class="mb-3 text-start">
-                            <label asp-for="FirstName" class="form-label fw-semibold"></label>
-                            <input asp-for="FirstName" class="form-control" />
-                            <span asp-validation-for="FirstName" class="text-danger small"></span>
+                    <!-- Fields -->
+                    <div style="width:100%;text-align:left;">
+                        <div class="rm-field mb-3">
+                            <label asp-for="FirstName" class="rm-label"></label>
+                            <input asp-for="FirstName" class="rm-input" />
+                            <span asp-validation-for="FirstName" class="rm-field-error"></span>
                         </div>
-                        <div class="mb-3 text-start">
-                            <label asp-for="LastName" class="form-label fw-semibold"></label>
-                            <input asp-for="LastName" class="form-control" />
-                            <span asp-validation-for="LastName" class="text-danger small"></span>
+                        <div class="rm-field mb-3">
+                            <label asp-for="LastName" class="rm-label"></label>
+                            <input asp-for="LastName" class="rm-input" />
+                            <span asp-validation-for="LastName" class="rm-field-error"></span>
                         </div>
-                        <div class="mb-3 text-start">
-                            <label asp-for="Email" class="form-label fw-semibold"></label>
-                            <input asp-for="Email" class="form-control" />
-                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        <div class="rm-field">
+                            <label asp-for="Email" class="rm-label"></label>
+                            <input asp-for="Email" class="rm-input" />
+                            <span asp-validation-for="Email" class="rm-field-error"></span>
                         </div>
                     </div>
 
@@ -110,213 +126,171 @@
         </div>
 
         <!-- RIGHT: Change Password -->
-        <div class="col-lg-8">
-            <div class="card shadow-sm h-100">
-                <div class="card-body py-4">
-
-                    <h6 class="text-muted text-uppercase fw-semibold mb-4">
-                        <i class="bi bi-lock me-1"></i> Schimbă Parola
-                    </h6>
-
-                    <p class="text-muted small mb-4">
+        <div class="rm-two-col-side">
+            <div class="rm-form-card mb-4">
+                <div class="rm-form-card-header">
+                    <i class="bi bi-lock" style="color:var(--rm-red);"></i>
+                    Schimbă Parola
+                </div>
+                <div class="rm-form-card-body">
+                    <div class="rm-info-notice mb-4">
+                        <i class="bi bi-info-circle-fill"></i>
                         Lasă aceste câmpuri goale dacă nu dorești să îți schimbi parola.
-                    </p>
+                    </div>
 
-                    <div class="mb-3">
-                        <label asp-for="CurrentPassword" class="form-label fw-semibold"></label>
-                        <div class="input-group">
+                    <div class="rm-field mb-3">
+                        <label asp-for="CurrentPassword" class="rm-label"></label>
+                        <div class="rm-password-field">
                             <input asp-for="CurrentPassword"
                                    type="password"
                                    id="currentPasswordField"
-                                   class="form-control"
+                                   class="rm-input"
                                    placeholder="Introdu parola curentă" />
-                            <button type="button"
-                                    class="btn btn-outline-secondary toggle-password"
-                                    data-target="currentPasswordField"
-                                    tabindex="-1">
+                            <button type="button" class="rm-password-toggle toggle-password"
+                                    data-target="currentPasswordField" tabindex="-1">
                                 <i class="bi bi-eye"></i>
                             </button>
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label asp-for="NewPassword" class="form-label fw-semibold"></label>
-                        <div class="input-group">
+                    <div class="rm-field mb-3">
+                        <label asp-for="NewPassword" class="rm-label"></label>
+                        <div class="rm-password-field">
                             <input asp-for="NewPassword"
                                    type="password"
                                    id="newPasswordField"
-                                   class="form-control"
+                                   class="rm-input"
                                    placeholder="Introdu parola nouă" />
-                            <button type="button"
-                                    class="btn btn-outline-secondary toggle-password"
-                                    data-target="newPasswordField"
-                                    tabindex="-1">
+                            <button type="button" class="rm-password-toggle toggle-password"
+                                    data-target="newPasswordField" tabindex="-1">
                                 <i class="bi bi-eye"></i>
                             </button>
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label asp-for="ConfirmNewPassword" class="form-label fw-semibold"></label>
-                        <div class="input-group">
+                    <div class="rm-field">
+                        <label asp-for="ConfirmNewPassword" class="rm-label"></label>
+                        <div class="rm-password-field">
                             <input asp-for="ConfirmNewPassword"
                                    type="password"
                                    id="confirmPasswordField"
-                                   class="form-control"
+                                   class="rm-input"
                                    placeholder="Confirmă parola nouă" />
-                            <button type="button"
-                                    class="btn btn-outline-secondary toggle-password"
-                                    data-target="confirmPasswordField"
-                                    tabindex="-1">
+                            <button type="button" class="rm-password-toggle toggle-password"
+                                    data-target="confirmPasswordField" tabindex="-1">
                                 <i class="bi bi-eye"></i>
                             </button>
                         </div>
                     </div>
-
                 </div>
             </div>
-        </div>
 
+            <!-- Clinic Info -->
+            @if (clinic != null)
+            {
+                <div class="rm-form-card mb-4">
+                    <div class="rm-form-card-header">
+                        <i class="bi bi-hospital" style="color:var(--rm-red);"></i>
+                        Clinica Mea
+                    </div>
+                    <div class="rm-form-card-body">
+                        <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">
+                            @if (!string.IsNullOrEmpty(clinic.ImagePath))
+                            {
+                                <img src="@clinic.ImagePath"
+                                     style="width:52px;height:52px;border-radius:var(--rm-radius-sm);object-fit:cover;border:1px solid var(--rm-border);flex-shrink:0;" />
+                            }
+                            else
+                            {
+                                <div style="width:52px;height:52px;border-radius:var(--rm-radius-sm);background:#f5f5f5;border:1px solid var(--rm-border);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                    <i class="bi bi-hospital" style="color:#ccc;font-size:1.2rem;"></i>
+                                </div>
+                            }
+                            <div>
+                                <div style="font-weight:700;font-size:0.95rem;">@clinic.Name</div>
+                                @if (!string.IsNullOrEmpty(clinic.City))
+                                {
+                                    <div style="font-size:0.8rem;color:var(--rm-text-muted);">
+                                        @clinic.City@(!string.IsNullOrEmpty(clinic.Country) ? $", {clinic.Country}" : "")
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        <div style="display:flex;flex-direction:column;gap:6px;font-size:0.85rem;color:var(--rm-text-muted);">
+                            @if (!string.IsNullOrEmpty(clinic.Address))
+                            {
+                                <span><i class="bi bi-geo-alt me-2"></i>@clinic.Address</span>
+                            }
+                            @if (!string.IsNullOrEmpty(clinic.Phone))
+                            {
+                                <span><i class="bi bi-telephone me-2"></i>@clinic.Phone</span>
+                            }
+                            @if (!string.IsNullOrEmpty(clinic.Email))
+                            {
+                                <span><i class="bi bi-envelope me-2"></i>@clinic.Email</span>
+                            }
+                            @if (!string.IsNullOrEmpty(clinic.Website))
+                            {
+                                <span>
+                                    <i class="bi bi-globe me-2"></i>
+                                    <a href="@clinic.Website" target="_blank" style="color:var(--rm-red);text-decoration:none;">@clinic.Website</a>
+                                </span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <!-- Work Schedule -->
+            @if (isEmployee && schedules != null)
+            {
+                <div class="rm-form-card">
+                    <div class="rm-form-card-header">
+                        <i class="bi bi-calendar-week" style="color:var(--rm-red);"></i>
+                        Programul Meu
+                    </div>
+                    <div class="rm-schedule-list">
+                        @foreach (var day in order)
+                        {
+                            var dayShifts = schedules.Where(s => s.Day == day).ToList();
+                            <div class="rm-schedule-row" style="@(!dayShifts.Any() ? "opacity:0.5;" : "")">
+                                <div style="display:flex;align-items:center;justify-content:space-between;">
+                                    <span class="rm-schedule-day-name" style="width:110px;flex-shrink:0;">@dayNames[day]</span>
+                                    @if (!dayShifts.Any())
+                                    {
+                                        <span class="rm-badge">
+                                            <i class="bi bi-moon" style="font-size:0.7rem;"></i> Zi liberă
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                                            @foreach (var shift in dayShifts)
+                                            {
+                                                <span class="rm-shift-badge">
+                                                    <i class="bi bi-clock" style="font-size:0.7rem;"></i>
+                                                    @shift.StartTime.ToString("HH:mm") — @shift.EndTime.ToString("HH:mm")
+                                                </span>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+        </div>
     </div>
 
     <div class="d-flex justify-content-end mt-4">
-        <button type="submit" class="btn btn-primary px-4">
-            <i class="bi bi-save me-1"></i> Salvează Modificările
+        <button type="submit" class="btn-rm-primary">
+            <i class="bi bi-save"></i> Salvează Modificările
         </button>
     </div>
 
 </form>
-
-@{
-    var clinic = ViewBag.Clinic as MedicalOnboardingApplication.Models.Clinic;
-    var isEmployee = (bool)(ViewBag.IsEmployee ?? false);
-    var schedules = ViewBag.Schedules as List<MedicalOnboardingApplication.Models.WorkSchedule>;
-    var dayNames = ViewBag.DayNames as Dictionary<DayOfWeek, string>;
-
-    var order = new[] {
-        DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday,
-        DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday, DayOfWeek.Sunday
-    };
-}
-
-
-@if (clinic != null)
-{
-    <div class="row g-4 mt-1">
-        <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-body py-3">
-                    <h6 class="text-muted text-uppercase fw-semibold mb-3">
-                        <i class="bi bi-hospital me-1"></i> Clinica Mea
-                    </h6>
-                    <div class="row g-3">
-                        <div class="col-md-4">
-                            <div class="d-flex align-items-center gap-2">
-                                @if (!string.IsNullOrEmpty(clinic.ImagePath))
-                                {
-                                    <img src="@clinic.ImagePath"
-                                         class="rounded border"
-                                         style="width: 48px; height: 48px; object-fit: cover;" />
-                                }
-                                else
-                                {
-                                    <div class="rounded border d-flex align-items-center justify-content-center bg-light"
-                                         style="width: 48px; height: 48px;">
-                                        <i class="bi bi-hospital text-muted"></i>
-                                    </div>
-                                }
-                                <div>
-                                    <div class="fw-semibold">@clinic.Name</div>
-                                    @if (!string.IsNullOrEmpty(clinic.City))
-                                    {
-                                        <div class="text-muted small">@clinic.City@(!string.IsNullOrEmpty(clinic.Country) ? $", {clinic.Country}" : "")</div>
-                                    }
-                                </div>
-                            </div>
-                        </div>
-                        @if (!string.IsNullOrEmpty(clinic.Address))
-                        {
-                            <div class="col-md-4">
-                                <div class="text-muted small text-uppercase fw-semibold mb-1">Adresă</div>
-                                <div class="small">@clinic.Address</div>
-                            </div>
-                        }
-                        @if (!string.IsNullOrEmpty(clinic.Phone) || !string.IsNullOrEmpty(clinic.Email))
-                        {
-                            <div class="col-md-4">
-                                @if (!string.IsNullOrEmpty(clinic.Phone))
-                                {
-                                    <div class="small mb-1">
-                                        <i class="bi bi-telephone me-1 text-muted"></i> @clinic.Phone
-                                    </div>
-                                }
-                                @if (!string.IsNullOrEmpty(clinic.Email))
-                                {
-                                    <div class="small mb-1">
-                                        <i class="bi bi-envelope me-1 text-muted"></i> @clinic.Email
-                                    </div>
-                                }
-                                @if (!string.IsNullOrEmpty(clinic.Website))
-                                {
-                                    <div class="small">
-                                        <i class="bi bi-globe me-1 text-muted"></i>
-                                        <a href="@clinic.Website" target="_blank" class="text-decoration-none">@clinic.Website</a>
-                                    </div>
-                                }
-                            </div>
-                        }
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-}
-
-@* WORK SCHEDULE — employees only *@
-@if (isEmployee && schedules != null)
-{
-    <div class="row g-4 mt-1">
-        <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white border-bottom py-3">
-                    <h6 class="mb-0 fw-semibold text-muted text-uppercase">
-                        <i class="bi bi-calendar-week me-1"></i> Programul Meu
-                    </h6>
-                </div>
-                <div class="card-body p-0">
-                    @foreach (var day in order)
-                    {
-                        var dayShifts = schedules.Where(s => s.Day == day).ToList();
-                        <div class="d-flex align-items-center px-4 py-3 border-bottom">
-                            <div style="width: 120px;" class="fw-semibold small">
-                                @dayNames[day]
-                            </div>
-                            @if (!dayShifts.Any())
-                            {
-                                <span class="badge bg-secondary bg-opacity-10 text-secondary px-3 py-2 rounded-pill">
-                                    <i class="bi bi-moon me-1"></i> Zi liberă
-                                </span>
-                            }
-                            else
-                            {
-                                <div class="d-flex flex-wrap gap-2">
-                                    @foreach (var shift in dayShifts)
-                                    {
-                                        <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill">
-                                            <i class="bi bi-clock me-1"></i>
-                                            @shift.StartTime.ToString("HH:mm") — @shift.EndTime.ToString("HH:mm")
-                                        </span>
-                                    }
-                                </div>
-                            }
-                        </div>
-                    }
-                </div>
-            </div>
-        </div>
-    </div>
-}
-
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
@@ -328,7 +302,7 @@
                 reader.readAsDataURL(input.files[0]);
                 document.getElementById('removeProfileImageHidden').value = 'false';
                 const removeBtn = document.getElementById('removeBtn');
-                if (removeBtn) removeBtn.classList.remove('btn-danger', 'active');
+                if (removeBtn) removeBtn.innerHTML = '<i class="bi bi-trash"></i> Șterge';
             }
         }
 
@@ -336,22 +310,21 @@
             const hidden = document.getElementById('removeProfileImageHidden');
             const preview = document.getElementById('avatarPreview');
             const fileInput = document.getElementById('NewProfileImage');
-
             const isRemoving = hidden.value === 'true';
 
             if (!isRemoving) {
                 hidden.value = 'true';
                 preview.src = '/required/NoProfileImage.jpg';
                 fileInput.value = '';
-                btn.innerHTML = '<i class="bi bi-arrow-counterclockwise me-1"></i> Anulează Ștergerea';
-                btn.classList.remove('btn-outline-danger');
-                btn.classList.add('btn-danger');
+                btn.innerHTML = '<i class="bi bi-arrow-counterclockwise"></i> Anulează';
+                btn.classList.remove('btn-rm-outline-danger');
+                btn.style.background = '#fef2f2';
             } else {
                 hidden.value = 'false';
                 preview.src = '@(Model.ExistingProfileImagePath ?? "/required/NoProfileImage.jpg")';
-                btn.innerHTML = '<i class="bi bi-trash me-1"></i> Șterge';
-                btn.classList.remove('btn-danger');
-                btn.classList.add('btn-outline-danger');
+                btn.innerHTML = '<i class="bi bi-trash"></i> Șterge';
+                btn.classList.add('btn-rm-outline-danger');
+                btn.style.background = '';
             }
         }
 

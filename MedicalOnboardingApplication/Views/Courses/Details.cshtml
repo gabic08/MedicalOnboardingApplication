@@ -11,112 +11,110 @@
     var totalChapters = Model.Chapters?.Count ?? 0;
     var completedCount = !isAdmin ? completedIds.Count : 0;
     var isCourseCompleted = !isAdmin && totalChapters > 0 && completedCount == totalChapters;
+    var progressPct = totalChapters > 0 ? completedCount * 100 / totalChapters : 0;
 }
 
-<!-- ========================= -->
-<!-- BACK BUTTON -->
-<!-- ========================= -->
-<div class="mb-4">
-    <a href="@backUrl" class="btn btn-outline-secondary mb-2">
-        <i class="bi bi-arrow-left"></i> Înapoi @(isAdmin ? "la Cursuri Admin" : "la Cursuri")
-    </a>
-</div>
-
-<!-- ========================= -->
-<!-- COURSE HEADER -->
-<!-- ========================= -->
-<div class="card mb-4 shadow-sm border-0 rounded-3">
-    <div class="card-body">
-        <h1 class="display-6 fw-bold">@Model.Title</h1>
-        <p class="text-muted fs-5">@Model.Description</p>
+<!-- Page Header -->
+<div class="rm-page-header">
+    <div class="d-flex align-items-start justify-content-between flex-wrap gap-3">
+        <div>
+            <div class="breadcrumb-label">
+                <a href="@backUrl" class="text-decoration-none" style="color:inherit;">
+                    @(isAdmin ? "Cursuri Admin" : "Cursuri")
+                </a>
+                <i class="bi bi-chevron-right mx-1" style="font-size:0.65rem;"></i>
+                Detalii Curs
+            </div>
+            <h1>@Model.Title</h1>
+            @if (!string.IsNullOrEmpty(Model.Description))
+            {
+                <p>@Model.Description</p>
+            }
+        </div>
+        @if (!isAdmin && isCourseCompleted)
+        {
+            <span class="rm-status-badge rm-status-green align-self-end" style="font-size:0.85rem;padding:8px 16px;">
+                <i class="bi bi-trophy-fill"></i> Curs Finalizat!
+            </span>
+        }
     </div>
 </div>
 
+<!-- Progress (employees only) -->
 @if (!isAdmin && totalChapters > 0)
 {
-    <div class="card shadow-sm border-0 mb-4">
-        <div class="card-body p-4">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="fw-semibold">Progresul Tău</span>
-                @if (isCourseCompleted)
-                {
-                    <span class="badge bg-success px-3 py-2">
-                        <i class="bi bi-trophy-fill me-1"></i> Curs Finalizat!
-                    </span>
-                }
-                else
-                {
-                    <span class="text-muted small">@completedCount / @totalChapters capitole finalizate</span>
-                }
+    <div class="rm-form-card mb-4">
+        <div class="rm-form-card-body">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                <span style="font-weight:600;font-size:0.9rem;">Progresul Tău</span>
+                <span style="font-size:0.82rem;color:var(--rm-text-muted);">
+                    @completedCount / @totalChapters capitole finalizate
+                </span>
             </div>
-            <div class="progress" style="height: 8px;">
-                <div class="progress-bar @(isCourseCompleted ? "bg-success" : "")"
-                     role="progressbar"
-                     style="width: @(totalChapters > 0 ? (completedCount * 100 / totalChapters) : 0)%">
-                </div>
+            <div class="rm-progress-bar" style="height:8px;">
+                <div class="rm-progress-fill @(isCourseCompleted ? "rm-progress-green" : "rm-progress-blue")"
+                     style="width:@progressPct%;"></div>
             </div>
         </div>
     </div>
 }
 
-<!-- ========================= -->
-<!-- CHAPTERS LIST -->
-<!-- ========================= -->
+<!-- Chapters List -->
 @if (Model.Chapters == null || !Model.Chapters.Any())
 {
-    <div class="alert alert-info rounded-3 shadow-sm">
-        Niciun capitol disponibil.
+    <div class="rm-form-card">
+        <div class="rm-form-card-body">
+            <div class="rm-empty-state">
+                <i class="bi bi-journal-x"></i>
+                <p>Niciun capitol disponibil.</p>
+            </div>
+        </div>
     </div>
 }
 else
 {
-    <div class="card shadow-sm rounded-3 border-0">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="fw-semibold mb-0">Capitole</h5>
-                <span class="badge bg-secondary bg-opacity-10 text-secondary px-3 py-2">
-                    <i class="bi bi-journals me-1"></i> @totalChapters capitole
-                </span>
+    <div class="rm-form-card">
+        <div class="rm-form-card-header" style="justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:8px;">
+                <i class="bi bi-journals" style="color:var(--rm-red);"></i>
+                Capitole
+                <span class="rm-count-badge" style="background:#f0f0f0;color:#666;">@totalChapters</span>
             </div>
-            <div class="list-group">
-                @foreach (var chapter in Model.Chapters.OrderBy(c => c.Order))
-                {
-                    var chCompleted = !isAdmin && completedIds.Contains(chapter.Id);
-                    <a asp-controller="Chapters"
+        </div>
+        <div style="display:flex;flex-direction:column;">
+            @foreach (var chapter in Model.Chapters.OrderBy(c => c.Order))
+            {
+                var chCompleted = !isAdmin && completedIds.Contains(chapter.Id);
+
+                <a asp-controller="Chapters"
                        asp-action="Details"
                        asp-route-id="@chapter.Id"
-                       class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-3 px-4 mb-2 rounded shadow-sm border-0 @(chCompleted ? "border-start border-success border-3" : "")"
-                       style="transition: all 0.2s ease-in-out;">
-                        <div class="d-flex align-items-center gap-3">
-                            <span class="badge @(chCompleted ? "bg-success" : "bg-primary") fs-6">@chapter.Order</span>
-                            <span class="fw-medium fs-6">@chapter.Title</span>
-                            @if (chCompleted)
-                            {
-                                <span class="badge bg-success bg-opacity-10 text-success small">
-                                    <i class="bi bi-check-circle-fill me-1"></i> Finalizat
-                                </span>
-                            }
-                        </div>
-                        <i class="bi bi-chevron-right fs-5 text-secondary"></i>
-                    </a>
-                }
-            </div>
+                       class="rm-chapter-row @(chCompleted ? "rm-chapter-row--done" : "")">
+
+                    <div class="rm-chapter-row-dot">
+                        @if (chCompleted)
+                        {
+                            <i class="bi bi-check-lg"></i>
+                        }
+                        else
+                        {
+                            <span>@chapter.Order</span>
+                        }
+                    </div>
+
+                    <div style="flex:1;min-width:0;">
+                        <div style="font-weight:600;font-size:0.9rem;color:var(--rm-text);">@chapter.Title</div>
+                        @if (chCompleted)
+                        {
+                            <div style="font-size:0.75rem;color:#16a34a;margin-top:2px;">
+                                <i class="bi bi-check-circle-fill me-1"></i>Finalizat
+                            </div>
+                        }
+                    </div>
+
+                    <i class="bi bi-chevron-right" style="color:#ccc;font-size:0.85rem;flex-shrink:0;transition:transform 0.2s;"></i>
+                </a>
+            }
         </div>
     </div>
 }
-
-<!-- ========================= -->
-<!-- OPTIONAL STYLING SCRIPT -->
-<!-- ========================= -->
-
-<style>
-    .list-group-item:hover {
-        transform: translateX(5px);
-        box-shadow: 0 6px 18px rgba(0,0,0,0.08);
-        background-color: #f8f9fa;
-    }
-
-    .badge-primary {
-        background-color: #0d6efd;
-    }
-</style>
