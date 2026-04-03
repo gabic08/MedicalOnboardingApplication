@@ -6,102 +6,124 @@
     ViewData["Title"] = "Editează Întrebarea";
 }
 
-<div class="mb-4">
-    <a asp-controller="AdminCourses"
-       asp-action="Manage"
-       asp-route-id="@Model.CourseId"
-       class="btn btn-outline-secondary mb-2">
-        <i class="bi bi-arrow-left"></i> Înapoi la Curs
-    </a>
-    <h1 class="mb-0">Editează Întrebarea</h1>
+<!-- Page Header -->
+<div class="rm-page-header">
+    <div class="d-flex align-items-start justify-content-between flex-wrap gap-3">
+        <div>
+            <div class="breadcrumb-label">
+                <a asp-controller="Admin" asp-action="Index" class="text-decoration-none" style="color:inherit;">Panou Admin</a>
+                <i class="bi bi-chevron-right mx-1" style="font-size:0.65rem;"></i>
+                <a asp-controller="AdminCourses" asp-action="Index" class="text-decoration-none" style="color:inherit;">Cursuri</a>
+                <i class="bi bi-chevron-right mx-1" style="font-size:0.65rem;"></i>
+                <a asp-controller="AdminCourses" asp-action="Manage" asp-route-id="@Model.CourseId" class="text-decoration-none" style="color:inherit;">Gestionare</a>
+                <i class="bi bi-chevron-right mx-1" style="font-size:0.65rem;"></i>
+                Editare Întrebare
+            </div>
+            <h1>Editează Întrebarea</h1>
+            <p>Modifică textul, dificultatea și răspunsurile întrebării</p>
+        </div>
+    </div>
 </div>
 
 <div class="row">
-    <div class="col-12 col-lg-10 mx-auto">
+    <div class="col-12 col-lg-8 mx-auto">
         <form asp-action="Edit" method="post">
             @Html.AntiForgeryToken()
             <input type="hidden" asp-for="Id" />
             <input type="hidden" asp-for="CourseId" />
 
-            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+            @if (ViewData.ModelState.ErrorCount > 0)
+            {
+                <div class="rm-alert rm-alert-error mb-4">
+                    <i class="bi bi-exclamation-circle-fill"></i>
+                    <div asp-validation-summary="ModelOnly"></div>
+                </div>
+            }
 
-            <!-- Question -->
-            <div class="card shadow-sm mb-3">
-                <div class="card-body">
-                    <h6 class="text-muted text-uppercase fw-semibold mb-3">
-                        <i class="bi bi-question-circle me-1"></i> Întrebare
-                    </h6>
-                    <textarea asp-for="QuestionText"
-                              class="form-control"
-                              rows="3"
-                              placeholder="Introdu întrebarea..."></textarea>
-                    <span asp-validation-for="QuestionText" class="text-danger"></span>
+            <!-- Question Text -->
+            <div class="rm-form-card mb-4">
+                <div class="rm-form-card-header">
+                    <i class="bi bi-question-circle" style="color:var(--rm-red);"></i>
+                    Întrebare
+                </div>
+                <div class="rm-form-card-body">
+                    <div class="rm-field">
+                        <label asp-for="QuestionText" class="rm-label"></label>
+                        <textarea asp-for="QuestionText"
+                                  class="rm-input"
+                                  rows="3"
+                                  style="resize:vertical;min-height:90px;"
+                                  placeholder="Introdu textul întrebării..."></textarea>
+                        <span asp-validation-for="QuestionText" class="rm-field-error"></span>
+                    </div>
                 </div>
             </div>
 
             <!-- Difficulty -->
-            <div class="card shadow-sm mb-3">
-                <div class="card-body">
-                    <h6 class="text-muted text-uppercase fw-semibold mb-3">
-                        <i class="bi bi-bar-chart me-1"></i> Dificultate
-                    </h6>
-                    <select asp-for="Difficulty"
-                            asp-items="Html.GetEnumSelectList<QuestionDifficulty>()"
-                            class="form-select">
-                    </select>
+            <div class="rm-form-card mb-4">
+                <div class="rm-form-card-header">
+                    <i class="bi bi-bar-chart" style="color:var(--rm-red);"></i>
+                    Dificultate
+                </div>
+                <div class="rm-form-card-body">
+                    <div class="rm-field">
+                        <label asp-for="Difficulty" class="rm-label"></label>
+                        <select asp-for="Difficulty"
+                                asp-items="Html.GetEnumSelectList<QuestionDifficulty>()"
+                                class="rm-input rm-select">
+                        </select>
+                    </div>
                 </div>
             </div>
 
             <!-- Answers -->
-            <div class="card shadow-sm mb-4">
-                <div class="card-body">
-                    <h6 class="text-muted text-uppercase fw-semibold mb-1">
-                        <i class="bi bi-list-check me-1"></i> Răspunsuri
-                    </h6>
-                    <small class="text-muted d-block mb-3">
-                        Selectează butonul radio de lângă răspunsul corect.
-                        Sunt necesare minimum 2 răspunsuri.
-                    </small>
+            <div class="rm-form-card mb-4">
+                <div class="rm-form-card-header">
+                    <i class="bi bi-list-check" style="color:var(--rm-red);"></i>
+                    Răspunsuri
+                </div>
+                <div class="rm-form-card-body">
+                    <div class="rm-info-notice mb-4">
+                        <i class="bi bi-info-circle-fill"></i>
+                        Selectează butonul radio de lângă răspunsul corect. Sunt necesare minimum 2 răspunsuri.
+                    </div>
 
-                    <div id="answers-container">
+                    <div id="answers-container" style="display:flex;flex-direction:column;gap:10px;">
                         @for (int i = 0; i < Model.Answers.Count; i++)
                         {
-                            <div class="d-flex align-items-center mb-2 gap-2 answer-row">
-                                <div class="form-check mb-0">
+                            <div class="rm-answer-row answer-row">
+                                <label class="rm-answer-radio" title="Marchează ca corect">
                                     <input type="radio"
                                            name="CorrectAnswerIndex"
                                            value="@i"
-                                           class="form-check-input"
-                                           title="Marchează ca corect"
-                                           @(Model.CorrectAnswerIndex == i ? "checked" : "") />
-                                </div>
+                                    @(Model.CorrectAnswerIndex == i ? "checked" : "") />
+                                    <span class="rm-answer-radio-dot"></span>
+                                </label>
                                 <input type="hidden"
                                        name="Answers[@i].Id"
                                        value="@Model.Answers[i].Id" />
                                 <input type="text"
                                        name="Answers[@i].Text"
                                        value="@Model.Answers[i].Text"
-                                       class="form-control"
+                                       class="rm-input"
                                        placeholder="Răspuns @(i + 1)" />
                                 <button type="button"
-                                        class="btn btn-outline-danger btn-sm remove-answer-btn"
-                                        title="Șterge">
+                                        class="rm-shift-remove remove-answer-btn"
+                                        title="Șterge răspunsul">
                                     <i class="bi bi-trash"></i>
                                 </button>
                             </div>
                         }
                     </div>
 
-                    <button type="button"
-                            id="add-answer-btn"
-                            class="btn btn-outline-secondary btn-sm mt-2">
-                        <i class="bi bi-plus-circle"></i> Adaugă Răspuns
+                    <button type="button" id="add-answer-btn" class="rm-shift-add mt-3">
+                        <i class="bi bi-plus-lg"></i> Adaugă Răspuns
                     </button>
                 </div>
             </div>
 
             <div class="d-flex justify-content-end">
-                <button type="submit" class="btn btn-primary px-4">
+                <button type="submit" class="btn-rm-primary">
                     <i class="bi bi-save"></i> Salvează Modificările
                 </button>
             </div>
@@ -114,35 +136,24 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-
     <script>
         document.getElementById("add-answer-btn").addEventListener("click", function () {
             const container = document.getElementById("answers-container");
             const index = container.children.length;
 
             const row = document.createElement("div");
-            row.className = "d-flex align-items-center mb-2 gap-2 answer-row";
-
+            row.className = "rm-answer-row answer-row";
             row.innerHTML = `
-                <div class="form-check mb-0">
-                    <input type="radio"
-                           name="CorrectAnswerIndex"
-                           value="${index}"
-                           class="form-check-input"
-                           title="Marchează ca corect" />
-                </div>
+                <label class="rm-answer-radio" title="Marchează ca corect">
+                    <input type="radio" name="CorrectAnswerIndex" value="${index}" />
+                    <span class="rm-answer-radio-dot"></span>
+                </label>
                 <input type="hidden" name="Answers[${index}].Id" value="0" />
-                <input type="text"
-                       name="Answers[${index}].Text"
-                       class="form-control"
-                       placeholder="Răspuns ${index + 1}" />
-                <button type="button"
-                        class="btn btn-outline-danger btn-sm remove-answer-btn"
-                        title="Șterge">
+                <input type="text" name="Answers[${index}].Text" class="rm-input" placeholder="Răspuns ${index + 1}" />
+                <button type="button" class="rm-shift-remove remove-answer-btn" title="Șterge răspunsul">
                     <i class="bi bi-trash"></i>
                 </button>
             `;
-
             container.appendChild(row);
             attachRemoveHandler(row.querySelector('.remove-answer-btn'));
         });
@@ -155,8 +166,7 @@
         }
 
         function reindexAnswers() {
-            const rows = document.querySelectorAll(".answer-row");
-            rows.forEach((row, i) => {
+            document.querySelectorAll(".answer-row").forEach((row, i) => {
                 row.querySelector("input[type='radio']").value = i;
                 row.querySelector("input[type='hidden']").setAttribute("name", `Answers[${i}].Id`);
                 row.querySelector("input[type='text']").setAttribute("name", `Answers[${i}].Text`);
@@ -164,8 +174,6 @@
             });
         }
 
-        document.querySelectorAll(".remove-answer-btn").forEach(btn => {
-            attachRemoveHandler(btn);
-        });
+        document.querySelectorAll(".remove-answer-btn").forEach(btn => attachRemoveHandler(btn));
     </script>
 }
