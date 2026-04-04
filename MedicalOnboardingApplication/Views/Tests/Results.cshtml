@@ -6,243 +6,219 @@
         ? (int)Math.Round((double)Model.CorrectAnswers / Model.TotalQuestions * 100)
         : 0;
 
-    var scoreColor = scorePct >= 80 ? "text-success"
-                   : scorePct >= 50 ? "text-warning"
-                   : "text-danger";
+    var scoreHex = scorePct >= 80 ? "#16a34a" : scorePct >= 50 ? "#ca8a04" : "#dc2626";
+    var scoreMsg = scorePct >= 80 ? "Excelent!" : scorePct >= 50 ? "Efort bun!" : "Continuă să exersezi!";
 
-    var scoreBg = scorePct >= 80 ? "bg-success"
-                : scorePct >= 50 ? "bg-warning"
-                : "bg-danger";
-
-    var scoreMessage = scorePct >= 80 ? "Excelent!"
-                     : scorePct >= 50 ? "Efort bun!"
-                     : "Continuă să exersezi!";
-
-    var diffLabel = (int diff) => diff switch
+    Func<int, (string cls, string label)> diffLabel = (int diff) => diff switch
     {
-        1 => ("bg-success", "1 - Foarte Ușor"),
-        2 => ("bg-primary", "2 - Ușor"),
-        3 => ("bg-warning text-dark", "3 - Mediu"),
-        4 => ("bg-danger bg-opacity-75", "4 - Dificil"),
-        5 => ("bg-danger", "5 - Foarte Dificil"),
-        _ => ("bg-secondary", diff.ToString())
+        1 => (cls: "rm-status-green", label: "1 — Foarte Ușor"),
+        2 => (cls: "rm-status-blue", label: "2 — Ușor"),
+        3 => (cls: "rm-status-yellow", label: "3 — Mediu"),
+        4 => (cls: "rm-status-red", label: "4 — Dificil"),
+        5 => (cls: "rm-status-red", label: "5 — Foarte Dificil"),
+        _ => (cls: "rm-status-gray", label: diff.ToString())
     };
+
+    var circumference = 376.99;
+    var dashArray = Math.Round(scorePct / 100.0 * circumference);
 }
 
-<div class="mb-4">
-    <a asp-action="Index" class="btn btn-outline-secondary mb-2">
-        <i class="bi bi-arrow-left"></i> Înapoi la Teste
-    </a>
-    <h1 class="mb-0">Rezultate Test</h1>
+<!-- Page Header -->
+<div class="rm-page-header">
+    <div class="d-flex align-items-start justify-content-between flex-wrap gap-3">
+        <div>
+            <div class="breadcrumb-label">
+                <a asp-action="Index" class="text-decoration-none" style="color:inherit;">Teste</a>
+                <i class="bi bi-chevron-right mx-1" style="font-size:0.65rem;"></i>
+                Rezultate
+            </div>
+            <h1>Rezultate Test</h1>
+            <p>@Model.StartedAt.ToLocalTime().ToString("dd MMM yyyy HH:mm")</p>
+        </div>
+    </div>
 </div>
 
 <!-- Score Summary -->
-<div class="card shadow-sm border-0 mb-4">
-    <div class="card-body p-4">
-        <div class="row align-items-center g-4">
+<div class="rm-form-card mb-4">
+    <div class="rm-form-card-body">
+        <div style="display:flex;align-items:center;gap:40px;flex-wrap:wrap;">
 
-            <!-- Score Circle -->
-            <div class="col-md-3 text-center">
-                <div class="position-relative d-inline-block">
-                    <svg width="140" height="140" viewBox="0 0 140 140">
-                        <circle cx="70" cy="70" r="60" fill="none" stroke="#e9ecef" stroke-width="12" />
-                        <circle cx="70" cy="70" r="60" fill="none"
-                                stroke="@(scorePct >= 80 ? "#198754" : scorePct >= 50 ? "#ffc107" : "#dc3545")"
-                                stroke-width="12"
-                                stroke-dasharray="@(Math.Round(scorePct / 100.0 * 376.99)) 376.99"
-                                stroke-dashoffset="94.25"
-                                stroke-linecap="round"
-                                transform="rotate(-90 70 70)" />
-                    </svg>
-                    <div class="position-absolute top-50 start-50 translate-middle text-center">
-                        <div class="fw-bold fs-2 @scoreColor">@scorePct%</div>
-                    </div>
+            <!-- SVG Circle -->
+            <div style="flex-shrink:0;position:relative;width:140px;height:140px;">
+                <svg width="140" height="140" viewBox="0 0 140 140">
+                    <circle cx="70" cy="70" r="60" fill="none" stroke="#f0f0f0" stroke-width="12" />
+                    <circle cx="70" cy="70" r="60" fill="none"
+                            stroke="@scoreHex"
+                            stroke-width="12"
+                            stroke-dasharray="@dashArray @circumference"
+                            stroke-dashoffset="94.25"
+                            stroke-linecap="round"
+                            transform="rotate(-90 70 70)" />
+                </svg>
+                <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;">
+                    <div style="font-size:1.6rem;font-weight:800;color:@scoreHex;line-height:1;">@scorePct%</div>
                 </div>
             </div>
 
-            <!-- Stats -->
-            <div class="col-md-5">
-                <h4 class="fw-bold mb-1">@scoreMessage</h4>
-                <p class="text-muted mb-3">
+            <!-- Message + badges -->
+            <div style="flex:1;min-width:200px;">
+                <h4 style="font-weight:700;margin-bottom:6px;">@scoreMsg</h4>
+                <p style="font-size:0.875rem;color:var(--rm-text-muted);margin-bottom:14px;">
                     Ai răspuns corect la <strong>@Model.CorrectAnswers</strong> din
                     <strong>@Model.TotalQuestions</strong> întrebări.
                 </p>
-                <div class="d-flex flex-wrap gap-2">
-                    <span class="badge bg-success bg-opacity-10 text-success px-3 py-2">
-                        <i class="bi bi-check-circle me-1"></i> @Model.CorrectAnswers Corecte
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <span class="rm-status-badge rm-status-green" style="font-size:0.82rem;padding:6px 12px;">
+                        <i class="bi bi-check-circle"></i> @Model.CorrectAnswers Corecte
                     </span>
-                    <span class="badge bg-danger bg-opacity-10 text-danger px-3 py-2">
-                        <i class="bi bi-x-circle me-1"></i> @(Model.TotalQuestions - Model.CorrectAnswers) Incorecte
+                    <span class="rm-status-badge rm-status-red" style="font-size:0.82rem;padding:6px 12px;">
+                        <i class="bi bi-x-circle"></i> @(Model.TotalQuestions - Model.CorrectAnswers) Incorecte
                     </span>
                 </div>
             </div>
 
             <!-- Meta -->
-            <div class="col-md-4">
-                <ul class="list-unstyled mb-0">
-                    <li class="d-flex justify-content-between border-bottom py-2">
-                        <span class="text-muted small">Început</span>
-                        <span class="small fw-semibold">
-                            @Model.StartedAt.ToLocalTime().ToString("dd MMM yyyy HH:mm")
-                        </span>
-                    </li>
-                    <li class="d-flex justify-content-between border-bottom py-2">
-                        <span class="text-muted small">Finalizat</span>
-                        <span class="small fw-semibold">
-                            @Model.CompletedAt?.ToLocalTime().ToString("dd MMM yyyy HH:mm")
-                        </span>
-                    </li>
-                    <li class="d-flex justify-content-between border-bottom py-2">
-                        <span class="text-muted small">Durată</span>
-                        <span class="small fw-semibold">
+            <div style="flex-shrink:0;min-width:220px;">
+                <div class="rm-meta-list">
+                    <div class="rm-meta-row">
+                        <span class="rm-meta-label">Început</span>
+                        <span class="rm-meta-value">@Model.StartedAt.ToLocalTime().ToString("dd MMM yyyy HH:mm")</span>
+                    </div>
+                    <div class="rm-meta-row">
+                        <span class="rm-meta-label">Finalizat</span>
+                        <span class="rm-meta-value">@Model.CompletedAt?.ToLocalTime().ToString("dd MMM yyyy HH:mm")</span>
+                    </div>
+                    <div class="rm-meta-row">
+                        <span class="rm-meta-label">Durată</span>
+                        <span class="rm-meta-value">
                             @if (Model.CompletedAt.HasValue)
                             {
-                                var duration = Model.CompletedAt.Value - Model.StartedAt;
-                                @($"{(int)duration.TotalMinutes}m {duration.Seconds}s")
+                                var dur = Model.CompletedAt.Value - Model.StartedAt;
+                                @($"{(int)dur.TotalMinutes}m {dur.Seconds}s")
                             }
                         </span>
-                    </li>
-                    <li class="d-flex justify-content-between py-2">
-                        <span class="text-muted small">Dificultate Medie</span>
-                        <span class="small fw-semibold">
-                            <span class="badge @diffLabel((int)Math.Round(Model.AverageDifficulty)).Item1">
-                                @Model.AverageDifficulty.ToString("0.00")
-                            </span>
+                    </div>
+                    <div class="rm-meta-row" style="border-bottom:none;">
+                        <span class="rm-meta-label">Dificultate Medie</span>
+                        <span class="rm-status-badge @diffLabel((int)Math.Round(Model.AverageDifficulty)).cls" style="font-size:0.75rem;">
+                            @Model.AverageDifficulty.ToString("0.00")
                         </span>
-                    </li>
-                </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <!-- Difficulty Progression -->
-<div class="card shadow-sm border-0 mb-4">
-    <div class="card-header bg-white border-bottom py-3">
-        <h6 class="mb-0 fw-semibold text-muted text-uppercase">
-            <i class="bi bi-graph-up me-2"></i> Progresie Dificultate
-        </h6>
+<div class="rm-form-card mb-4">
+    <div class="rm-form-card-header">
+        <i class="bi bi-graph-up" style="color:var(--rm-red);"></i>
+        Progresie Dificultate
     </div>
-    <div class="card-body p-4">
-        <div class="d-flex align-items-end gap-2 flex-wrap">
+    <div class="rm-form-card-body">
+        <div style="display:flex;align-items:flex-end;gap:8px;flex-wrap:wrap;">
             @foreach (var q in Model.Questions.OrderBy(q => q.Order))
             {
-                var heightPct = q.DifficultyAtTime * 20;
-                var barColor = q.IsCorrect == true ? "bg-success" : "bg-danger";
-                <div class="d-flex flex-column align-items-center gap-1" style="min-width: 40px;">
-                    <small class="text-muted" style="font-size: 0.7rem;">@q.DifficultyAtTime</small>
-                    <div class="@barColor rounded"
-                         style="width: 28px; height: @(heightPct)px; min-height: 8px; transition: height 0.3s;"
-                         title="Î@(q.Order) — Dificultate @q.DifficultyAtTime — @(q.IsCorrect == true ? "Corect" : "Incorect")">
+                var barH = q.DifficultyAtTime * 20;
+                var barColor = q.IsCorrect == true ? "#16a34a" : "#dc2626";
+                <div style="display:flex;flex-direction:column;align-items:center;gap:4px;min-width:36px;">
+                    <span style="font-size:0.65rem;color:var(--rm-text-muted);">@q.DifficultyAtTime</span>
+                    <div style="width:26px;height:@(barH)px;min-height:8px;background:@barColor;border-radius:4px;transition:height 0.3s;"
+                         title="Î@(q.Order) — Dif. @q.DifficultyAtTime — @(q.IsCorrect == true ? "Corect" : "Incorect")">
                     </div>
-                    <small class="text-muted" style="font-size: 0.7rem;">Î@(q.Order)</small>
+                    <span style="font-size:0.65rem;color:var(--rm-text-muted);">Î@(q.Order)</span>
                 </div>
             }
         </div>
-        <div class="d-flex gap-3 mt-3">
-            <span class="d-flex align-items-center gap-1 small text-muted">
-                <span class="bg-success rounded" style="width:12px;height:12px;display:inline-block;"></span> Corect
+        <div style="display:flex;gap:16px;margin-top:12px;">
+            <span style="display:flex;align-items:center;gap:6px;font-size:0.78rem;color:var(--rm-text-muted);">
+                <span style="width:12px;height:12px;background:#16a34a;border-radius:3px;display:inline-block;"></span> Corect
             </span>
-            <span class="d-flex align-items-center gap-1 small text-muted">
-                <span class="bg-danger rounded" style="width:12px;height:12px;display:inline-block;"></span> Incorect
+            <span style="display:flex;align-items:center;gap:6px;font-size:0.78rem;color:var(--rm-text-muted);">
+                <span style="width:12px;height:12px;background:#dc2626;border-radius:3px;display:inline-block;"></span> Incorect
             </span>
         </div>
     </div>
 </div>
 
 <!-- Question Breakdown -->
-<div class="card shadow-sm border-0 mb-4">
-    <div class="card-header bg-white border-bottom py-3">
-        <h6 class="mb-0 fw-semibold text-muted text-uppercase">
-            <i class="bi bi-list-check me-2"></i> Detalii Întrebări
-        </h6>
+<div class="rm-form-card mb-4">
+    <div class="rm-form-card-header">
+        <i class="bi bi-list-check" style="color:var(--rm-red);"></i>
+        Detalii Întrebări
+        <span class="rm-count-badge" style="background:#f0f0f0;color:#666;">@Model.Questions.Count</span>
     </div>
-    <div class="card-body p-0">
-        <div class="accordion accordion-flush" id="questionsAccordion">
-            @foreach (var q in Model.Questions.OrderBy(q => q.Order))
-            {
-                var collapseId = $"q_{q.Id}";
-                var correct = q.Question.Answers.FirstOrDefault(a => a.IsCorrect);
-                var selected = q.Question.Answers.FirstOrDefault(a => a.Id == q.SelectedAnswerId);
-                var wasCorrect = q.IsCorrect == true;
+    <div class="rm-accordion-flush">
+        @foreach (var q in Model.Questions.OrderBy(q => q.Order))
+        {
+            var collapseId = $"q_{q.Id}";
+            var wasCorrect = q.IsCorrect == true;
+            var dl = diffLabel(q.DifficultyAtTime);
 
-                <div class="accordion-item border-0 border-bottom">
-                    <h2 class="accordion-header">
-                        <button class="accordion-button collapsed py-3 fw-medium"
-                                type="button"
-                                data-bs-toggle="collapse"
-                                data-bs-target="#@collapseId">
-                            <div class="d-flex align-items-center gap-3 w-100 me-3">
-                                <span class="badge @(wasCorrect ? "bg-success" : "bg-danger") rounded-circle"
-                                      style="width:28px;height:28px;display:flex;align-items:center;justify-content:center;">
-                                    <i class="bi @(wasCorrect ? "bi-check" : "bi-x")"></i>
-                                </span>
-                                <span class="flex-grow-1 text-truncate">@q.Question.Text</span>
-                                <span class="badge @diffLabel(q.DifficultyAtTime).Item1 flex-shrink-0">
-                                    @diffLabel(q.DifficultyAtTime).Item2
-                                </span>
-                            </div>
-                        </button>
-                    </h2>
-                    <div id="@collapseId" class="accordion-collapse collapse">
-                        <div class="accordion-body pt-2 pb-3">
-                            <div class="row g-2 mb-3">
-                                @foreach (var answer in q.Question.Answers)
-                                {
-                                    var isRight = answer.IsCorrect;
-                                    var wasSelected = answer.Id == q.SelectedAnswerId;
-
-                                    string cardClass = "border-0 bg-light";
-                                    string iconClass = "bi-circle text-muted";
-
-                                    if (isRight)
-                                    {
-                                        cardClass = "border-success bg-success bg-opacity-10";
-                                        iconClass = "bi-check-circle-fill text-success";
-                                    }
-                                    else if (wasSelected && !isRight)
-                                    {
-                                        cardClass = "border-danger bg-danger bg-opacity-10";
-                                        iconClass = "bi-x-circle-fill text-danger";
-                                    }
-
-                                    <div class="col-md-6">
-                                        <div class="card @cardClass border">
-                                            <div class="card-body p-2 d-flex align-items-center gap-2">
-                                                <i class="bi @iconClass flex-shrink-0"></i>
-                                                <span class="small">@answer.Text</span>
-                                                @if (wasSelected && isRight)
-                                                {
-                                                    <span class="badge bg-success ms-auto">Răspunsul tău</span>
-                                                }
-                                                else if (wasSelected && !isRight)
-                                                {
-                                                    <span class="badge bg-danger ms-auto">Răspunsul tău</span>
-                                                }
-                                            </div>
-                                        </div>
-                                    </div>
-                                }
-                            </div>
-                            <small class="text-muted">
-                                <i class="bi bi-journal-text me-1"></i> @q.Question.Course?.Title
-                            </small>
+            <div class="rm-report-course-item">
+                <button class="rm-report-course-btn collapsed"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#@collapseId">
+                    <div style="display:flex;align-items:center;gap:12px;width:100%;">
+                        <div style="width:28px;height:28px;border-radius:50%;background:@(wasCorrect ? "#dcfce7" : "#fef2f2");display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                            <i class="bi @(wasCorrect ? "bi-check" : "bi-x")" style="color:@(wasCorrect ? "#16a34a" : "#dc2626");font-weight:700;"></i>
                         </div>
+                        <span style="flex:1;font-weight:600;font-size:0.875rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+                            @q.Question.Text
+                        </span>
+                        <span class="rm-status-badge @dl.cls" style="flex-shrink:0;font-size:0.72rem;">@dl.label</span>
+                    </div>
+                    <i class="bi bi-chevron-down rm-accordion-chevron" style="margin-left:12px;flex-shrink:0;"></i>
+                </button>
+
+                <div id="@collapseId" class="accordion-collapse collapse">
+                    <div class="rm-report-course-body">
+                        <div class="rm-answers-grid mb-3">
+                            @foreach (var answer in q.Question.Answers)
+                            {
+                                var isRight = answer.IsCorrect;
+                                var wasChosen = answer.Id == q.SelectedAnswerId;
+
+                                string optClass = "rm-answer-option rm-answer-option--static";
+                                string iconCls = "bi-circle";
+                                string iconClr = "#ccc";
+
+                                if (isRight) { optClass += " rm-answer-option--correct"; iconCls = "bi-check-circle-fill"; iconClr = "#16a34a"; }
+                                else if (wasChosen) { optClass += " rm-answer-option--wrong"; iconCls = "bi-x-circle-fill"; iconClr = "#dc2626"; }
+
+                                <div class="@optClass">
+                                    <i class="bi @iconCls" style="color:@iconClr;font-size:0.95rem;flex-shrink:0;"></i>
+                                    <span class="rm-answer-option-text" style="font-size:0.85rem;">@answer.Text</span>
+                                    @if (wasChosen)
+                                    {
+                                        <span class="rm-status-badge @(isRight ? "rm-status-green" : "rm-status-red") ms-auto" style="flex-shrink:0;font-size:0.72rem;">
+                                            Răspunsul tău
+                                        </span>
+                                    }
+                                </div>
+                            }
+                        </div>
+                        <span style="font-size:0.78rem;color:var(--rm-text-muted);">
+                            <i class="bi bi-journal-text me-1"></i>@q.Question.Course?.Title
+                        </span>
                     </div>
                 </div>
-            }
-        </div>
+            </div>
+        }
     </div>
 </div>
 
+<!-- Actions -->
 <div class="d-flex justify-content-end gap-2 mb-4">
-    <a asp-action="Index" class="btn btn-outline-secondary px-4">
-        <i class="bi bi-clock-history me-1"></i> Înapoi la Teste
+    <a asp-action="Index" class="btn-rm-secondary">
+        <i class="bi bi-clock-history"></i> Înapoi la Teste
     </a>
     <form asp-action="Start" method="post">
         @Html.AntiForgeryToken()
-        <button type="submit" class="btn btn-warning px-4">
-            <i class="bi bi-arrow-repeat me-1"></i> Susține Alt Test
+        <button type="submit" class="btn-rm-warning">
+            <i class="bi bi-arrow-repeat"></i> Susține Alt Test
         </button>
     </form>
 </div>

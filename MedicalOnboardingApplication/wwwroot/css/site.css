@@ -2394,3 +2394,33 @@ body {
     line-height: 1.4;
     flex: 1;
 }
+
+/* ============================================================
+   RESULTS — META LIST
+   ============================================================ */
+.rm-meta-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.rm-meta-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 9px 0;
+    border-bottom: 1px solid #f5f5f5;
+    gap: 16px;
+}
+
+.rm-meta-label {
+    font-size: 0.78rem;
+    color: var(--rm-text-muted);
+    flex-shrink: 0;
+}
+
+.rm-meta-value {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--rm-text);
+    text-align: right;
+}
