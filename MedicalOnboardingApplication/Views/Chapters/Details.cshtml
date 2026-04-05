@@ -4,10 +4,7 @@
 @{
     ViewData["Title"] = Model.Title;
 
-    var orderedChapters = Model.Course.Chapters
-        .OrderBy(c => c.Order)
-        .ToList();
-
+    var orderedChapters = Model.Course.Chapters.OrderBy(c => c.Order).ToList();
     var currentIndex = orderedChapters.FindIndex(c => c.Id == Model.Id);
     var previousChapter = currentIndex > 0 ? orderedChapters[currentIndex - 1] : null;
     var nextChapter = currentIndex < orderedChapters.Count - 1 ? orderedChapters[currentIndex + 1] : null;
@@ -19,217 +16,183 @@
     var isCompleted = completedIds.Contains(Model.Id);
 }
 
-<div class="mb-3">
-    <a asp-controller="Courses"
-       asp-action="Details"
-       asp-route-id="@Model.CourseId"
-       class="btn btn-outline-secondary btn-sm mb-2">
-        <i class="bi bi-arrow-left"></i> Înapoi la Curs
-    </a>
-</div>
+<div class="rm-chapter-layout">
 
-<!-- Progress Bar -->
-<div class="mb-4">
-    <div class="d-flex justify-content-between align-items-center mb-1">
-        <small class="text-muted">Capitolul @(currentIndex + 1) din @totalChapters</small>
-    </div>
-    <div class="progress" style="height: 6px;">
-        <div class="progress-bar" role="progressbar"
-             style="width: @progress%"
-             aria-valuenow="@progress"
-             aria-valuemin="0"
-             aria-valuemax="100">
-        </div>
-    </div>
-</div>
+    <!-- ===================== -->
+    <!-- SIDEBAR -->
+    <!-- ===================== -->
+    <aside class="rm-chapter-sidebar">
+        <div class="rm-chapter-sidebar-inner">
 
-<div class="card shadow-sm border-0 mb-2">
-    <div class="card-body p-2">
-        <div class="d-flex justify-content-between align-items-center flex-wrap gap-1">
-
-            <!-- Previous -->
-            <div>
-                @if (previousChapter != null)
-                {
-                    <a asp-action="Details"
-                       asp-route-id="@previousChapter.Id"
-                       class="btn btn-outline-secondary">
-                        <i class="bi bi-arrow-left me-1"></i> Anterior
-                    </a>
-                }
+            <!-- Course title -->
+            <div class="rm-chapter-sidebar-header">
+                <a asp-controller="Courses"
+                       asp-action="Details"
+                       asp-route-id="@Model.CourseId"
+                       class="rm-chapter-back-link">
+                    <i class="bi bi-arrow-left"></i> Înapoi la Curs
+                </a>
+                <p class="rm-chapter-course-name">@Model.Course.Title</p>
+                <div class="rm-chapter-progress-label">
+                    <span>@(currentIndex + 1) / @totalChapters capitole</span>
+                    <span>@progress%</span>
+                </div>
             </div>
 
-            <!-- Next -->
-            <div>
-                @if (nextChapter != null)
+            <!-- Chapter list -->
+            <nav class="rm-chapter-nav">
+                @foreach (var ch in orderedChapters)
                 {
+                    var chCompleted = completedIds.Contains(ch.Id);
+                    var isCurrent = ch.Id == Model.Id;
                     <a asp-action="Details"
-                       asp-route-id="@nextChapter.Id"
-                       class="btn btn-primary">
-                        Următorul <i class="bi bi-arrow-right ms-1"></i>
-                    </a>
-                }
-            </div>
-
-        </div>
-    </div>
-</div>
-
-<!-- MAIN CONTENT -->
-<div class="card shadow-sm border-0 mb-4">
-    <div class="card-body p-4">
-
-        <div class="d-flex align-items-center gap-2 mb-4">
-            <span class="badge bg-primary rounded-pill px-3 py-2 fs-6">@Model.Order</span>
-            <h4 class="mb-0 fw-semibold">@Model.Title</h4>
-            @if (!isAdmin && isCompleted)
-            {
-                <span class="badge bg-success ms-auto px-3 py-2">
-                    <i class="bi bi-check-circle-fill me-1"></i> Finalizat
-                </span>
-            }
-        </div>
-
-        <hr class="mb-4" />
-
-        <div class="chapter-content lh-lg">
-            @Html.Raw(Model.Content?.Replace("\n", "<br />"))
-        </div>
-
-    </div>
-</div>
-
-<!-- Attachments -->
-@if (Model.Attachments != null && Model.Attachments.Any())
-{
-    <div class="card shadow-sm border-0 mb-4">
-        <div class="card-body p-4">
-            @foreach (var att in Model.Attachments)
-            {
-                <div class="mb-4">
-                    @if (att.Type == AttachmentType.Image)
-                    {
-                        <img src="@att.FilePath"
-                             class="img-fluid rounded shadow-sm w-100"
-                             style="max-height: 500px; object-fit: contain;"
-                             alt="@att.FileName" />
-                    }
-                    else if (att.Type == AttachmentType.Video)
-                    {
-                        <video controls
-                               class="w-100 rounded shadow-sm"
-                               style="max-height: 500px;"
-                               preload="metadata">
-                            <source src="@att.FilePath" type="video/mp4" />
-                            Browserul tău nu suportă redarea video.
-                        </video>
-                    }
-                    else if (att.Type == AttachmentType.Pdf)
-                    {
-                        <div class="d-flex justify-content-between align-items-center border rounded p-3 bg-light">
-                            <div class="d-flex align-items-center gap-2">
-                                <i class="bi bi-file-earmark-pdf text-danger fs-4"></i>
-                                <span class="fw-semibold">@att.FileName</span>
-                            </div>
-                            <a href="@att.FilePath"
-                               target="_blank"
-                               class="btn btn-sm btn-outline-primary">
-                                <i class="bi bi-box-arrow-up-right me-1"></i> Deschide PDF
-                            </a>
+                           asp-route-id="@ch.Id"
+                           class="rm-chapter-nav-item @(isCurrent ? "rm-chapter-nav-item--active" : "") @(chCompleted ? "rm-chapter-nav-item--done" : "")">
+                        <div class="rm-chapter-nav-dot">
+                            @if (chCompleted)
+                            {
+                                <i class="bi bi-check-lg"></i>
+                            }
+                            else
+                            {
+                                <span>@ch.Order</span>
+                            }
                         </div>
+                        <span class="rm-chapter-nav-title">@ch.Title</span>
+                    </a>
+                }
+            </nav>
+
+        </div>
+    </aside>
+
+    <!-- ===================== -->
+    <!-- MAIN CONTENT -->
+    <!-- ===================== -->
+    <main class="rm-chapter-main">
+
+        <!-- Chapter Header -->
+        <div class="rm-chapter-header">
+            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+                <span class="rm-badge rm-badge-order" style="font-size:0.85rem;padding:6px 12px;">@Model.Order</span>
+                <h1 class="rm-chapter-title">@Model.Title</h1>
+                @if (!isAdmin && isCompleted)
+                {
+                    <span class="rm-status-badge rm-status-green ms-auto">
+                        <i class="bi bi-check-circle-fill"></i> Finalizat
+                    </span>
+                }
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="rm-form-card mb-4">
+            <div class="rm-form-card-body">
+                <div class="rm-chapter-content">
+                    @Html.Raw(Model.Content?.Replace("\n", "<br />"))
+                </div>
+            </div>
+        </div>
+
+        <!-- Attachments -->
+        @if (Model.Attachments != null && Model.Attachments.Any())
+        {
+            <div class="rm-form-card mb-4">
+                <div class="rm-form-card-header">
+                    <i class="bi bi-paperclip" style="color:var(--rm-red);"></i>
+                    Atașamente
+                    <span class="rm-count-badge" style="background:#f0f0f0;color:#666;">@Model.Attachments.Count</span>
+                </div>
+                <div class="rm-form-card-body" style="display:flex;flex-direction:column;gap:20px;">
+                    @foreach (var att in Model.Attachments)
+                    {
+                        @if (att.Type == AttachmentType.Image)
+                        {
+                            <img src="@att.FilePath"
+                                 style="width:100%;max-height:500px;object-fit:contain;border-radius:var(--rm-radius-sm);border:1px solid var(--rm-border);"
+                                 alt="@att.FileName" />
+                        }
+                        else if (att.Type == AttachmentType.Video)
+                        {
+                            <video controls
+                                   style="width:100%;max-height:500px;border-radius:var(--rm-radius-sm);"
+                                   preload="metadata">
+                                <source src="@att.FilePath" type="video/mp4" />
+                                Browserul tău nu suportă redarea video.
+                            </video>
+                        }
+                        else if (att.Type == AttachmentType.Pdf)
+                        {
+                            <div class="rm-attachment-item">
+                                <div style="display:flex;align-items:center;gap:10px;">
+                                    <div style="width:36px;height:36px;border-radius:10px;background:#fdf0f2;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                        <i class="bi bi-file-earmark-pdf" style="color:var(--rm-red);font-size:1.1rem;"></i>
+                                    </div>
+                                    <span style="font-weight:600;font-size:0.875rem;">@att.FileName</span>
+                                </div>
+                                <a href="@att.FilePath" target="_blank" class="btn-rm-outline" style="font-size:0.82rem;">
+                                    <i class="bi bi-box-arrow-up-right"></i> Deschide PDF
+                                </a>
+                            </div>
+                        }
                     }
                 </div>
-            }
-        </div>
-    </div>
-}
+            </div>
+        }
 
-<!-- Mark as Complete + Navigation -->
-<div class="card shadow-sm border-0 mb-3">
-    <div class="card-body p-3">
-        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-
-            <!-- Previous -->
+        <!-- Bottom Navigation -->
+        <div class="rm-chapter-nav-footer">
             <div>
                 @if (previousChapter != null)
                 {
-                    <a asp-action="Details"
-                       asp-route-id="@previousChapter.Id"
-                       class="btn btn-outline-secondary">
-                        <i class="bi bi-arrow-left me-1"></i> Anterior
+                    <a asp-action="Details" asp-route-id="@previousChapter.Id" class="btn-rm-secondary">
+                        <i class="bi bi-arrow-left"></i> Anterior
                     </a>
                 }
             </div>
 
-            <!-- Mark Complete -->
             @if (!isAdmin)
             {
                 <div id="completeSection">
                     @if (isCompleted)
                     {
-                        <button type="button"
-                                id="completeBtn"
+                        <button type="button" id="completeBtn"
                                 onclick="toggleComplete(@Model.Id, true)"
-                                class="btn btn-success px-4">
-                            <i class="bi bi-check-circle-fill me-2"></i> Finalizat — Click pentru Anulare
+                                class="btn-rm-success">
+                            <i class="bi bi-check-circle-fill"></i> Finalizat — Click pentru Anulare
                         </button>
                     }
                     else
                     {
-                        <button type="button"
-                                id="completeBtn"
+                        <button type="button" id="completeBtn"
                                 onclick="toggleComplete(@Model.Id, false)"
-                                class="btn btn-outline-success px-4">
-                            <i class="bi bi-check-circle me-2"></i> Marchează ca Finalizat
+                                class="btn-rm-outline">
+                            <i class="bi bi-check-circle"></i> Marchează ca Finalizat
                         </button>
                     }
                 </div>
             }
 
-            <!-- Next -->
             <div>
                 @if (nextChapter != null)
                 {
-                    <a asp-action="Details"
-                       asp-route-id="@nextChapter.Id"
-                       class="btn btn-primary">
-                        Următorul <i class="bi bi-arrow-right ms-1"></i>
+                    <a asp-action="Details" asp-route-id="@nextChapter.Id" class="btn-rm-primary">
+                        Următorul <i class="bi bi-arrow-right"></i>
                     </a>
                 }
             </div>
-
         </div>
-    </div>
-</div>
 
-<div class="mb-3">
-    <a asp-controller="Courses"
-       asp-action="Details"
-       asp-route-id="@Model.CourseId"
-       class="btn btn-outline-secondary btn-sm mb-2">
-        <i class="bi bi-arrow-left"></i> Înapoi la Curs
-    </a>
-</div>
+    </main>
 
-<style>
-    .chapter-content {
-        font-size: 1.05rem;
-        color: #333;
-        line-height: 1.8;
-    }
-</style>
+</div>
 
 @section Scripts {
     <script>
         async function toggleComplete(chapterId, isCurrentlyCompleted) {
             const action = isCurrentlyCompleted ? 'UnmarkComplete' : 'MarkComplete';
-            const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value
-                       ?? '@Html.AntiForgeryToken()';
-
             const formData = new FormData();
             formData.append('chapterId', chapterId);
-            formData.append('__RequestVerificationToken',
-                document.cookie.match(/RequestVerificationToken=([^;]+)/)?.[1] ?? '');
 
             try {
                 const response = await fetch(`/Chapters/${action}`, {
@@ -243,29 +206,43 @@
 
                 if (response.ok || response.redirected) {
                     const btn = document.getElementById('completeBtn');
-                    const header = document.querySelector('.badge.bg-success');
+                    const headerBadge = document.querySelector('.rm-status-badge.rm-status-green');
+                    const titleRow = document.querySelector('.rm-chapter-header .d-flex');
 
                     if (isCurrentlyCompleted) {
-                        btn.className = 'btn btn-outline-success px-4';
-                        btn.innerHTML = '<i class="bi bi-check-circle me-2"></i> Marchează ca Finalizat';
+                        btn.className = 'btn-rm-outline';
+                        btn.innerHTML = '<i class="bi bi-check-circle"></i> Marchează ca Finalizat';
                         btn.setAttribute('onclick', `toggleComplete(${chapterId}, false)`);
-                        if (header) header.remove();
+                        if (headerBadge) headerBadge.remove();
+
+                        // update sidebar dot
+                        const sidebarItem = document.querySelector('.rm-chapter-nav-item--active .rm-chapter-nav-dot');
+                        if (sidebarItem) {
+                            sidebarItem.innerHTML = '<span>@Model.Order</span>';
+                        }
+                        document.querySelector('.rm-chapter-nav-item--active')?.classList.remove('rm-chapter-nav-item--done');
                     } else {
-                        btn.className = 'btn btn-success px-4';
-                        btn.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i> Finalizat — Click pentru Anulare';
+                        btn.className = 'btn-rm-success';
+                        btn.innerHTML = '<i class="bi bi-check-circle-fill"></i> Finalizat — Click pentru Anulare';
                         btn.setAttribute('onclick', `toggleComplete(${chapterId}, true)`);
 
-                        const titleRow = document.querySelector('.d-flex.align-items-center.gap-2.mb-4');
-                        if (titleRow && !titleRow.querySelector('.badge.bg-success')) {
+                        if (titleRow && !headerBadge) {
                             const badge = document.createElement('span');
-                            badge.className = 'badge bg-success ms-auto px-3 py-2';
-                            badge.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> Finalizat';
+                            badge.className = 'rm-status-badge rm-status-green ms-auto';
+                            badge.innerHTML = '<i class="bi bi-check-circle-fill"></i> Finalizat';
                             titleRow.appendChild(badge);
                         }
+
+                        // update sidebar dot
+                        const sidebarItem = document.querySelector('.rm-chapter-nav-item--active .rm-chapter-nav-dot');
+                        if (sidebarItem) {
+                            sidebarItem.innerHTML = '<i class="bi bi-check-lg"></i>';
+                        }
+                        document.querySelector('.rm-chapter-nav-item--active')?.classList.add('rm-chapter-nav-item--done');
                     }
                 }
             } catch (err) {
-                console.error('Eroare la schimbarea stării capitolului:', err);
+                console.error('Eroare:', err);
             }
         }
     </script>

@@ -33,10 +33,24 @@ namespace MedicalOnboardingApplication.Controllers
 
         [HttpGet]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Login(string returnUrl = null)
+        public async Task<IActionResult> Login(string returnUrl = null)
         {
             if (User.Identity?.IsAuthenticated == true)
-                return LocalRedirect("/");
+            {
+                var user = await _userManager.GetUserAsync(User);
+                var clinic = await _context.Clinics
+                    .FirstOrDefaultAsync(c => c.Id == user.ClinicId);
+
+                if (clinic != null && !string.IsNullOrEmpty(clinic.Subdomain))
+                {
+                    var baseDomain = _configuration["AppSettings:BaseDomain"];
+                    var basePort = _configuration["AppSettings:BasePort"];
+                    var userDashboard = await _userManager.IsInRoleAsync(user, "Admin") ? "Admin" : "Dashboard";
+
+                    return Redirect($"http://{clinic.Subdomain}.{baseDomain}:{basePort}/{userDashboard}");
+                }
+            }
+
             return View(new LoginViewModel { ReturnUrl = returnUrl });
         }
 
@@ -75,8 +89,9 @@ namespace MedicalOnboardingApplication.Controllers
                 {
                     var baseDomain = _configuration["AppSettings:BaseDomain"];
                     var basePort = _configuration["AppSettings:BasePort"];
+                    var userDashboard = await _userManager.IsInRoleAsync(user, "Admin") ? "Admin" : "Dashboard";
 
-                    var redirectTo = $"http://{clinic.Subdomain}.{baseDomain}:{basePort}";
+                    var redirectTo = $"http://{clinic.Subdomain}.{baseDomain}:{basePort}/{userDashboard}";
                     return Redirect(redirectTo);
                 }
 

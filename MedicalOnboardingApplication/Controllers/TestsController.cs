@@ -1,4 +1,5 @@
 ﻿using MedicalOnboardingApplication.Data;
+using MedicalOnboardingApplication.Filters;
 using MedicalOnboardingApplication.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -7,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 namespace MedicalOnboardingApplication.Controllers;
 
 [Authorize]
+[WorkingHours]
 public class TestsController : Controller
 {
     private readonly MedicalOnboardingApplicationContext _context;

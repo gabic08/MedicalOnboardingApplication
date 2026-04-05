@@ -5,55 +5,69 @@
     ViewData["Title"] = "Creare Capitol";
 }
 
-<div class="mb-3">
-    <a asp-controller="AdminCourses"
-       asp-action="Manage"
-       asp-route-id="@Model.CourseId"
-       class="btn btn-outline-secondary mb-2">
-        <i class="bi bi-arrow-left"></i> Înapoi la Curs
-    </a>
-    <h1 class="mb-0">Creare Capitol</h1>
+<!-- Page Header -->
+<div class="rm-page-header">
+    <div class="d-flex align-items-start justify-content-between flex-wrap gap-3">
+        <div>
+            <div class="breadcrumb-label">
+                <a asp-controller="Admin" asp-action="Index" class="text-decoration-none" style="color:inherit;">Panou Admin</a>
+                <i class="bi bi-chevron-right mx-1" style="font-size:0.65rem;"></i>
+                <a asp-controller="AdminCourses" asp-action="Index" class="text-decoration-none" style="color:inherit;">Cursuri</a>
+                <i class="bi bi-chevron-right mx-1" style="font-size:0.65rem;"></i>
+                <a asp-controller="AdminCourses" asp-action="Manage" asp-route-id="@Model.CourseId" class="text-decoration-none" style="color:inherit;">Gestionare</a>
+                <i class="bi bi-chevron-right mx-1" style="font-size:0.65rem;"></i>
+                Capitol Nou
+            </div>
+            <h1>Creare Capitol</h1>
+            <p>Adaugă un capitol nou cu conținut și atașamente</p>
+        </div>
+    </div>
 </div>
 
-<div class="row g-3" style="height: calc(100vh - 180px);">
+<div class="rm-two-col" style="grid-template-columns: 3fr 2fr; height: calc(100vh - 220px); min-height: 700px;">
 
-    <!-- CHAPTER FORM -->
-    <div class="col-lg-6 h-100">
-        <div class="card shadow-sm h-100">
-            <div class="card-body d-flex flex-column">
-                <form asp-action="Create" method="post" class="d-flex flex-column flex-grow-1">
+    <!-- LEFT: Chapter Form -->
+    <div class="rm-two-col-main" style="display:flex;flex-direction:column;min-height:0;">
+        <div class="rm-form-card" style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
+            <div class="rm-form-card-header">
+                <i class="bi bi-journal-text" style="color:var(--rm-red);"></i>
+                Detalii Capitol
+            </div>
+            <div class="rm-form-card-body" style="flex:1;display:flex;flex-direction:column;overflow:hidden;padding-bottom:20px;">
+                <form asp-action="Create" method="post" style="display:flex;flex-direction:column;flex:1;min-height:0;">
                     @Html.AntiForgeryToken()
                     <input type="hidden" asp-for="CourseId" />
 
-                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                    @if (ViewData.ModelState.ErrorCount > 0)
+                    {
+                        <div class="rm-alert rm-alert-error mb-3">
+                            <i class="bi bi-exclamation-circle-fill"></i>
+                            <div asp-validation-summary="ModelOnly"></div>
+                        </div>
+                    }
 
-                    <div class="mb-3">
-                        <label asp-for="Title" class="form-label"></label>
-                        <input asp-for="Title"
-                               class="form-control"
-                               placeholder="Titlul capitolului..." />
-                        <span asp-validation-for="Title" class="text-danger"></span>
+                    <div class="rm-field mb-3">
+                        <label asp-for="Title" class="rm-label"></label>
+                        <input asp-for="Title" class="rm-input" placeholder="Titlul capitolului..." />
+                        <span asp-validation-for="Title" class="rm-field-error"></span>
                     </div>
 
-                    <div class="mb-3">
-                        <label asp-for="Order" class="form-label"></label>
-                        <input asp-for="Order"
-                               class="form-control"
-                               placeholder="Ordinea capitolului (1, 2, 3...)" />
-                        <span asp-validation-for="Order" class="text-danger"></span>
+                    <div class="rm-field mb-3" style="max-width:160px;">
+                        <label asp-for="Order" class="rm-label"></label>
+                        <input asp-for="Order" class="rm-input" placeholder="1, 2, 3..." />
+                        <span asp-validation-for="Order" class="rm-field-error"></span>
                     </div>
 
-                    <div class="mb-3 flex-grow-1 d-flex flex-column">
-                        <label asp-for="Content" class="form-label"></label>
+                    <div class="rm-field" style="flex:1;display:flex;flex-direction:column;min-height:0;margin-bottom:0;">
+                        <label asp-for="Content" class="rm-label"></label>
                         <textarea asp-for="Content"
-                                  class="form-control flex-grow-1"
-                                  style="resize: none; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.6;"
+                                  class="rm-input rm-textarea"
                                   placeholder="Scrie conținutul capitolului aici..."></textarea>
-                        <span asp-validation-for="Content" class="text-danger"></span>
+                        <span asp-validation-for="Content" class="rm-field-error"></span>
                     </div>
 
-                    <div class="d-flex justify-content-end">
-                        <button type="submit" class="btn btn-primary">
+                    <div class="d-flex justify-content-end mt-3">
+                        <button type="submit" class="btn-rm-primary">
                             <i class="bi bi-save"></i> Salvează Capitolul
                         </button>
                     </div>
@@ -62,47 +76,59 @@
         </div>
     </div>
 
-    <!-- ATTACHMENTS PANEL -->
-    <div class="col-lg-6 h-100">
-        <div class="card shadow-sm h-100">
-            <div class="card-body d-flex flex-column">
-
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="mb-0">Atașamente</h5>
-                    <button class="btn btn-sm btn-success" disabled>
-                        <i class="bi bi-plus-circle"></i> Adaugă
-                    </button>
+    <!-- RIGHT: Attachments Panel -->
+    <div class="rm-two-col-side" style="display:flex;flex-direction:column;min-height:0;">
+        <div class="rm-form-card" style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
+            <div class="rm-form-card-header" style="justify-content:space-between;">
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <i class="bi bi-paperclip" style="color:var(--rm-red);"></i>
+                    Atașamente
                 </div>
-
-                <div class="alert alert-info">
-                    <i class="bi bi-info-circle me-2"></i>
+                <button class="btn-rm-success" style="font-size:0.78rem;padding:5px 12px;opacity:0.4;pointer-events:none;" disabled>
+                    <i class="bi bi-plus-lg"></i> Adaugă
+                </button>
+            </div>
+            <div class="rm-form-card-body" style="flex:1;overflow-y:auto;">
+                <div class="rm-info-notice mb-4">
+                    <i class="bi bi-info-circle-fill"></i>
                     Salvează capitolul mai întâi pentru a activa atașamentele.
                 </div>
 
-                <ul class="list-group list-group-flush opacity-50">
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <span class="d-flex align-items-center gap-2">
-                            <i class="bi bi-image"></i>
+                <div style="opacity:0.4;pointer-events:none;">
+                    <div class="rm-attachment-item mb-2">
+                        <div style="display:flex;align-items:center;gap:8px;font-size:0.875rem;">
+                            <i class="bi bi-image" style="color:#0ea5e9;"></i>
                             Atașament Imagine
-                        </span>
-                        <button class="btn btn-sm btn-outline-secondary" disabled>
+                        </div>
+                        <button class="btn-rm-outline" style="font-size:0.78rem;padding:5px 12px;" disabled>
                             Deschide
                         </button>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <span class="d-flex align-items-center gap-2">
-                            <i class="bi bi-file-earmark-pdf"></i>
-                            Atașament PDF
-                        </span>
-                        <button class="btn btn-sm btn-outline-secondary" disabled>
-                            Deschide
-                        </button>
-                    </li>
-                </ul>
+                    </div>
 
+                    <div class="rm-attachment-item mb-2">
+                        <div style="display:flex;align-items:center;gap:8px;font-size:0.875rem;">
+                            <i class="bi bi-camera-video" style="color:#ca8a04;"></i>
+                            Atașament Video
+                        </div>
+                        <button class="btn-rm-outline" style="font-size:0.78rem;padding:5px 12px;" disabled>
+                            Deschide
+                        </button>
+                    </div>
+
+                    <div class="rm-attachment-item">
+                        <div style="display:flex;align-items:center;gap:8px;font-size:0.875rem;">
+                            <i class="bi bi-file-earmark-pdf" style="color:var(--rm-red);"></i>
+                            Atașament PDF
+                        </div>
+                        <button class="btn-rm-outline" style="font-size:0.78rem;padding:5px 12px;" disabled>
+                            Deschide
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+
 </div>
 
 @section Scripts {

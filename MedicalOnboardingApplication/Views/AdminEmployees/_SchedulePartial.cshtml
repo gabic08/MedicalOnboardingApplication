@@ -1,0 +1,144 @@
+﻿@model List<MedicalOnboardingApplication.ViewModels.EmployeeScheduleDayViewModel>
+@{
+    var dayNames = ViewBag.DayNames as Dictionary<DayOfWeek, string>;
+    string prefix = ViewData["Prefix"] as string ?? "Schedule";
+}
+
+<div class="rm-form-card">
+    <div class="rm-form-card-header">
+        <i class="bi bi-calendar-week" style="color:var(--rm-red);"></i>
+        Program Săptămânal
+    </div>
+    <div class="rm-schedule-list">
+        @for (int i = 0; i < Model.Count; i++)
+        {
+            var day = Model[i];
+            var fieldPrefix = $"{prefix}[{i}]";
+
+            <div class="rm-schedule-row" id="day-row-@i">
+                <input type="hidden" name="@($"{fieldPrefix}.Day")" value="@((int)day.Day)" />
+
+                <div class="rm-schedule-row-header">
+                    <span class="rm-schedule-day-name">@dayNames[day.Day]</span>
+                    <label class="rm-day-off-toggle">
+                        <input type="checkbox"
+                               class="day-off-toggle"
+                               name="@($"{fieldPrefix}.IsDayOff")"
+                               value="true"
+                               id="dayoff-@i"
+                               data-index="@i"
+                        @(day.IsDayOff ? "checked" : "") />
+                        <input type="hidden" name="@($"{fieldPrefix}.IsDayOff")" value="false" />
+                        <span class="rm-day-off-slider"></span>
+                        <span class="rm-day-off-label">Zi liberă</span>
+                    </label>
+                </div>
+
+                <div class="shifts-container" id="shifts-@i" style="@(day.IsDayOff ? "display:none;" : "")">
+                    @for (int j = 0; j < day.Shifts.Count; j++)
+                    {
+                        var shiftPrefix = $"{fieldPrefix}.Shifts[{j}]";
+                        <div class="rm-shift-row shift-row">
+                            <input type="text"
+                                   name="@($"{shiftPrefix}.StartTime")"
+                                   value="@day.Shifts[j].StartTime.ToString("HH:mm")"
+                                   class="rm-input rm-time-input"
+                                   placeholder="00:00"
+                                   pattern="^([01]\d|2[0-3]):[0-5]\d$"
+                                   maxlength="5"
+                                   oninput="formatTime(this)"
+                                   required />
+                            <span class="rm-shift-separator">—</span>
+                            <input type="text"
+                                   name="@($"{shiftPrefix}.EndTime")"
+                                   value="@day.Shifts[j].EndTime.ToString("HH:mm")"
+                                   class="rm-input rm-time-input"
+                                   placeholder="00:00"
+                                   pattern="^([01]\d|2[0-3]):[0-5]\d$"
+                                   maxlength="5"
+                                   oninput="formatTime(this)"
+                                   required />
+                            <button type="button"
+                                    class="rm-shift-remove"
+                                    onclick="removeShift(this)"
+                                    title="Șterge tura">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    }
+                    <button type="button"
+                            class="rm-shift-add"
+                            onclick="addShift(this, @i, '@prefix')">
+                        <i class="bi bi-plus-lg"></i> Adaugă Tură
+                    </button>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<script>
+    document.querySelectorAll('.day-off-toggle').forEach(toggle => {
+        toggle.addEventListener('change', function () {
+            const index = this.dataset.index;
+            const shiftsContainer = document.getElementById('shifts-' + index);
+            shiftsContainer.style.display = this.checked ? 'none' : '';
+            shiftsContainer.querySelectorAll('input[type="time"]').forEach(input => {
+                input.required = !this.checked;
+            });
+        });
+    });
+
+    function addShift(btn, dayIndex, prefix) {
+        const container = btn.closest('.shifts-container');
+        const shiftRows = container.querySelectorAll('.shift-row');
+        const newIndex = shiftRows.length;
+        const row = document.createElement('div');
+        row.className = 'rm-shift-row shift-row';
+        row.innerHTML = `
+            <input type="text" name="${prefix}[${dayIndex}].Shifts[${newIndex}].StartTime"
+                   class="rm-input rm-time-input" placeholder="00:00"
+                   pattern="^([01]\\d|2[0-3]):[0-5]\\d$" maxlength="5"
+                   oninput="formatTime(this)" required />
+            <span class="rm-shift-separator">—</span>
+            <input type="text" name="${prefix}[${dayIndex}].Shifts[${newIndex}].EndTime"
+                   class="rm-input rm-time-input" placeholder="00:00"
+                   pattern="^([01]\\d|2[0-3]):[0-5]\\d$" maxlength="5"
+                   oninput="formatTime(this)" required />
+            <button type="button" class="rm-shift-remove" onclick="removeShift(this)" title="Șterge tura">
+                <i class="bi bi-trash"></i>
+            </button>
+        `;
+        container.insertBefore(row, btn);
+    }
+
+    function removeShift(btn) {
+        const row = btn.closest('.shift-row');
+        const container = row.closest('.shifts-container');
+        if (container.querySelectorAll('.shift-row').length > 1) {
+            row.remove();
+            reindexShifts(container);
+        }
+    }
+
+    function reindexShifts(container) {
+        const dayRow = container.closest('[id^="day-row-"]');
+        const dayIndex = dayRow.id.replace('day-row-', '');
+        const prefix = container.closest('form').dataset.prefix || 'Schedule';
+        container.querySelectorAll('.shift-row').forEach((row, i) => {
+            const inputs = row.querySelectorAll('input[type="time"]');
+            inputs[0].name = `${prefix}[${dayIndex}].Shifts[${i}].StartTime`;
+            inputs[1].name = `${prefix}[${dayIndex}].Shifts[${i}].EndTime`;
+        });
+    }
+
+    function formatTime(input) {
+        // Strip non-digits
+        let digits = input.value.replace(/\D/g, '').substring(0, 4);
+        if (digits.length >= 3) {
+            input.value = digits.substring(0, 2) + ':' + digits.substring(2);
+        } else {
+            input.value = digits;
+        }
+    }
+</script>

@@ -5,88 +5,98 @@
     var questionCount = ViewBag.QuestionCount as int? ?? 0;
     var activeSessionId = ViewBag.ActiveSessionId as int?;
 
-    Func<int, (string, string)> diffLabel = (int diff) => diff switch
+    Func<int, (string cls, string label)> diffLabel = (int diff) => diff switch
     {
-        1 => ("bg-success", "1 - Foarte Ușor"),
-        2 => ("bg-primary", "2 - Ușor"),
-        3 => ("bg-warning text-dark", "3 - Mediu"),
-        4 => ("bg-danger bg-opacity-75", "4 - Dificil"),
-        5 => ("bg-danger", "5 - Foarte Dificil"),
-        _ => ("bg-secondary", diff.ToString())
+        1 => (cls: "rm-status-green", label: "1 — Foarte Ușor"),
+        2 => (cls: "rm-status-blue", label: "2 — Ușor"),
+        3 => (cls: "rm-status-yellow", label: "3 — Mediu"),
+        4 => (cls: "rm-status-red", label: "4 — Dificil"),
+        5 => (cls: "rm-status-red", label: "5 — Foarte Dificil"),
+        _ => (cls: "rm-status-gray", label: diff.ToString())
     };
 }
 
-<div class="mb-4">
-    <a asp-controller="Dashboard" asp-action="Index" class="btn btn-outline-secondary mb-2">
-        <i class="bi bi-arrow-left"></i> Înapoi la Panou
-    </a>
-    <h1 class="mb-0">Teste</h1>
+<!-- Page Header -->
+<div class="rm-page-header">
+    <div class="d-flex align-items-start justify-content-between flex-wrap gap-3">
+        <div>
+            <div class="breadcrumb-label">
+                <a asp-controller="Dashboard" asp-action="Index" class="text-decoration-none" style="color:inherit;">Panou</a>
+                <i class="bi bi-chevron-right mx-1" style="font-size:0.65rem;"></i>
+                Teste
+            </div>
+            <h1>Teste</h1>
+            <p>Susține teste adaptive pentru a-ți evalua cunoștințele</p>
+        </div>
+    </div>
 </div>
 
 @if (TempData["Error"] != null)
 {
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        <i class="bi bi-exclamation-circle me-2"></i> @TempData["Error"]
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    <div class="rm-alert rm-alert-error mb-4">
+        <i class="bi bi-exclamation-circle-fill"></i>
+        @TempData["Error"]
     </div>
 }
 
 <!-- Start Test Card -->
-<div class="card shadow-sm border-0 mb-4">
-    <div class="card-body p-4">
-        <div class="row align-items-center">
-            <div class="col-lg-8">
-                <h5 class="fw-semibold mb-1">
-                    <i class="bi bi-patch-question me-2 text-warning"></i> Test Adaptiv
-                </h5>
-                <p class="text-muted small mb-2">
+<div class="rm-form-card mb-4">
+    <div class="rm-form-card-body">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:24px;flex-wrap:wrap;">
+            <div style="flex:1;min-width:260px;">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+                    <div style="width:40px;height:40px;border-radius:10px;background:#fef9c3;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <i class="bi bi-patch-question" style="color:#ca8a04;font-size:1.2rem;"></i>
+                    </div>
+                    <h5 style="font-weight:700;margin:0;font-size:1rem;">Test Adaptiv</h5>
+                </div>
+                <p style="font-size:0.875rem;color:var(--rm-text-muted);margin-bottom:8px;line-height:1.65;">
                     Testul constă în 15 întrebări. Dificultatea se ajustează automat în funcție de ultimele 3 răspunsuri.
                     Întrebările sunt extrase din cursurile atribuite tipului tău de angajat.
                 </p>
-                <p class="text-muted small mb-0">
+                <p style="font-size:0.82rem;color:var(--rm-text-muted);margin-bottom:0;">
                     <i class="bi bi-info-circle me-1"></i>
-                    Se recomandă insistent să finalizezi toate cursurile atribuite înainte de a susține testul.
+                    Se recomandă să finalizezi toate cursurile atribuite înainte de a susține testul.
                 </p>
 
                 @if (activeSessionId.HasValue)
                 {
-                    <div class="alert alert-warning small mt-3 mb-0 py-2">
-                        <i class="bi bi-exclamation-triangle me-1"></i>
+                    <div class="rm-modal-warning mt-3">
+                        <i class="bi bi-exclamation-triangle"></i>
                         Ai un test nefinalizat. Completează-l înainte de a începe unul nou.
                     </div>
                 }
                 else if (!canStart)
                 {
-                    <div class="alert alert-warning small mt-3 mb-0 py-2">
-                        <i class="bi bi-exclamation-triangle me-1"></i>
+                    <div class="rm-modal-warning mt-3">
+                        <i class="bi bi-exclamation-triangle"></i>
                         Nu sunt suficiente întrebări disponibile (@questionCount găsite, 15 necesare).
                         Solicită administratorului să adauge mai multe întrebări.
                     </div>
                 }
             </div>
 
-            <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+            <div style="flex-shrink:0;display:flex;align-items:center;">
                 @if (activeSessionId.HasValue)
                 {
-                    <a asp-action="Question"
-                       asp-route-sessionId="@activeSessionId"
-                       class="btn btn-warning px-4 py-2">
-                        <i class="bi bi-play-circle me-2"></i> Continuă Testul
+                    <a asp-action="Question" asp-route-sessionId="@activeSessionId"
+                           class="btn-rm-warning" style="font-size:0.9rem;padding:11px 24px;">
+                        <i class="bi bi-play-circle-fill"></i> Continuă Testul
                     </a>
                 }
                 else if (canStart)
                 {
                     <form asp-action="Start" method="post">
                         @Html.AntiForgeryToken()
-                        <button type="submit" class="btn btn-warning px-4 py-2">
-                            <i class="bi bi-play-circle me-2"></i> Începe Test Nou
+                        <button type="submit" class="btn-rm-warning" style="font-size:0.9rem;padding:11px 24px;">
+                            <i class="bi bi-play-circle-fill"></i> Începe Test Nou
                         </button>
                     </form>
                 }
                 else
                 {
-                    <button class="btn btn-warning px-4 py-2" disabled>
-                        <i class="bi bi-play-circle me-2"></i> Începe Test Nou
+                    <button class="btn-rm-warning" style="font-size:0.9rem;padding:11px 24px;opacity:0.5;pointer-events:none;" disabled>
+                        <i class="bi bi-play-circle"></i> Începe Test Nou
                     </button>
                 }
             </div>
@@ -95,127 +105,120 @@
 </div>
 
 <!-- Test History -->
-<div class="card shadow-sm border-0">
-    <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
-        <h5 class="mb-0 fw-semibold">
-            <i class="bi bi-clock-history me-2 text-primary"></i> Istoric Teste
-            <span class="badge bg-primary bg-opacity-10 text-primary ms-1">@Model.Count()</span>
-        </h5>
+<div class="rm-form-card">
+    <div class="rm-form-card-header" style="justify-content:space-between;">
+        <div style="display:flex;align-items:center;gap:8px;">
+            <i class="bi bi-clock-history" style="color:var(--rm-red);"></i>
+            Istoric Teste
+            <span class="rm-count-badge" style="background:#f0f0f0;color:#666;">@Model.Count()</span>
+        </div>
     </div>
-    <div class="card-body p-0">
-        @if (!Model.Any())
-        {
-            <div class="text-center py-5 text-muted">
-                <i class="bi bi-patch-question fs-1 d-block mb-2 opacity-25"></i>
-                Niciun test susținut încă. Începe primul test de mai sus!
+
+    @if (!Model.Any())
+    {
+        <div class="rm-form-card-body">
+            <div class="rm-empty-state">
+                <i class="bi bi-patch-question"></i>
+                <p>Niciun test susținut încă. Începe primul test de mai sus!</p>
             </div>
-        }
-        else
-        {
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th class="ps-4">Dată</th>
-                        <th>Scor</th>
-                        <th>Corecte</th>
-                        <th>Dificultate Medie</th>
-                        <th>Status</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var session in Model)
-                    {
-                        var scorePct = session.TotalQuestions > 0
+        </div>
+    }
+    else
+    {
+        <table class="rm-table">
+            <thead>
+                <tr>
+                    <th>Dată</th>
+                    <th>Scor</th>
+                    <th>Corecte</th>
+                    <th>Dificultate Medie</th>
+                    <th>Status</th>
+                    <th style="text-align:right;">Acțiuni</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var session in Model)
+                {
+                    var scorePct = session.TotalQuestions > 0
                         ? (int)Math.Round((double)session.CorrectAnswers / session.TotalQuestions * 100)
                         : 0;
-
-                        var scoreColor = scorePct >= 80 ? "text-success"
-                        : scorePct >= 50 ? "text-warning"
-                        : "text-danger";
-
-                        var avgDiffLabel = session.IsCompleted
-                        ? diffLabel((int)Math.Round(session.AverageDifficulty))
-                        : ("bg-secondary", "—");
-
-                        <tr>
-                            <td class="ps-4">
-                                <span class="fw-semibold">
-                                    @session.StartedAt.ToLocalTime().ToString("dd MMM yyyy")
+                    var scoreColor = scorePct >= 80 ? "#16a34a" : scorePct >= 50 ? "#ca8a04" : "#dc2626";
+                    var dl = session.IsCompleted ? diffLabel((int)Math.Round(session.AverageDifficulty)) : (cls: "rm-status-gray", label: "—");
+                    <tr>
+                        <td>
+                            <span style="font-weight:600;font-size:0.875rem;">
+                                @session.StartedAt.ToLocalTime().ToString("dd MMM yyyy")
+                            </span>
+                            <br />
+                            <small style="color:var(--rm-text-muted);">
+                                @session.StartedAt.ToLocalTime().ToString("HH:mm")
+                            </small>
+                        </td>
+                        <td>
+                            @if (session.IsCompleted)
+                            {
+                                <span style="font-weight:700;font-size:1.1rem;color:@scoreColor;">@scorePct%</span>
+                            }
+                            else
+                            {
+                                <span style="color:var(--rm-text-muted);">—</span>
+                            }
+                        </td>
+                        <td style="color:var(--rm-text-muted);font-size:0.875rem;">
+                            @if (session.IsCompleted)
+                            {
+                                <span>@session.CorrectAnswers / @session.TotalQuestions</span>
+                            }
+                            else
+                            {
+                                <span>— / @session.TotalQuestions</span>
+                            }
+                        </td>
+                        <td>
+                            @if (session.IsCompleted)
+                            {
+                                <span class="rm-status-badge @dl.cls">
+                                    @session.AverageDifficulty.ToString("0.0")
                                 </span>
-                                <br />
-                                <small class="text-muted">
-                                    @session.StartedAt.ToLocalTime().ToString("HH:mm")
-                                </small>
-                            </td>
-                            <td>
-                                @if (session.IsCompleted)
-                                {
-                                    <span class="fw-bold fs-5 @scoreColor">@scorePct%</span>
-                                }
-                                else
-                                {
-                                    <span class="text-muted">—</span>
-                                }
-                            </td>
-                            <td class="text-muted">
-                                @if (session.IsCompleted)
-                                {
-                                    <span>@session.CorrectAnswers / @session.TotalQuestions</span>
-                                }
-                                else
-                                {
-                                    <span>— / @session.TotalQuestions</span>
-                                }
-                            </td>
-                            <td>
-                                @if (session.IsCompleted)
-                                {
-                                    <span class="badge @avgDiffLabel.Item1">
-                                        @session.AverageDifficulty.ToString("0.0")
-                                    </span>
-                                }
-                                else
-                                {
-                                    <span class="text-muted">—</span>
-                                }
-                            </td>
-                            <td>
-                                @if (session.IsCompleted)
-                                {
-                                    <span class="badge bg-success bg-opacity-10 text-success">
-                                        <i class="bi bi-check-circle me-1"></i> Finalizat
-                                    </span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-warning bg-opacity-10 text-warning">
-                                        <i class="bi bi-hourglass-split me-1"></i> În Progres
-                                    </span>
-                                }
-                            </td>
-                            <td class="text-end pe-4">
-                                @if (session.IsCompleted)
-                                {
-                                    <a asp-action="Results"
-                                       asp-route-sessionId="@session.Id"
-                                       class="btn btn-sm btn-outline-primary">
-                                        <i class="bi bi-bar-chart me-1"></i> Vezi Rezultatele
-                                    </a>
-                                }
-                                else
-                                {
-                                    <a asp-action="Question"
-                                       asp-route-sessionId="@session.Id"
-                                       class="btn btn-sm btn-outline-warning">
-                                        <i class="bi bi-play-circle me-1"></i> Continuă
-                                    </a>
-                                }
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        }
-    </div>
+                            }
+                            else
+                            {
+                                <span style="color:var(--rm-text-muted);">—</span>
+                            }
+                        </td>
+                        <td>
+                            @if (session.IsCompleted)
+                            {
+                                <span class="rm-status-badge rm-status-green">
+                                    <i class="bi bi-check-circle"></i> Finalizat
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="rm-status-badge rm-status-yellow">
+                                    <i class="bi bi-hourglass-split"></i> În Progres
+                                </span>
+                            }
+                        </td>
+                        <td style="text-align:right;">
+                            @if (session.IsCompleted)
+                            {
+                                <a asp-action="Results" asp-route-sessionId="@session.Id"
+                                       class="btn-rm-outline">
+                                    <i class="bi bi-bar-chart"></i> Rezultate
+                                </a>
+                            }
+                            else
+                            {
+                                <a asp-action="Question" asp-route-sessionId="@session.Id"
+                                       class="btn-rm-outline" style="border-color:#fde68a;color:#ca8a04;">
+                                    <i class="bi bi-play-circle"></i> Continuă
+                                </a>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
 </div>

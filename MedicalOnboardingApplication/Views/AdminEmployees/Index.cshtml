@@ -1,162 +1,188 @@
 ﻿@model IEnumerable<MedicalOnboardingApplication.Models.ApplicationUser>
 
-<div class="mb-4">
-    <a asp-controller="Admin" asp-action="Index" class="btn btn-outline-secondary mb-2">
-        <i class="bi bi-arrow-left"></i> Înapoi la Panou
-    </a>
-    <h2 class="mb-0">Angajați</h2>
-</div>
-
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <div class="d-flex gap-2">
-        <a asp-action="Create" class="btn btn-primary">
-            <i class="bi bi-plus"></i> Adaugă Angajat
-        </a>
-    </div>
-    <div>
-        <a asp-controller="EmployeeTypes"
-           asp-action="Index"
-           class="btn btn-outline-secondary">
-            <i class="bi bi-briefcase"></i> Gestionează Tipuri de Angajați
-        </a>
-    </div>
-</div>
-
 @{
     var search = ViewBag.Search as string;
     var employeeTypeId = ViewBag.EmployeeTypeId as int?;
     var employeeTypes = ViewBag.EmployeeTypes as List<MedicalOnboardingApplication.Models.EmployeeType>;
 }
 
-<div class="mb-3">
-    <form method="get" class="row g-2 align-items-center">
-        <div class="col-md-5">
+<!-- Page Header -->
+<div class="rm-page-header">
+    <div class="d-flex align-items-start justify-content-between flex-wrap gap-3">
+        <div>
+            <div class="breadcrumb-label">
+                <a asp-controller="Admin" asp-action="Index" class="text-decoration-none" style="color:inherit;">Panou Admin</a>
+                <i class="bi bi-chevron-right mx-1" style="font-size:0.65rem;"></i>
+                Angajați
+            </div>
+            <h1>Angajați</h1>
+            <p>Gestionează conturile și progresul angajaților</p>
+        </div>
+        <div class="d-flex gap-2 align-self-end">
+            <a asp-controller="EmployeeTypes" asp-action="Index" class="btn-rm-secondary">
+                <i class="bi bi-briefcase"></i> Tipuri de Angajați
+            </a>
+            <a asp-action="Create" class="btn-rm-primary">
+                <i class="bi bi-plus-lg"></i> Adaugă Angajat
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Filter Bar -->
+<form method="get" class="rm-filter-bar">
+    <div style="flex:1;min-width:220px;">
+        <div style="position:relative;">
+            <i class="bi bi-search" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#bbb;font-size:0.85rem;"></i>
             <input type="text"
                    name="search"
                    value="@search"
                    class="form-control"
+                   style="padding-left:36px;"
                    placeholder="Caută după nume sau email..." />
         </div>
-        <div class="col-md-4">
-            <select name="employeeTypeId" class="form-select">
-                <option value="">Toate Tipurile de Angajați</option>
-                @foreach (var type in employeeTypes)
-                {
-                    <option value="@type.Id" selected="@(employeeTypeId == type.Id)">
-                        @type.Name
-                    </option>
-                }
-            </select>
-        </div>
-        <div class="col-md-auto">
-            <button type="submit" class="btn btn-primary">
-                <i class="bi bi-search"></i> Caută
-            </button>
-        </div>
-        @if (!string.IsNullOrEmpty(search) || employeeTypeId.HasValue)
-        {
-            <div class="col-md-auto">
-                <a asp-action="Index" class="btn btn-outline-secondary">
-                    <i class="bi bi-x"></i> Șterge Filtrele
-                </a>
-            </div>
-        }
-    </form>
-</div>
+    </div>
+    <div style="min-width:200px;">
+        <select name="employeeTypeId" class="form-select">
+            <option value="">Toate Tipurile de Angajați</option>
+            @foreach (var type in employeeTypes)
+            {
+                <option value="@type.Id" selected="@(employeeTypeId == type.Id)">
+                    @type.Name
+                </option>
+            }
+        </select>
+    </div>
+    <button type="submit" class="btn-rm-primary">
+        <i class="bi bi-search"></i> Caută
+    </button>
+    @if (!string.IsNullOrEmpty(search) || employeeTypeId.HasValue)
+    {
+        <a asp-action="Index" class="btn-rm-secondary">
+            <i class="bi bi-x"></i> Resetează
+        </a>
+    }
+</form>
 
-<div class="card shadow-sm border-0">
-    <div class="card-body p-0">
-        <table class="table table-hover align-middle mb-0">
-            <thead class="table-light">
+<!-- Results summary -->
+@if (Model.Any())
+{
+    <div class="d-flex align-items-center mb-3">
+        <p class="mb-0" style="font-size:0.85rem;color:var(--rm-text-muted);">
+            <strong style="color:var(--rm-text);">@Model.Count()</strong> angajați găsiți
+        </p>
+    </div>
+}
+
+<!-- Employees Table -->
+<div class="rm-table-card">
+    <table class="rm-table">
+        <thead>
+            <tr>
+                <th style="width:35%;">Angajat</th>
+                <th>Email</th>
+                <th>Tip Angajat</th>
+                <th style="width:260px;text-align:right;">Acțiuni</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var emp in Model)
+            {
                 <tr>
-                    <th class="ps-4">Angajat</th>
-                    <th>Email</th>
-                    <th>Tip Angajat</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var emp in Model)
-                {
-                    <tr>
-                        <td class="ps-4">
-                            <div class="d-flex align-items-center gap-3">
-                                <img src="@(emp.ProfileImagePath ?? "/required/NoProfileImage.jpg")"
-                                     class="rounded-circle border"
-                                     style="width: 40px; height: 40px; object-fit: cover;"
-                                     alt="@emp.FirstName @emp.LastName" />
-                                <span class="fw-semibold">@emp.FirstName @emp.LastName</span>
-                            </div>
-                        </td>
-                        <td class="text-muted">@emp.Email</td>
-                        <td>
-                            @if (emp.EmployeeType != null)
-                            {
-                                <span class="badge bg-secondary bg-opacity-10 text-secondary">
-                                    <i class="bi bi-person-badge me-1"></i> @emp.EmployeeType.Name
-                                </span>
-                            }
-                            else
-                            {
-                                <span class="text-muted small">—</span>
-                            }
-                        </td>
-                        <td class="text-end pe-4">
+                    <td>
+                        <div class="d-flex align-items-center gap-3">
+                            <img src="@(emp.ProfileImagePath ?? "/required/NoProfileImage.jpg")"
+                                 class="rm-avatar"
+                                 alt="@emp.FirstName @emp.LastName" />
+                            <span style="font-weight:600;color:var(--rm-text);">@emp.FirstName @emp.LastName</span>
+                        </div>
+                    </td>
+                    <td style="color:var(--rm-text-muted);font-size:0.875rem;">@emp.Email</td>
+                    <td>
+                        @if (emp.EmployeeType != null)
+                        {
+                            <span class="rm-badge">
+                                <i class="bi bi-person-badge" style="font-size:0.7rem;"></i>
+                                @emp.EmployeeType.Name
+                            </span>
+                        }
+                        else
+                        {
+                            <span style="color:#ccc;font-size:0.85rem;">—</span>
+                        }
+                    </td>
+                    <td>
+                        <div class="rm-table-actions">
                             <a asp-controller="AdminEmployees"
-                               asp-action="Report"
-                               asp-route-id="@emp.Id"
-                               class="btn btn-sm btn-outline-info me-1">
-                                <i class="bi bi-file-earmark-bar-graph me-1"></i> Raport
+                                   asp-action="Report"
+                                   asp-route-id="@emp.Id"
+                                   class="btn-rm-outline">
+                                <i class="bi bi-file-earmark-bar-graph"></i> Raport
                             </a>
-                            <a asp-action="Edit" asp-route-id="@emp.Id" class="btn btn-sm btn-outline-warning me-1">
-                                <i class="bi bi-pencil me-1"></i> Editează
+                            <a asp-action="Edit" asp-route-id="@emp.Id" class="btn-rm-outline">
+                                <i class="bi bi-pencil"></i> Editează
+                            </a>
+                            <a asp-action="Schedule" asp-route-id="@emp.Id" class="btn-rm-outline">
+                                <i class="bi bi-calendar-week"></i> Program
                             </a>
                             <button type="button"
-                                    class="btn btn-sm btn-outline-danger"
+                                    class="btn-rm-outline btn-rm-outline-danger"
                                     data-bs-toggle="modal"
                                     data-bs-target="#deleteEmployeeModal"
                                     data-employee-id="@emp.Id"
                                     data-employee-name="@emp.FirstName @emp.LastName">
-                                <i class="bi bi-trash me-1"></i> Șterge
+                                <i class="bi bi-trash"></i>
                             </button>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
+                        </div>
+                    </td>
+                </tr>
+            }
+            @if (!Model.Any())
+            {
+                <tr>
+                    <td colspan="4">
+                        <div class="rm-empty-state">
+                            <i class="bi bi-people"></i>
+                            <p>Niciun angajat găsit. Încearcă să modifici filtrele sau adaugă un angajat nou.</p>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 </div>
 
-<form id="deleteEmployeeForm"
-      asp-action="Delete"
-      method="post"
-      class="d-none">
+<!-- Hidden Form -->
+<form id="deleteEmployeeForm" asp-action="Delete" method="post" class="d-none">
     @Html.AntiForgeryToken()
     <input type="hidden" name="id" id="deleteEmployeeId" />
 </form>
 
+<!-- Delete Employee Modal -->
 <div class="modal fade" id="deleteEmployeeModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow">
-            <div class="modal-header border-0 pb-0">
-                <h5 class="modal-title text-danger">
-                    <i class="bi bi-exclamation-triangle me-2"></i> Șterge Angajatul
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <div class="rm-modal-content">
+            <div class="rm-modal-header">
+                <div class="rm-modal-icon rm-modal-icon-danger">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                </div>
+                <button type="button" class="rm-modal-close" data-bs-dismiss="modal">
+                    <i class="bi bi-x-lg"></i>
+                </button>
             </div>
-            <div class="modal-body">
-                <p>Ești sigur că vrei să ștergi <strong id="deleteEmployeeName"></strong>?</p>
-                <div class="alert alert-warning small mb-0">
-                    <i class="bi bi-info-circle me-1"></i>
+            <div class="rm-modal-body">
+                <h5 class="rm-modal-title">Șterge Angajatul</h5>
+                <p class="rm-modal-text">Ești sigur că vrei să ștergi <strong id="deleteEmployeeName"></strong>?</p>
+                <div class="rm-modal-warning">
+                    <i class="bi bi-info-circle"></i>
                     Această acțiune nu poate fi anulată.
                 </div>
             </div>
-            <div class="modal-footer border-0 pt-0">
-                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Anulează</button>
-                <button type="button"
-                        class="btn btn-danger"
+            <div class="rm-modal-footer">
+                <button type="button" class="btn-rm-secondary" data-bs-dismiss="modal">Anulează</button>
+                <button type="button" class="btn-rm-danger"
                         onclick="document.getElementById('deleteEmployeeForm').submit();">
-                    <i class="bi bi-trash me-1"></i> Da, Șterge
+                    <i class="bi bi-trash"></i> Da, Șterge
                 </button>
             </div>
         </div>

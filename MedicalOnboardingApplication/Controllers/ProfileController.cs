@@ -1,8 +1,10 @@
-﻿using MedicalOnboardingApplication.Models;
+﻿using MedicalOnboardingApplication.Data;
+using MedicalOnboardingApplication.Models;
 using MedicalOnboardingApplication.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace MedicalOnboardingApplication.Controllers;
 
@@ -12,15 +14,18 @@ public class ProfileController : Controller
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly IWebHostEnvironment _env;
+    private readonly MedicalOnboardingApplicationContext _context;
 
     public ProfileController(
         UserManager<ApplicationUser> userManager,
         SignInManager<ApplicationUser> signInManager,
-        IWebHostEnvironment env)
+        IWebHostEnvironment env,
+        MedicalOnboardingApplicationContext context)
     {
         _userManager = userManager;
         _signInManager = signInManager;
         _env = env;
+        _context = context;
     }
 
     [HttpGet]
@@ -37,6 +42,35 @@ public class ProfileController : Controller
             Email = user.Email,
             ExistingProfileImagePath = user.ProfileImagePath
         };
+
+
+        var clinic = await _context.Clinics
+            .FirstOrDefaultAsync(c => c.Id == user.ClinicId);
+
+        ViewBag.Clinic = clinic;
+        ViewBag.IsEmployee = await _userManager.IsInRoleAsync(user, "Employee");
+
+        // Load schedule for employees
+        if (await _userManager.IsInRoleAsync(user, "Employee"))
+        {
+            var schedules = await _context.WorkSchedules
+                .Where(s => s.UserId == user.Id)
+                .OrderBy(s => s.Day)
+                .ThenBy(s => s.StartTime)
+                .ToListAsync();
+
+            ViewBag.Schedules = schedules;
+            ViewBag.DayNames = new Dictionary<DayOfWeek, string>
+        {
+            { DayOfWeek.Monday,    "Luni" },
+            { DayOfWeek.Tuesday,   "Marți" },
+            { DayOfWeek.Wednesday, "Miercuri" },
+            { DayOfWeek.Thursday,  "Joi" },
+            { DayOfWeek.Friday,    "Vineri" },
+            { DayOfWeek.Saturday,  "Sâmbătă" },
+            { DayOfWeek.Sunday,    "Duminică" }
+        };
+        }
 
         return View(vm);
     }

@@ -1,0 +1,721 @@
+﻿* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background-color: rgb(242, 243, 243);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+/* ============================================================
+   SHARED COLORS & ICONS
+   ============================================================ */
+
+.icon-red {
+    background: #fff0f3;
+    color: #c8102e;
+}
+
+.icon-blue {
+    background: #e8f0fe;
+    color: #2563eb;
+}
+
+.icon-green {
+    background: #e8f5e9;
+    color: #16a34a;
+}
+
+.icon-purple {
+    background: #f3e8ff;
+    color: #7c3aed;
+}
+
+.icon-pink {
+    background: #fde8ed;
+    color: #e8607a;
+}
+
+.tag {
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 20px;
+}
+
+.tag-red {
+    background: #fff0f3;
+    color: #c8102e;
+}
+
+.tag-blue {
+    background: #e8f0fe;
+    color: #2563eb;
+}
+
+.tag-green {
+    background: #e8f5e9;
+    color: #16a34a;
+}
+
+.tag-purple {
+    background: #f3e8ff;
+    color: #7c3aed;
+}
+
+.tag-pink {
+    background: #fde8ed;
+    color: #e8607a;
+}
+
+/* ============================================================
+   LAYOUT WRAPPER
+   ============================================================ */
+
+.landing-wrapper {
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 0 24px;
+}
+
+/* ============================================================
+   PUBLIC NAV CARD (used in _PublicLayout)
+   ============================================================ */
+
+.public-nav-card {
+    background: white;
+    border-radius: 16px;
+    padding: 0 32px;
+    height: 68px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    margin-bottom: 24px;
+}
+
+/* ============================================================
+   BRAND / LOGO
+   ============================================================ */
+
+.landing-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+}
+
+.landing-brand-icon {
+    color: #c8102e;
+    font-size: 1.8rem;
+}
+
+.landing-brand-text strong {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    letter-spacing: 0.05em;
+}
+
+.landing-brand-text span {
+    display: block;
+    font-size: 0.65rem;
+    color: #999;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+/* ============================================================
+   NAV BUTTONS
+   ============================================================ */
+
+.btn-nav-login {
+    background: transparent;
+    border: none;
+    color: #555;
+    font-size: 0.88rem;
+    font-weight: 500;
+    padding: 8px 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: color 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+    .btn-nav-login:hover {
+        color: #c8102e;
+    }
+
+/* ============================================================
+   HERO CARD
+   ============================================================ */
+
+.hero-card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto 1fr;
+    min-height: 480px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+
+.hero-top {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 52px 16px;
+}
+
+.hero-content {
+    grid-column: 1;
+    grid-row: 2;
+    padding: 24px 52px 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+    .hero-content h1 {
+        font-size: 2.4rem;
+        font-weight: 800;
+        color: #1a1a1a;
+        line-height: 1.2;
+        margin-bottom: 16px;
+        font-family: Georgia, serif;
+    }
+
+        .hero-content h1 span {
+            color: #c8102e;
+        }
+
+    .hero-content p {
+        color: #666;
+        font-size: 1rem;
+        line-height: 1.7;
+        margin-bottom: 32px;
+    }
+
+.hero-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.btn-hero-primary {
+    background: #e8607a;
+    color: white;
+    border: none;
+    padding: 13px 28px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+
+    .btn-hero-primary:hover {
+        background: #c8102e;
+        color: white;
+    }
+
+.btn-hero-secondary {
+    background: white;
+    color: #1a1a1a;
+    border: 1.5px solid #ddd;
+    padding: 13px 28px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: border-color 0.2s;
+}
+
+    .btn-hero-secondary:hover {
+        border-color: #1a1a1a;
+        color: #1a1a1a;
+    }
+
+.hero-image {
+    grid-column: 2;
+    grid-row: 2;
+    background-color: rgb(242, 243, 243);
+    background-image: url('/required/landing.jpg');
+    background-size: cover;
+    background-position: center top;
+    min-height: 360px;
+}
+
+/* ============================================================
+   STATS CARD
+   ============================================================ */
+
+.stats-card {
+    background: white;
+    border-radius: 16px;
+    padding: 36px 48px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    text-align: center;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    margin-bottom: 24px;
+}
+
+.stat-item {
+    border-right: 1px solid #f0f0f0;
+}
+
+    .stat-item:last-child {
+        border-right: none;
+    }
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #c8102e;
+    line-height: 1;
+    margin-bottom: 8px;
+    font-family: Georgia, serif;
+}
+
+.stat-label {
+    font-size: 0.82rem;
+    color: #888;
+}
+
+/* ============================================================
+   FEATURES GRID
+   ============================================================ */
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.feature-card {
+    background: white;
+    border-radius: 16px;
+    padding: 36px 28px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+    .feature-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    }
+
+.feature-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+}
+
+.feature-card h5 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 10px;
+}
+
+.feature-card p {
+    font-size: 0.88rem;
+    color: #777;
+    line-height: 1.7;
+    margin-bottom: 0;
+}
+
+/* ============================================================
+   DETAIL SECTION CARDS
+   ============================================================ */
+
+.detail-section-card {
+    background: white;
+    border-radius: 16px;
+    padding: 36px 40px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    margin-bottom: 16px;
+    display: flex;
+    gap: 28px;
+    align-items: flex-start;
+}
+
+.detail-section-icon {
+    flex-shrink: 0;
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+}
+
+.detail-section-content h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 12px;
+    font-family: Georgia, serif;
+}
+
+.detail-section-content p {
+    font-size: 0.92rem;
+    color: #555;
+    line-height: 1.8;
+    margin-bottom: 16px;
+}
+
+.detail-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+/* ============================================================
+   CTA CARD
+   ============================================================ */
+
+.cta-card {
+    background: linear-gradient(135deg, #c8102e 0%, #e8607a 100%);
+    border-radius: 16px;
+    padding: 48px;
+    text-align: center;
+    color: white;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+}
+
+    .cta-card h2 {
+        font-size: 1.8rem;
+        font-weight: 800;
+        margin-bottom: 12px;
+        font-family: Georgia, serif;
+    }
+
+    .cta-card p {
+        font-size: 0.95rem;
+        opacity: 0.85;
+        margin-bottom: 28px;
+    }
+
+.cta-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn-cta-white {
+    background: white;
+    color: #c8102e;
+    border: none;
+    padding: 13px 32px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: opacity 0.2s;
+}
+
+    .btn-cta-white:hover {
+        opacity: 0.9;
+        color: #c8102e;
+    }
+
+.btn-cta-outline {
+    background: transparent;
+    color: white;
+    border: 2px solid rgba(255,255,255,0.6);
+    padding: 13px 32px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: border-color 0.2s;
+}
+
+    .btn-cta-outline:hover {
+        border-color: white;
+        color: white;
+    }
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+
+.landing-footer {
+    background: white;
+    border-radius: 16px;
+    padding: 24px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+
+    .landing-footer p {
+        font-size: 0.8rem;
+        color: #aaa;
+        margin: 0;
+    }
+
+    .landing-footer a {
+        font-size: 0.8rem;
+        color: #888;
+        text-decoration: none;
+    }
+
+        .landing-footer a:hover {
+            color: #c8102e;
+        }
+
+/* ============================================================
+   PRIVACY PAGE
+   ============================================================ */
+
+.privacy-hero {
+    text-align: center;
+    padding: 40px 0 48px;
+    background: white;
+    border-radius: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+
+    .privacy-hero .breadcrumb-label {
+        display: inline-block;
+        color: #c8102e;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-decoration: none;
+        margin-bottom: 12px;
+        letter-spacing: 0.03em;
+    }
+
+    .privacy-hero h1 {
+        font-size: 3rem;
+        font-weight: 800;
+        color: #1a1a1a;
+        margin-bottom: 0;
+        font-family: Georgia, 'Times New Roman', serif;
+        letter-spacing: -0.02em;
+    }
+
+.privacy-body {
+    background: white;
+    border-radius: 16px;
+    padding: 0 40px 40px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    margin-bottom: 16px;
+}
+
+.privacy-card {
+    display: flex;
+    gap: 24px;
+    padding: 36px 0;
+    border-bottom: 1px solid #f0f0f0;
+    align-items: flex-start;
+}
+
+    .privacy-card:last-child {
+        border-bottom: none;
+    }
+
+.privacy-icon-box {
+    flex-shrink: 0;
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+}
+
+.privacy-content h3 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 10px;
+}
+
+.privacy-content p,
+.privacy-content ul {
+    font-size: 0.95rem;
+    color: #555;
+    line-height: 1.8;
+    margin-bottom: 0;
+}
+
+.privacy-content ul {
+    padding-left: 18px;
+}
+
+    .privacy-content ul li {
+        margin-bottom: 5px;
+    }
+
+.privacy-note {
+    font-size: 0.82rem;
+    color: #aaa;
+    margin-top: 10px;
+}
+
+.privacy-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 48px;
+    padding: 36px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+    .privacy-grid:last-child {
+        border-bottom: none;
+    }
+
+.privacy-grid-item h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+    .privacy-grid-item h3 span {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        flex-shrink: 0;
+    }
+
+.privacy-grid-item p,
+.privacy-grid-item ul {
+    font-size: 0.9rem;
+    color: #555;
+    line-height: 1.8;
+    margin-bottom: 0;
+}
+
+.privacy-grid-item ul {
+    padding-left: 18px;
+}
+
+    .privacy-grid-item ul li {
+        margin-bottom: 4px;
+    }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 768px) {
+    .landing-wrapper {
+        margin: 20px auto;
+    }
+
+    .public-nav-card {
+        padding: 0 20px;
+    }
+
+    .hero-top {
+        padding: 20px 24px 0;
+    }
+
+    .hero-card {
+        grid-template-columns: 1fr;
+    }
+
+    .hero-content {
+        padding: 24px 24px 40px;
+    }
+
+    .hero-image {
+        min-height: 240px;
+        grid-row: auto;
+    }
+
+    .features-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .stats-card {
+        grid-template-columns: 1fr 1fr;
+        padding: 24px;
+    }
+
+    .stat-item {
+        border-right: none;
+        border-bottom: 1px solid #f0f0f0;
+        padding-bottom: 20px;
+    }
+
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+
+    .detail-section-card {
+        flex-direction: column;
+        gap: 16px;
+        padding: 28px 24px;
+    }
+
+    .cta-card {
+        padding: 36px 24px;
+    }
+
+    .landing-footer {
+        flex-direction: column;
+        gap: 12px;
+        text-align: center;
+    }
+
+    .privacy-hero h1 {
+        font-size: 2rem;
+    }
+
+    .privacy-body {
+        padding: 0 24px 32px;
+    }
+
+    .privacy-grid {
+        grid-template-columns: 1fr;
+        gap: 32px 0;
+    }
+
+    .privacy-card {
+        flex-direction: column;
+        gap: 16px;
+    }
+}
+
+/* In site.css — widen the content wrapper */
+.page-content {
+    flex: 1;
+    max-width: 1400px; /* was 1100px */
+    margin: 32px auto;
+    padding: 0 24px;
+    width: 100%;
+}

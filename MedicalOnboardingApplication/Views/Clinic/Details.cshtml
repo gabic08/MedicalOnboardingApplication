@@ -3,225 +3,217 @@
     ViewData["Title"] = "Clinica Mea";
 }
 
-<div class="container mt-4">
-    <div class="mb-4">
-        <a asp-controller="Admin"
-               asp-action="Index"
-               class="btn btn-outline-secondary mb-2">
-            <i class="bi bi-arrow-left"></i> Înapoi la Panou
-        </a>
-        <h1 class="mb-0">Informații Clinică</h1>
+<!-- Page Header -->
+<div class="rm-page-header">
+    <div class="d-flex align-items-start justify-content-between flex-wrap gap-3">
+        <div>
+            <div class="breadcrumb-label">
+                <a asp-controller="Admin" asp-action="Index" class="text-decoration-none" style="color:inherit;">Panou Admin</a>
+                <i class="bi bi-chevron-right mx-1" style="font-size:0.65rem;"></i>
+                Clinica Mea
+            </div>
+            <h1>Informații Clinică</h1>
+            <p>Gestionează datele și imaginea clinicii tale</p>
+        </div>
     </div>
-
-    @if (TempData["Success"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="bi bi-check-circle me-2"></i> @TempData["Success"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    }
-
-    <form asp-action="Edit" method="post" enctype="multipart/form-data">
-        <input type="hidden" asp-for="Id" />
-        <input type="hidden" asp-for="ImagePath" />
-
-        <div class="row g-4">
-
-            <!-- LEFT: Clinic Image + Edit Button -->
-            <div class="col-lg-3">
-                <div class="card shadow-sm border-0 h-100">
-                    <div class="card-body d-flex flex-column align-items-center justify-content-center text-center py-5">
-
-                        <div class="mb-3">
-                            <img id="clinicImagePreview"
-                                 src="@(Model.ImagePath ?? "/required/NoClinicImage.jpg")"
-                                 class="rounded border"
-                                 style="width: 120px; height: 120px; object-fit: cover;" />
-                        </div>
-
-                        <input type="file"
-                               name="image"
-                               id="clinicImageInput"
-                               class="d-none"
-                               accept="image/*"
-                               onchange="previewClinicImage(this)" />
-
-                        <h5 class="fw-semibold mb-1">@Model.Name</h5>
-                        <p class="text-muted small mb-4">Unitate Medicală</p>
-
-                        <button type="button"
-                                class="btn btn-outline-secondary btn-sm w-100 mb-2 d-none"
-                                id="uploadImageBtn"
-                                onclick="document.getElementById('clinicImageInput').click()">
-                            <i class="bi bi-upload me-1"></i> Schimbă Imaginea
-                        </button>
-
-                        <button type="button"
-                                class="btn btn-outline-primary w-100"
-                                onclick="enableEdit()"
-                                id="editButton">
-                            <i class="bi bi-pencil me-1"></i> Editează Clinica
-                        </button>
-
-                    </div>
-                </div>
-            </div>
-
-            <!-- RIGHT: Clinic Details -->
-            <div class="col-lg-9">
-                <div class="card shadow-sm border-0 h-100">
-                    <div class="card-header bg-white border-bottom py-3">
-                        <h6 class="mb-0 fw-semibold text-muted text-uppercase">
-                            <i class="bi bi-info-circle me-2"></i> Detalii Clinică
-                        </h6>
-                    </div>
-                    <div class="card-body p-4">
-
-                        <div class="mb-4">
-                            <label class="form-label fw-semibold small text-muted text-uppercase">
-                                <i class="bi bi-link-45deg me-1"></i> Subdomeniu
-                            </label>
-                            <div class="input-group">
-                                <input asp-for="Subdomain"
-                                       class="form-control-plaintext editable"
-                                       readonly />
-                                <span class="input-group-text text-muted small d-none" id="subdomainSuffix">.localtest.me:5000</span>
-                            </div>
-                            <small class="text-muted d-none" id="subdomainHint">
-                                ex: "clinica-mea" → clinica-mea.localtest.me:5000
-                            </small>
-                        </div>
-
-                        <hr />
-
-
-                        <div class="mb-4">
-                            <label class="form-label fw-semibold small text-muted text-uppercase">
-                                <i class="bi bi-building me-1"></i> Nume Clinică
-                            </label>
-                            <input asp-for="Name"
-                                   class="form-control-plaintext editable fw-semibold fs-5"
-                                   readonly />
-                        </div>
-
-                        <hr />
-
-                        <div class="mb-4">
-                            <label class="form-label fw-semibold small text-muted text-uppercase">
-                                <i class="bi bi-geo-alt me-1"></i> Adresă
-                            </label>
-                            <input asp-for="Address"
-                                   class="form-control-plaintext editable"
-                                   readonly />
-                        </div>
-
-                        <hr />
-
-                        <div class="mb-4">
-                            <label class="form-label fw-semibold small text-muted text-uppercase">
-                                <i class="bi bi-map me-1"></i> Oraș
-                            </label>
-                            <input asp-for="City"
-                                   class="form-control-plaintext editable"
-                                   readonly />
-                        </div>
-
-                        <hr />
-
-                        <div class="mb-4">
-                            <label class="form-label fw-semibold small text-muted text-uppercase">
-                                <i class="bi bi-flag me-1"></i> Țară
-                            </label>
-                            <input asp-for="Country"
-                                   class="form-control-plaintext editable"
-                                   readonly />
-                        </div>
-
-                        <hr />
-
-                        <div class="mb-4">
-                            <label class="form-label fw-semibold small text-muted text-uppercase">
-                                <i class="bi bi-telephone me-1"></i> Telefon
-                            </label>
-                            <input asp-for="Phone"
-                                   class="form-control-plaintext editable"
-                                   readonly />
-                        </div>
-
-                        <hr />
-
-                        <div class="mb-4">
-                            <label class="form-label fw-semibold small text-muted text-uppercase">
-                                <i class="bi bi-envelope me-1"></i> Email
-                            </label>
-                            <input asp-for="Email"
-                                   class="form-control-plaintext editable"
-                                   readonly />
-                        </div>
-
-                        <hr />
-
-                        <div class="mb-4">
-                            <label class="form-label fw-semibold small text-muted text-uppercase">
-                                <i class="bi bi-globe me-1"></i> Website
-                            </label>
-                            <input asp-for="Website"
-                                   class="form-control-plaintext editable"
-                                   readonly />
-                        </div>
-
-                        <div class="text-end d-none" id="saveSection">
-                            <button type="button"
-                                    class="btn btn-outline-secondary me-2"
-                                    onclick="cancelEdit()">
-                                <i class="bi bi-x me-1"></i> Anulează
-                            </button>
-                            <button type="submit" class="btn btn-primary px-4">
-                                <i class="bi bi-save me-1"></i> Salvează Modificările
-                            </button>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </form>
 </div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="rm-alert rm-status-green mb-4" style="background:#dcfce7;border:1px solid #bbf7d0;color:#16a34a;">
+        <i class="bi bi-check-circle-fill"></i>
+        @TempData["Success"]
+    </div>
+}
+
+<form asp-action="Edit" method="post" enctype="multipart/form-data">
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="ImagePath" />
+
+    <div class="rm-two-col" style="grid-template-columns: 260px 1fr; align-items: start;">
+
+        <!-- LEFT: Clinic Image -->
+        <div class="rm-two-col-main">
+            <div class="rm-form-card">
+                <div class="rm-form-card-body" style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:36px 24px;">
+
+                    <div style="position:relative;margin-bottom:16px;">
+                        <img id="clinicImagePreview"
+                             src="@(Model.ImagePath ?? "/required/NoClinicImage.jpg")"
+                             style="width:110px;height:110px;border-radius:var(--rm-radius);object-fit:cover;border:2px solid var(--rm-border);" />
+                    </div>
+
+                    <input type="file"
+                           name="image"
+                           id="clinicImageInput"
+                           class="d-none"
+                           accept="image/*"
+                           onchange="previewClinicImage(this)" />
+
+                    <h5 style="font-weight:700;margin-bottom:4px;font-size:1rem;">@Model.Name</h5>
+                    <p style="font-size:0.78rem;color:var(--rm-text-muted);margin-bottom:24px;">Unitate Medicală</p>
+
+                    <button type="button"
+                            class="btn-rm-secondary d-none mb-2"
+                            id="uploadImageBtn"
+                            style="width:100%;justify-content:center;"
+                            onclick="document.getElementById('clinicImageInput').click()">
+                        <i class="bi bi-upload"></i> Schimbă Imaginea
+                    </button>
+
+                    <button type="button"
+                            class="btn-rm-primary"
+                            style="width:100%;justify-content:center;"
+                            onclick="enableEdit()"
+                            id="editButton">
+                        <i class="bi bi-pencil"></i> Editează Clinica
+                    </button>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: Clinic Details -->
+        <div class="rm-two-col-side">
+            <div class="rm-form-card">
+                <div class="rm-form-card-header">
+                    <i class="bi bi-info-circle" style="color:var(--rm-red);"></i>
+                    Detalii Clinică
+                </div>
+                <div class="rm-form-card-body">
+
+                    <!-- Subdomain -->
+                    <div class="rm-clinic-field">
+                        <label class="rm-clinic-field-label">
+                            <i class="bi bi-link-45deg"></i> Subdomeniu
+                        </label>
+                        <div style="display:flex;align-items:center;gap:0;">
+                            <input asp-for="Subdomain"
+                                   class="rm-clinic-input editable"
+                                   readonly />
+                            <span class="rm-clinic-suffix d-none" id="subdomainSuffix">.localtest.me:5000</span>
+                        </div>
+                        <small class="rm-clinic-hint d-none" id="subdomainHint">
+                            ex: "clinica-mea" → clinica-mea.localtest.me:5000
+                        </small>
+                    </div>
+
+                    <div class="rm-clinic-divider"></div>
+
+                    <!-- Name -->
+                    <div class="rm-clinic-field">
+                        <label class="rm-clinic-field-label">
+                            <i class="bi bi-building"></i> Nume Clinică
+                        </label>
+                        <input asp-for="Name"
+                               class="rm-clinic-input editable rm-clinic-input--large"
+                               readonly />
+                    </div>
+
+                    <div class="rm-clinic-divider"></div>
+
+                    <!-- Address -->
+                    <div class="rm-clinic-field">
+                        <label class="rm-clinic-field-label">
+                            <i class="bi bi-geo-alt"></i> Adresă
+                        </label>
+                        <input asp-for="Address" class="rm-clinic-input editable" readonly />
+                    </div>
+
+                    <div class="rm-clinic-divider"></div>
+
+                    <!-- City -->
+                    <div class="rm-clinic-field">
+                        <label class="rm-clinic-field-label">
+                            <i class="bi bi-map"></i> Oraș
+                        </label>
+                        <input asp-for="City" class="rm-clinic-input editable" readonly />
+                    </div>
+
+                    <div class="rm-clinic-divider"></div>
+
+                    <!-- Country -->
+                    <div class="rm-clinic-field">
+                        <label class="rm-clinic-field-label">
+                            <i class="bi bi-flag"></i> Țară
+                        </label>
+                        <input asp-for="Country" class="rm-clinic-input editable" readonly />
+                    </div>
+
+                    <div class="rm-clinic-divider"></div>
+
+                    <!-- Phone -->
+                    <div class="rm-clinic-field">
+                        <label class="rm-clinic-field-label">
+                            <i class="bi bi-telephone"></i> Telefon
+                        </label>
+                        <input asp-for="Phone" class="rm-clinic-input editable" readonly />
+                    </div>
+
+                    <div class="rm-clinic-divider"></div>
+
+                    <!-- Email -->
+                    <div class="rm-clinic-field">
+                        <label class="rm-clinic-field-label">
+                            <i class="bi bi-envelope"></i> Email
+                        </label>
+                        <input asp-for="Email" class="rm-clinic-input editable" readonly />
+                    </div>
+
+                    <div class="rm-clinic-divider"></div>
+
+                    <!-- Website -->
+                    <div class="rm-clinic-field" style="margin-bottom:0;">
+                        <label class="rm-clinic-field-label">
+                            <i class="bi bi-globe"></i> Website
+                        </label>
+                        <input asp-for="Website" class="rm-clinic-input editable" readonly />
+                    </div>
+
+                    <!-- Save / Cancel -->
+                    <div class="d-none mt-4 d-flex justify-content-end gap-2" id="saveSection">
+                        <button type="button" class="btn-rm-secondary" onclick="cancelEdit()">
+                            <i class="bi bi-x"></i> Anulează
+                        </button>
+                        <button type="submit" class="btn-rm-primary">
+                            <i class="bi bi-save"></i> Salvează Modificările
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+</form>
 
 <script>
     const originalValues = {};
 
     function enableEdit() {
-        const inputs = document.querySelectorAll('.editable');
-        inputs.forEach(input => {
+        document.querySelectorAll('.editable').forEach(input => {
             originalValues[input.name] = input.value;
             input.removeAttribute('readonly');
-            input.classList.remove('form-control-plaintext');
-            input.classList.add('form-control');
+            input.classList.add('rm-clinic-input--active');
         });
         document.getElementById('saveSection').classList.remove('d-none');
         document.getElementById('editButton').classList.add('d-none');
         document.getElementById('uploadImageBtn').classList.remove('d-none');
-
         document.getElementById('subdomainSuffix').classList.remove('d-none');
         document.getElementById('subdomainHint').classList.remove('d-none');
     }
 
     function cancelEdit() {
-        const inputs = document.querySelectorAll('.editable');
-        inputs.forEach(input => {
+        document.querySelectorAll('.editable').forEach(input => {
             input.value = originalValues[input.name] ?? input.value;
             input.setAttribute('readonly', true);
-            input.classList.add('form-control-plaintext');
-            input.classList.remove('form-control');
+            input.classList.remove('rm-clinic-input--active');
         });
         document.getElementById('saveSection').classList.add('d-none');
         document.getElementById('editButton').classList.remove('d-none');
         document.getElementById('uploadImageBtn').classList.add('d-none');
         document.getElementById('clinicImagePreview').src = '@(Model.ImagePath ?? "/required/NoClinicImage.jpg")';
         document.getElementById('clinicImageInput').value = '';
-
         document.getElementById('subdomainSuffix').classList.add('d-none');
         document.getElementById('subdomainHint').classList.add('d-none');
     }

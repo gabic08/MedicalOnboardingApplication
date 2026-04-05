@@ -1,5 +1,7 @@
 ﻿using MedicalOnboardingApplication.Data;
+using MedicalOnboardingApplication.Filters;
 using MedicalOnboardingApplication.Models;
+using MedicalOnboardingApplication.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -58,51 +60,132 @@ public class AdminEmployeesController : Controller
         return View(employees);
     }
 
+
+    private static List<EmployeeScheduleDayViewModel> BuildEmptySchedule()
+    {
+        var order = new[] {
+        DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday,
+        DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday, DayOfWeek.Sunday
+    };
+
+        return order.Select(d => new EmployeeScheduleDayViewModel
+        {
+            Day = d,
+            IsDayOff = false,
+            Shifts = new List<ShiftViewModel>
+        {
+            new ShiftViewModel()
+        }
+        }).ToList();
+    }
+
+    private static readonly Dictionary<DayOfWeek, string> DayNames = new()
+{
+    { DayOfWeek.Monday,    "Luni" },
+    { DayOfWeek.Tuesday,   "Marți" },
+    { DayOfWeek.Wednesday, "Miercuri" },
+    { DayOfWeek.Thursday,  "Joi" },
+    { DayOfWeek.Friday,    "Vineri" },
+    { DayOfWeek.Saturday,  "Sâmbătă" },
+    { DayOfWeek.Sunday,    "Duminică" }
+};
+
     public IActionResult Create()
     {
-        ViewBag.EmployeeTypes = new SelectList(
-            _context.EmployeeTypes,
-            "Id",
-            "Name");
+        ViewBag.EmployeeTypes = new SelectList(_context.EmployeeTypes, "Id", "Name");
+        ViewBag.DayNames = DayNames;
 
-        return View();
+        return View(new CreateEmployeeViewModel
+        {
+            Schedule = BuildEmptySchedule()
+        });
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(ApplicationUser model)
+    public async Task<IActionResult> Create(CreateEmployeeViewModel vm)
     {
+        // Validate schedule
+        foreach (var day in vm.Schedule)
+        {
+            if (!day.IsDayOff)
+            {
+                if (!day.Shifts.Any())
+                {
+                    ModelState.AddModelError("", $"{DayNames[day.Day]}: adaugă cel puțin o tură sau marchează ca zi liberă.");
+                }
+                else
+                {
+                    foreach (var shift in day.Shifts)
+                    {
+                        if (shift.EndTime <= shift.StartTime)
+                            ModelState.AddModelError("", $"{DayNames[day.Day]}: ora de sfârșit trebuie să fie după ora de început.");
+                    }
+                }
+            }
+        }
+
         if (!ModelState.IsValid)
         {
-            ViewBag.EmployeeTypes = new SelectList(
-                _context.EmployeeTypes,
-                "Id",
-                "Name",
-                model.EmployeeTypeId);
-
-            return View(model);
+            ViewBag.EmployeeTypes = new SelectList(_context.EmployeeTypes, "Id", "Name", vm.EmployeeTypeId);
+            ViewBag.DayNames = DayNames;
+            return View(vm);
         }
 
         var admin = await _userManager.GetUserAsync(User);
 
-        model.UserName = model.Email;
-        model.ClinicId = admin.ClinicId;
-
-        var result = await _userManager.CreateAsync(
-            model,
-            "P@ssw0rd"
-        );
-
-        if (result.Succeeded)
+        var existingUser = await _userManager.FindByEmailAsync(vm.Email);
+        if (existingUser != null)
         {
-            await _userManager.AddToRoleAsync(model, "Employee");
-            return RedirectToAction(nameof(Index));
+            ModelState.AddModelError("Email", "Un cont cu această adresă de email există deja.");
+            ViewBag.EmployeeTypes = new SelectList(_context.EmployeeTypes, "Id", "Name", vm.EmployeeTypeId);
+            ViewBag.DayNames = DayNames;
+            return View(vm);
         }
 
-        foreach (var error in result.Errors)
-            ModelState.AddModelError("", error.Description);
+        var user = new ApplicationUser
+        {
+            UserName = vm.Email,
+            Email = vm.Email,
+            FirstName = vm.FirstName,
+            LastName = vm.LastName,
+            EmployeeTypeId = vm.EmployeeTypeId,
+            ClinicId = admin.ClinicId,
+            EmailConfirmed = true
+        };
 
-        return View(model);
+        var result = await _userManager.CreateAsync(user, "P@ssw0rd");
+
+        if (!result.Succeeded)
+        {
+            foreach (var error in result.Errors)
+                ModelState.AddModelError("", error.Description);
+
+            ViewBag.EmployeeTypes = new SelectList(_context.EmployeeTypes, "Id", "Name", vm.EmployeeTypeId);
+            ViewBag.DayNames = DayNames;
+            return View(vm);
+        }
+
+        await _userManager.AddToRoleAsync(user, "Employee");
+
+        // Save schedule
+        foreach (var day in vm.Schedule.Where(d => !d.IsDayOff))
+        {
+            foreach (var shift in day.Shifts)
+            {
+                _context.WorkSchedules.Add(new WorkSchedule
+                {
+                    UserId = user.Id,
+                    Day = day.Day,
+                    StartTime = shift.StartTime,
+                    EndTime = shift.EndTime
+                });
+            }
+        }
+
+        await _context.SaveChangesAsync();
+
+        return RedirectToAction(nameof(Index));
     }
 
     public async Task<IActionResult> Edit(int id)
@@ -113,33 +196,114 @@ public class AdminEmployeesController : Controller
         if (user == null)
             return NotFound();
 
-        ViewBag.EmployeeTypes = new SelectList(
-            _context.EmployeeTypes,
-            "Id",
-            "Name",
-            user.EmployeeTypeId);
+        var schedules = await _context.WorkSchedules
+            .Where(s => s.UserId == id)
+            .OrderBy(s => s.Day)
+            .ThenBy(s => s.StartTime)
+            .ToListAsync();
 
-        return View(user);
+        var order = new[] {
+        DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday,
+        DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday, DayOfWeek.Sunday
+    };
+
+        var schedule = order.Select(d =>
+        {
+            var dayShifts = schedules.Where(s => s.Day == d).ToList();
+            return new EmployeeScheduleDayViewModel
+            {
+                Day = d,
+                IsDayOff = !dayShifts.Any(),
+                Shifts = dayShifts.Any()
+                    ? dayShifts.Select(s => new ShiftViewModel
+                    {
+                        StartTime = s.StartTime,
+                        EndTime = s.EndTime
+                    }).ToList()
+                    : new List<ShiftViewModel> { new ShiftViewModel() }
+            };
+        }).ToList();
+
+        ViewBag.EmployeeTypes = new SelectList(_context.EmployeeTypes, "Id", "Name", user.EmployeeTypeId);
+        ViewBag.DayNames = DayNames;
+
+        return View(new EditEmployeeViewModel
+        {
+            Id = user.Id,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            Email = user.Email,
+            EmployeeTypeId = user.EmployeeTypeId,
+            Schedule = schedule
+        });
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(string id, ApplicationUser model)
+    public async Task<IActionResult> Edit(EditEmployeeViewModel vm)
     {
-        var user = await _userManager.FindByIdAsync(id);
+        // Validate schedule
+        foreach (var day in vm.Schedule)
+        {
+            if (!day.IsDayOff)
+            {
+                if (!day.Shifts.Any())
+                {
+                    ModelState.AddModelError("", $"{DayNames[day.Day]}: adaugă cel puțin o tură sau marchează ca zi liberă.");
+                }
+                else
+                {
+                    foreach (var shift in day.Shifts)
+                    {
+                        if (shift.EndTime <= shift.StartTime)
+                            ModelState.AddModelError("", $"{DayNames[day.Day]}: ora de sfârșit trebuie să fie după ora de început.");
+                    }
+                }
+            }
+        }
+
+        if (!ModelState.IsValid)
+        {
+            ViewBag.EmployeeTypes = new SelectList(_context.EmployeeTypes, "Id", "Name", vm.EmployeeTypeId);
+            ViewBag.DayNames = DayNames;
+            return View(vm);
+        }
+
+        var user = await _userManager.FindByIdAsync(vm.Id.ToString());
         if (user == null)
             return NotFound();
 
-        user.FirstName = model.FirstName;
-        user.LastName = model.LastName;
-        user.Email = model.Email;
-        user.UserName = model.Email;
-        user.EmployeeTypeId = model.EmployeeTypeId;
+        user.FirstName = vm.FirstName;
+        user.LastName = vm.LastName;
+        user.Email = vm.Email;
+        user.UserName = vm.Email;
+        user.EmployeeTypeId = vm.EmployeeTypeId;
 
         await _userManager.UpdateAsync(user);
 
+        // Replace schedule
+        var existing = _context.WorkSchedules.Where(s => s.UserId == vm.Id);
+        _context.WorkSchedules.RemoveRange(existing);
+
+        foreach (var day in vm.Schedule.Where(d => !d.IsDayOff))
+        {
+            foreach (var shift in day.Shifts)
+            {
+                _context.WorkSchedules.Add(new WorkSchedule
+                {
+                    UserId = vm.Id,
+                    Day = day.Day,
+                    StartTime = shift.StartTime,
+                    EndTime = shift.EndTime
+                });
+            }
+        }
+
+        await _context.SaveChangesAsync();
+
         return RedirectToAction(nameof(Index));
     }
+
 
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
@@ -247,6 +411,35 @@ public class AdminEmployeesController : Controller
         ViewBag.PassingScore = passingScore;
         ViewBag.ReportDate = DateTime.Now;
         ViewBag.ClinicName = admin.Clinic?.Name;
+
+        return View();
+    }
+
+    public async Task<IActionResult> Schedule(int id)
+    {
+        var admin = await _userManager.Users
+            .Include(u => u.Clinic)
+            .FirstOrDefaultAsync(u => u.UserName == User.Identity.Name);
+
+        if (admin?.ClinicId == null)
+            return RedirectToAction("Index", "Admin");
+
+        var employee = await _userManager.Users
+            .Include(u => u.EmployeeType)
+            .FirstOrDefaultAsync(u => u.Id == id && u.ClinicId == admin.ClinicId);
+
+        if (employee == null)
+            return NotFound();
+
+        var schedules = await _context.WorkSchedules
+            .Where(s => s.UserId == id)
+            .OrderBy(s => s.Day)
+            .ThenBy(s => s.StartTime)
+            .ToListAsync();
+
+        ViewBag.Employee = employee;
+        ViewBag.Schedules = schedules;
+        ViewBag.DayNames = DayNames;
 
         return View();
     }

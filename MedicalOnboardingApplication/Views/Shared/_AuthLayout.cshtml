@@ -1,0 +1,57 @@
+﻿<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] — MedicalOnboarding</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" />
+    <link rel="stylesheet" href="~/css/auth.css" />
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="top-nav">
+        <a href="/" class="brand">
+            <i class="bi bi-hospital brand-icon"></i>
+            <div class="brand-text">
+                <strong>MEDICAL ONBOARDING</strong>
+                <span>Platforma ta medicală</span>
+            </div>
+        </a>
+        <div class="nav-right">
+            <span class="nav-text">Nu ai un cont?</span>
+            <a asp-controller="Account" asp-action="RegisterClinicAdmin" class="btn-register">
+                Creează cont nou
+            </a>
+        </div>
+    </nav>
+
+    <!-- BACKGROUND -->
+    <div class="bg-placeholder"></div>
+
+    <!-- TAGLINE -->
+    <div class="tagline-box">
+        Pregătește-ți echipa medicală —
+        <span class="highlight">#onboardingmedical</span>
+    </div>
+
+    <!-- FOOTER LINKS -->
+    <div class="auth-footer">
+        <a href="http://localtest.me:5000/Home/Privacy" class="auth-footer-link">Confidențialitate</a>
+        <span class="auth-footer-sep">|</span>
+        <a href="http://localtest.me:5000" class="auth-footer-link">Acasă</a>
+    </div>
+
+    <!-- PAGE -->
+    <div class="page-wrapper container-fluid">
+        <div class="form-wrapper">
+            @RenderBody()
+        </div>
+    </div>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+
+</body>
+</html>

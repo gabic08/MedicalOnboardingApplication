@@ -1,133 +1,113 @@
 ﻿@{
     ViewData["Title"] = "Politica de Confidențialitate";
+    Layout = "~/Views/Shared/_PublicLayout.cshtml";
 }
 
-<div class="mb-4">
-    <h1 class="mb-1">Politica de Confidențialitate</h1>
-    <p class="text-muted">Cum gestionăm și protejăm datele tale în conformitate cu reglementările GDPR și HIPAA.</p>
+<!-- HERO -->
+<div class="privacy-hero">
+    <span class="breadcrumb-label">Politica-de-confidentialitate</span>
+    <h1>Politica de Confidențialitate</h1>
 </div>
 
-<div class="row g-4">
+<div class="privacy-body">
 
-    <div class="col-12">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <h5 class="fw-semibold mb-3">
-                    <i class="bi bi-shield-lock me-2 text-primary"></i> Prezentare Generală a Protecției Datelor
-                </h5>
-                <p>
-                    Această aplicație este destinată integrării și formării adaptive a personalului medical auxiliar,
-                    inclusiv asistenți medicali, îngrijitori, recepționiști și personal de suport. Ca atare, funcționează
-                    într-un mediu în care datele personale sensibile sunt gestionate în mod curent.
-                </p>
-                <p>
-                    Ne angajăm să asigurăm că toate datele sunt prelucrate în deplină conformitate cu
-                    <strong>GDPR</strong> (General Data Protection Regulation — Regulamentul General privind Protecția Datelor,
-                    aplicabil în Europa) și <strong>HIPAA</strong> (Health Insurance Portability and Accountability Act —
-                    Legea privind Portabilitatea și Responsabilitatea Asigurărilor de Sănătate, aplicabilă în SUA).
-                </p>
-            </div>
+    <!-- OVERVIEW -->
+    <div class="privacy-card">
+        <div class="privacy-icon-box icon-red">
+            <i class="bi bi-shield-lock"></i>
+        </div>
+        <div class="privacy-content">
+            <h3>Prezentare Generală a Protecției Datelor</h3>
+            <p>
+                Această aplicație este destinată integrării și formării adaptive a personalului medical auxiliar,
+                inclusiv asistenți medicali, îngrijitori, recepționiști și personal de suport.
+            </p>
+            <p style="margin-top: 10px;">
+                Ne angajăm să asigurăm că toate datele sunt prelucrate în deplină conformitate cu
+                <strong>GDPR</strong> (Regulamentul General privind Protecția Datelor) și
+                <strong>HIPAA</strong> (Legea privind Portabilitatea și Responsabilitatea Asigurărilor de Sănătate).
+            </p>
         </div>
     </div>
 
-    <div class="col-md-6">
-        <div class="card shadow-sm h-100">
-            <div class="card-body">
-                <h5 class="fw-semibold mb-3">
-                    <i class="bi bi-collection me-2 text-primary"></i> Datele pe Care le Colectăm
-                </h5>
-                <p>Colectăm și prelucrăm următoarele categorii de date:</p>
-                <ul>
-                    <li>Numele complet și informațiile de contact ale personalului înregistrat</li>
-                    <li>Tipul de angajat și rolul organizațional</li>
-                    <li>Progresul în formare și înregistrările de finalizare a cursurilor</li>
-                    <li>Rezultatele testelor și scorurile testelor adaptive</li>
-                    <li>Imagini de profil (opționale, încărcate de utilizator)</li>
-                    <li>Datele de autentificare (stocate în siguranță folosind algoritmi de criptare standard)</li>
-                </ul>
-            </div>
+    <!-- COLLECT + USE -->
+    <div class="privacy-grid">
+        <div class="privacy-grid-item">
+            <h3>
+                <span class="icon-pink"><i class="bi bi-collection"></i></span>
+                Datele pe Care le Colectăm
+            </h3>
+            <ul>
+                <li>Numele complet și informațiile de contact</li>
+                <li>Tipul de angajat și rolul organizațional</li>
+                <li>Progresul în formare și finalizarea cursurilor</li>
+                <li>Rezultatele și scorurile testelor adaptive</li>
+                <li>Imagini de profil (opționale)</li>
+                <li>Date de autentificare (stocate criptat)</li>
+            </ul>
+        </div>
+        <div class="privacy-grid-item">
+            <h3>
+                <span class="icon-blue"><i class="bi bi-gear"></i></span>
+                Cum Utilizăm Datele Tale
+            </h3>
+            <ul>
+                <li>Furnizarea de module de formare personalizate</li>
+                <li>Generarea de teste adaptive</li>
+                <li>Urmărirea progresului și conformității</li>
+                <li>Generarea de rapoarte interne</li>
+                <li>Gestionarea înregistrărilor angajaților</li>
+            </ul>
+            <p class="privacy-note">Nu vindem sau distribuim datele tale în niciun alt scop.</p>
         </div>
     </div>
 
-    <div class="col-md-6">
-        <div class="card shadow-sm h-100">
-            <div class="card-body">
-                <h5 class="fw-semibold mb-3">
-                    <i class="bi bi-gear me-2 text-primary"></i> Cum Utilizăm Datele Tale
-                </h5>
-                <p>Datele tale sunt utilizate exclusiv în următoarele scopuri:</p>
-                <ul>
-                    <li>Furnizarea de module de formare personalizate pentru integrare</li>
-                    <li>Generarea de teste adaptive bazate pe nivelul de înțelegere demonstrat</li>
-                    <li>Urmărirea progresului individual și a stării de conformitate</li>
-                    <li>Generarea de rapoarte interne de progres și conformitate</li>
-                    <li>Gestionarea înregistrărilor angajaților în cadrul organizației tale</li>
-                </ul>
-                <p class="text-muted small mt-2">
-                    Nu vindem, distribuim sau utilizăm datele tale în niciun alt scop în afara celor de mai sus.
-                </p>
-            </div>
+    <!-- GDPR + HIPAA -->
+    <div class="privacy-grid">
+        <div class="privacy-grid-item">
+            <h3>
+                <span class="icon-green"><i class="bi bi-eu"></i></span>
+                Conformitate GDPR
+            </h3>
+            <ul>
+                <li><strong>Dreptul de acces</strong> — copie a datelor tale</li>
+                <li><strong>Dreptul la rectificare</strong> — corectarea datelor inexacte</li>
+                <li><strong>Dreptul la ștergere</strong> — ștergerea datelor tale</li>
+                <li><strong>Dreptul la portabilitate</strong> — export în format lizibil</li>
+                <li><strong>Dreptul de opoziție</strong> — contestarea prelucrării</li>
+            </ul>
+            <p class="privacy-note">Contactează administratorul clinicii pentru a exercita aceste drepturi.</p>
+        </div>
+        <div class="privacy-grid-item">
+            <h3>
+                <span class="icon-purple"><i class="bi bi-hospital"></i></span>
+                Conformitate HIPAA
+            </h3>
+            <ul>
+                <li>Autentificare securizată și control al accesului bazat pe roluri</li>
+                <li>Formare privind gestionarea datelor pacienților</li>
+                <li>Înțelegerea obligațiilor referitoare la PHI</li>
+                <li>Rapoarte pregătite pentru audit intern</li>
+            </ul>
+            <p class="privacy-note">Conținutul de formare respectă standardele HIPAA.</p>
         </div>
     </div>
 
-    <div class="col-md-6">
-        <div class="card shadow-sm h-100">
-            <div class="card-body">
-                <h5 class="fw-semibold mb-3">
-                    <i class="bi bi-eu me-2 text-primary"></i> Conformitate GDPR
-                </h5>
-                <p>În conformitate cu GDPR, ai următoarele drepturi:</p>
-                <ul>
-                    <li><strong>Dreptul de acces</strong> — poți solicita o copie a datelor tale personale</li>
-                    <li><strong>Dreptul la rectificare</strong> — poți corecta datele inexacte</li>
-                    <li><strong>Dreptul la ștergere</strong> — poți solicita ștergerea datelor tale</li>
-                    <li><strong>Dreptul la portabilitate</strong> — poți exporta datele tale într-un format lizibil</li>
-                    <li><strong>Dreptul de opoziție</strong> — poți contesta anumite tipuri de prelucrare</li>
-                </ul>
-                <p class="text-muted small mt-2">
-                    Pentru a exercita oricare dintre aceste drepturi, contactează administratorul clinicii tale.
-                </p>
-            </div>
+    <!-- SECURITY -->
+    <div class="privacy-card">
+        <div class="privacy-icon-box icon-blue">
+            <i class="bi bi-lock"></i>
         </div>
-    </div>
-
-    <div class="col-md-6">
-        <div class="card shadow-sm h-100">
-            <div class="card-body">
-                <h5 class="fw-semibold mb-3">
-                    <i class="bi bi-hospital me-2 text-primary"></i> Conformitate HIPAA
-                </h5>
-                <p>
-                    În mediile supuse HIPAA, această aplicație sprijină conformitatea prin:
-                </p>
-                <ul>
-                    <li>Autentificare securizată și control al accesului bazat pe roluri</li>
-                    <li>Formarea personalului privind gestionarea și stocarea corectă a datelor pacienților</li>
-                    <li>Asigurarea că personalul înțelege obligațiile referitoare la Informațiile Medicale Protejate (PHI)</li>
-                    <li>Rapoarte de progres pregătite pentru audit în scopul managementului intern al conformității</li>
-                </ul>
-                <p class="text-muted small mt-2">
-                    Tot conținutul de formare legat de gestionarea datelor pacienților este conceput pentru a respecta standardele HIPAA.
-                </p>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-12">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <h5 class="fw-semibold mb-3">
-                    <i class="bi bi-lock me-2 text-primary"></i> Securitatea Datelor
-                </h5>
-                <p>
-                    Implementăm măsuri de securitate standard în industrie pentru a proteja datele tale, inclusiv
-                    stocarea criptată a parolelor, gestionarea securizată a fișierelor încărcate și restricții de
-                    acces bazate pe roluri pentru a garanta că doar personalul autorizat poate accesa informațiile sensibile.
-                </p>
-                <p class="mb-0 text-muted small">
-                    Ultima actualizare: 2026. Pentru orice nelămuriri legate de confidențialitate, contactează administratorul clinicii tale.
-                </p>
-            </div>
+        <div class="privacy-content">
+            <h3>Securitatea Datelor</h3>
+            <p>
+                Implementăm măsuri de securitate standard în industrie: stocare criptată a parolelor,
+                gestionare securizată a fișierelor și restricții de acces bazate pe roluri pentru a
+                garanta că doar personalul autorizat poate accesa informațiile sensibile.
+            </p>
+            <p class="privacy-note" style="margin-top: 10px;">
+                Ultima actualizare: 2026. Pentru orice nelămuriri, contactează administratorul clinicii tale.
+            </p>
         </div>
     </div>
 
