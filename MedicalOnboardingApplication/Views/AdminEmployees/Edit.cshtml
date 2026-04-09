@@ -57,14 +57,28 @@
                         <input asp-for="Email" class="rm-input" />
                         <span asp-validation-for="Email" class="rm-field-error"></span>
                     </div>
-                    <div class="rm-field">
+                    <div class="rm-field mb-4">
                         <label asp-for="EmployeeTypeId" class="rm-label"></label>
-                        <select asp-for="EmployeeTypeId"
-                                asp-items="ViewBag.EmployeeTypes"
-                                class="rm-input rm-select">
-                            <option value="">— Selectează tipul —</option>
-                        </select>
-                        <span asp-validation-for="EmployeeTypeId" class="rm-field-error"></span>
+                        @if (ViewBag.EmployeeTypes is SelectList empTypes && empTypes.Any())
+                        {
+                            <select asp-for="EmployeeTypeId"
+                                    asp-items="ViewBag.EmployeeTypes"
+                                    class="rm-input rm-select">
+                                <option value="">— Selectează tipul —</option>
+                            </select>
+                            <span asp-validation-for="EmployeeTypeId" class="rm-field-error"></span>
+                        }
+                        else
+                        {
+                            <div class="rm-modal-warning mt-1">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                Nu există niciun tip de angajat creat.
+                                <a asp-controller="EmployeeTypes" asp-action="Index"
+                                       style="color:inherit;font-weight:700;margin-left:4px;">
+                                    Adaugă un tip de angajat
+                                </a> înainte de a crea un angajat.
+                            </div>
+                        }
                     </div>
                 </div>
             </div>

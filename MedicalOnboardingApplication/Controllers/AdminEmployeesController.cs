@@ -125,6 +125,9 @@ public class AdminEmployeesController : Controller
             }
         }
 
+        if (vm.EmployeeTypeId == null)
+            ModelState.AddModelError("EmployeeTypeId", "Tipul de angajat este obligatoriu.");
+
         if (!ModelState.IsValid)
         {
             ViewBag.EmployeeTypes = new SelectList(_context.EmployeeTypes, "Id", "Name", vm.EmployeeTypeId);
@@ -261,6 +264,9 @@ public class AdminEmployeesController : Controller
                 }
             }
         }
+
+        if (vm.EmployeeTypeId == null)
+            ModelState.AddModelError("EmployeeTypeId", "Tipul de angajat este obligatoriu.");
 
         if (!ModelState.IsValid)
         {

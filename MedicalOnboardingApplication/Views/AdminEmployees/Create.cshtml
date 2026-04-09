@@ -58,12 +58,26 @@
                     </div>
                     <div class="rm-field mb-4">
                         <label asp-for="EmployeeTypeId" class="rm-label"></label>
-                        <select asp-for="EmployeeTypeId"
-                                asp-items="ViewBag.EmployeeTypes"
-                                class="rm-input rm-select">
-                            <option value="">— Selectează tipul —</option>
-                        </select>
-                        <span asp-validation-for="EmployeeTypeId" class="rm-field-error"></span>
+                        @if (ViewBag.EmployeeTypes is SelectList empTypes && empTypes.Any())
+                        {
+                            <select asp-for="EmployeeTypeId"
+                                    asp-items="ViewBag.EmployeeTypes"
+                                    class="rm-input rm-select">
+                                <option value="">— Selectează tipul —</option>
+                            </select>
+                            <span asp-validation-for="EmployeeTypeId" class="rm-field-error"></span>
+                        }
+                        else
+                        {
+                            <div class="empty-state">
+                                <i class="bi bi-people"></i>
+                                <h6>Nu există tipuri de angajat</h6>
+                                <p>Adaugă primul tip pentru a putea crea angajați.</p>
+                                <a asp-controller="EmployeeTypes" asp-action="Index" class="btn btn-warning">
+                                    Adaugă tip de angajat
+                                </a>
+                            </div>
+                        }
                     </div>
                     <div class="rm-info-notice">
                         <i class="bi bi-info-circle-fill"></i>

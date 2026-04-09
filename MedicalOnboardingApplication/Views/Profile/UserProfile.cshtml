@@ -125,7 +125,7 @@
             </div>
         </div>
 
-        <!-- RIGHT: Change Password -->
+        <!-- RIGHT: Change Password + Save, then read-only cards -->
         <div class="rm-two-col-side">
             <div class="rm-form-card mb-4">
                 <div class="rm-form-card-header">
@@ -168,7 +168,7 @@
                         </div>
                     </div>
 
-                    <div class="rm-field">
+                    <div class="rm-field mb-4">
                         <label asp-for="ConfirmNewPassword" class="rm-label"></label>
                         <div class="rm-password-field">
                             <input asp-for="ConfirmNewPassword"
@@ -182,10 +182,16 @@
                             </button>
                         </div>
                     </div>
+
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn-rm-primary">
+                            <i class="bi bi-save"></i> Salvează Modificările
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <!-- Clinic Info -->
+            <!-- Clinic Info (read-only) -->
             @if (clinic != null)
             {
                 <div class="rm-form-card mb-4">
@@ -241,7 +247,7 @@
                 </div>
             }
 
-            <!-- Work Schedule -->
+            <!-- Work Schedule (read-only) -->
             @if (isEmployee && schedules != null)
             {
                 <div class="rm-form-card">
@@ -282,12 +288,6 @@
             }
 
         </div>
-    </div>
-
-    <div class="d-flex justify-content-end mt-4">
-        <button type="submit" class="btn-rm-primary">
-            <i class="bi bi-save"></i> Salvează Modificările
-        </button>
     </div>
 
 </form>

@@ -2424,3 +2424,28 @@ body {
     color: var(--rm-text);
     text-align: right;
 }
+
+.empty-state {
+    text-align: center;
+    padding: 24px;
+    border: 1px dashed #ddd;
+    border-radius: 12px;
+    background: #fafafa;
+}
+
+    .empty-state i {
+        font-size: 28px;
+        color: #bbb;
+        margin-bottom: 8px;
+    }
+
+    .empty-state h6 {
+        margin: 6px 0;
+        font-weight: 600;
+    }
+
+    .empty-state p {
+        font-size: 14px;
+        color: #666;
+        margin-bottom: 12px;
+    }
