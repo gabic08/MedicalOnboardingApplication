@@ -33,6 +33,15 @@ namespace MedicalOnboardingApplication.Data
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<ApplicationUser>().ToTable("Users");
+            modelBuilder.Entity<ApplicationRole>().ToTable("Roles");
+            modelBuilder.Entity<ApplicationUserRole>().ToTable("UserRoles");
+
+            modelBuilder.Entity<IdentityUserClaim<int>>().ToTable("UserClaims");
+            modelBuilder.Entity<IdentityUserLogin<int>>().ToTable("UserLogins");
+            modelBuilder.Entity<IdentityUserToken<int>>().ToTable("UserTokens");
+            modelBuilder.Entity<IdentityRoleClaim<int>>().ToTable("RoleClaims");
+
             // Configure many-to-many
             modelBuilder.Entity<CourseEmployeeType>()
                 .HasKey(cet => new { cet.CourseId, cet.EmployeeTypeId });
