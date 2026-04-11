@@ -2449,3 +2449,9 @@ body {
         color: #666;
         margin-bottom: 12px;
     }
+
+.btn-rm-back:hover {
+    background: var(--rm-red-light) !important;
+    border-color: var(--rm-red) !important;
+    color: var(--rm-red) !important;
+}

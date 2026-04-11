@@ -14,7 +14,31 @@
     var isAdmin = ViewBag.IsAdmin as bool? ?? false;
     var completedIds = ViewBag.CompletedChapterIds as List<int> ?? new List<int>();
     var isCompleted = completedIds.Contains(Model.Id);
+
+    string backUrlCourses = isAdmin
+        ? Url.Action("Index", "AdminCourses")
+        : Url.Action("Index", "Courses");
+
+    string backUrlDashboard = isAdmin
+        ? Url.Action("Index", "Admin")
+        : Url.Action("Index", "Dashoard");
+
 }
+
+<div class="rm-page-header">
+    <div class="d-flex align-items-start justify-content-between flex-wrap gap-3">
+        <div>
+            <div class="breadcrumb-label">
+                <a asp-controller="Admin" asp-action="Index" class="text-decoration-none" style="color:inherit;">Panou Admin</a>
+                <i class="bi bi-chevron-right mx-1" style="font-size:0.65rem;"></i>
+                <a asp-action="Index" class="text-decoration-none" style="color:inherit;">Cursuri</a>
+                <i class="bi bi-chevron-right mx-1" style="font-size:0.65rem;"></i>
+                Creare
+            </div>
+        </div>
+    </div>
+</div>
+
 
 <div class="rm-chapter-layout">
 
@@ -29,7 +53,8 @@
                 <a asp-controller="Courses"
                        asp-action="Details"
                        asp-route-id="@Model.CourseId"
-                       class="rm-chapter-back-link">
+                       class="btn btn-outline-secondary btn-rm-back mb-2"
+                       style="color:var(--rm-red);border-color:var(--rm-red);">
                     <i class="bi bi-arrow-left"></i> Înapoi la Curs
                 </a>
                 <p class="rm-chapter-course-name">@Model.Course.Title</p>
@@ -215,7 +240,6 @@
                         btn.setAttribute('onclick', `toggleComplete(${chapterId}, false)`);
                         if (headerBadge) headerBadge.remove();
 
-                        // update sidebar dot
                         const sidebarItem = document.querySelector('.rm-chapter-nav-item--active .rm-chapter-nav-dot');
                         if (sidebarItem) {
                             sidebarItem.innerHTML = '<span>@Model.Order</span>';
@@ -233,7 +257,6 @@
                             titleRow.appendChild(badge);
                         }
 
-                        // update sidebar dot
                         const sidebarItem = document.querySelector('.rm-chapter-nav-item--active .rm-chapter-nav-dot');
                         if (sidebarItem) {
                             sidebarItem.innerHTML = '<i class="bi bi-check-lg"></i>';

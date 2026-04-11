@@ -3,9 +3,13 @@
 @{
     ViewData["Title"] = Model.Title;
     bool isAdmin = User.IsInRole("Admin");
-    string backUrl = isAdmin
+    string backUrlCourses = isAdmin
         ? Url.Action("Index", "AdminCourses")
         : Url.Action("Index", "Courses");
+
+    string backUrlDashboard = isAdmin
+        ? Url.Action("Index", "Admin")
+        : Url.Action("Index", "Dashoard");
 
     var completedIds = ViewBag.CompletedChapterIds as List<int> ?? new List<int>();
     var totalChapters = Model.Chapters?.Count ?? 0;
@@ -19,7 +23,11 @@
     <div class="d-flex align-items-start justify-content-between flex-wrap gap-3">
         <div>
             <div class="breadcrumb-label">
-                <a href="@backUrl" class="text-decoration-none" style="color:inherit;">
+                <a href="@backUrlDashboard" class="text-decoration-none" style="color:inherit;">
+                    @(isAdmin ? "Panou Admin" : "Panou")
+                </a>
+                <i class="bi bi-chevron-right mx-1" style="font-size:0.65rem;"></i>
+                <a href="@backUrlCourses" class="text-decoration-none" style="color:inherit;">
                     @(isAdmin ? "Cursuri Admin" : "Cursuri")
                 </a>
                 <i class="bi bi-chevron-right mx-1" style="font-size:0.65rem;"></i>
