@@ -89,10 +89,27 @@
                 </div>
             </div>
 
-            <div class="d-flex justify-content-end">
-                <button type="submit" class="btn-rm-primary">
+           @*  <div class="d-flex justify-content-end">
+                <button type="submit" class="btn-rm-primary"
+                    @(ViewBag.EmployeeTypes is SelectList et && et.Any() ? "" : "disabled")>
                     <i class="bi bi-save"></i> Salvează Modificările
                 </button>
+            </div> *@
+            <div class="d-flex justify-content-end">
+                @if (ViewBag.EmployeeTypes is SelectList et && et.Any())
+                {
+                    <button type="submit" class="btn-rm-primary">
+                        <i class="bi bi-save"></i> Salvează Modificările
+                    </button>
+                }
+                else
+                {
+                    <button type="button" class="btn-rm-primary" disabled
+                            style="opacity:0.5;cursor:not-allowed;"
+                            title="Nu există tipuri de angajat. Adaugă un tip înainte de a continua.">
+                        <i class="bi bi-save"></i> Salvează Modificările
+                    </button>
+                }
             </div>
         </div>
 

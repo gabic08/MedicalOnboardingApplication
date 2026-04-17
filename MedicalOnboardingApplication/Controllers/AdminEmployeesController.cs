@@ -126,7 +126,7 @@ public class AdminEmployeesController : Controller
         }
 
         if (vm.EmployeeTypeId == null)
-            ModelState.AddModelError("EmployeeTypeId", "Tipul de angajat este obligatoriu.");
+            ModelState.AddModelError("", "Tipul de angajat este obligatoriu.");
 
         if (!ModelState.IsValid)
         {
@@ -266,7 +266,7 @@ public class AdminEmployeesController : Controller
         }
 
         if (vm.EmployeeTypeId == null)
-            ModelState.AddModelError("EmployeeTypeId", "Tipul de angajat este obligatoriu.");
+            ModelState.AddModelError("", "Tipul de angajat este obligatoriu.");
 
         if (!ModelState.IsValid)
         {
