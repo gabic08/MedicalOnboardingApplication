@@ -14,6 +14,12 @@
                 <i class="bi bi-chevron-right mx-1" style="font-size:0.65rem;"></i>
                 Creare
             </div>
+            <a asp-controller="AdminEmployees"
+                   asp-action="Index"
+                   class="btn btn-outline-secondary btn-rm-back mb-2"
+                   style="color:var(--rm-red);border-color:var(--rm-red);">
+                <i class="bi bi-arrow-left"></i> Înapoi la Angajați
+            </a>
             <h1>Creare Angajat</h1>
             <p>Completează detaliile pentru a adăuga un angajat nou</p>
         </div>
@@ -58,11 +64,27 @@
                     </div>
                     <div class="rm-field mb-4">
                         <label asp-for="EmployeeTypeId" class="rm-label"></label>
-                        <select asp-for="EmployeeTypeId"
-                                asp-items="ViewBag.EmployeeTypes"
-                                class="rm-input rm-select">
-                            <option value="">— Selectează tipul —</option>
-                        </select>
+
+                        @if (ViewBag.EmployeeTypes is SelectList empTypes && empTypes.Any())
+                        {
+                            <select asp-for="EmployeeTypeId"
+                                    asp-items="ViewBag.EmployeeTypes"
+                                    class="rm-input rm-select">
+                                <option value="">— Selectează tipul —</option>
+                            </select>
+                        }
+                        else
+                        {
+                            <div class="empty-state">
+                                <i class="bi bi-people"></i>
+                                <h6>Nu există tipuri de angajat</h6>
+                                <p>Adaugă primul tip pentru a putea crea angajați.</p>
+                                <a asp-controller="EmployeeTypes" asp-action="Index" class="btn btn-warning">
+                                    Adaugă tip de angajat
+                                </a>
+                            </div>
+                        }
+
                         <span asp-validation-for="EmployeeTypeId" class="rm-field-error"></span>
                     </div>
                     <div class="rm-info-notice">
@@ -72,10 +94,27 @@
                 </div>
             </div>
 
-            <div class="d-flex justify-content-end">
-                <button type="submit" class="btn-rm-primary">
+           @*  <div class="d-flex justify-content-end">
+                <button type="submit" class="btn-rm-primary"
+                    @(ViewBag.EmployeeTypes is SelectList et && et.Any() ? "" : "disabled")>
                     <i class="bi bi-person-check"></i> Creare Angajat
                 </button>
+            </div> *@
+            <div class="d-flex justify-content-end">
+                @if (ViewBag.EmployeeTypes is SelectList et && et.Any())
+                {
+                    <button type="submit" class="btn-rm-primary">
+                        <i class="bi bi-save"></i> Creare Angajat
+                    </button>
+                }
+                else
+                {
+                    <button type="button" class="btn-rm-primary" disabled
+                            style="opacity:0.5;cursor:not-allowed;"
+                            title="Nu există tipuri de angajat. Adaugă un tip înainte de a continua.">
+                        <i class="bi bi-save"></i> Creare Angajat
+                    </button>
+                }
             </div>
         </div>
 

@@ -206,13 +206,16 @@ namespace MedicalOnboardingApplication.Controllers
             await _context.SaveChangesAsync();
 
             // Save employee type relationships
-            foreach (var et in model.EmployeeTypes.Where(e => e.IsSelected))
+            if (model.EmployeeTypes != null && model.EmployeeTypes.Count > 0)
             {
-                _context.CourseEmployeeTypes.Add(new CourseEmployeeType
+                foreach (var et in model.EmployeeTypes.Where(e => e.IsSelected))
                 {
-                    CourseId = course.Id,
-                    EmployeeTypeId = et.Id
-                });
+                    _context.CourseEmployeeTypes.Add(new CourseEmployeeType
+                    {
+                        CourseId = course.Id,
+                        EmployeeTypeId = et.Id
+                    });
+                }
             }
 
             await _context.SaveChangesAsync();
@@ -319,13 +322,16 @@ namespace MedicalOnboardingApplication.Controllers
             // Update employee type relationships
             course.CourseEmployeeTypes.Clear();
 
-            foreach (var et in model.EmployeeTypes.Where(e => e.IsSelected))
+            if (model.EmployeeTypes != null)
             {
-                course.CourseEmployeeTypes.Add(new CourseEmployeeType
+                foreach (var et in model.EmployeeTypes.Where(e => e.IsSelected))
                 {
-                    CourseId = course.Id,
-                    EmployeeTypeId = et.Id
-                });
+                    course.CourseEmployeeTypes.Add(new CourseEmployeeType
+                    {
+                        CourseId = course.Id,
+                        EmployeeTypeId = et.Id
+                    });
+                }
             }
 
             await _context.SaveChangesAsync();

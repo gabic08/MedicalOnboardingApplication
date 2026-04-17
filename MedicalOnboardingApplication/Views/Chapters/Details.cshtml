@@ -14,22 +14,58 @@
     var isAdmin = ViewBag.IsAdmin as bool? ?? false;
     var completedIds = ViewBag.CompletedChapterIds as List<int> ?? new List<int>();
     var isCompleted = completedIds.Contains(Model.Id);
+
+    string backUrlCourses = isAdmin
+        ? Url.Action("Index", "AdminCourses")
+        : Url.Action("Index", "Courses");
+
+    string backUrlDashboard = isAdmin
+        ? Url.Action("Index", "Admin")
+        : Url.Action("Index", "Dashboard");
+
+    string backUrlCurrentCourse = isAdmin
+            ? Url.Action("Manage", "AdminCourses", new { id = Model.CourseId })
+            : Url.Action("Details", "Courses", new { id = Model.CourseId });
 }
+
+<div class="rm-page-header">
+    <div class="d-flex align-items-start justify-content-between flex-wrap gap-3">
+        <div>
+            <div class="breadcrumb-label">
+                <a href="@backUrlDashboard" class="text-decoration-none" style="color:inherit;">
+                    @(isAdmin ? "Panou Admin" : "Panou")
+                </a>
+                <i class="bi bi-chevron-right mx-1" style="font-size:0.65rem;"></i>
+
+                <a href="@backUrlCourses" class="text-decoration-none" style="color:inherit;">
+                    @(isAdmin ? "Cursuri Admin" : "Cursuri")
+                </a>
+                <i class="bi bi-chevron-right mx-1" style="font-size:0.65rem;"></i>
+
+                <a href="@backUrlCurrentCourse" class="text-decoration-none" style="color:inherit;">
+                    @Model.Course.Title
+                </a>
+                <i class="bi bi-chevron-right mx-1" style="font-size:0.65rem;"></i>
+                @Model.Title
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="rm-chapter-layout">
 
     <!-- ===================== -->
-    <!-- SIDEBAR -->
+    <!-- SIDEBAR               -->
     <!-- ===================== -->
     <aside class="rm-chapter-sidebar">
         <div class="rm-chapter-sidebar-inner">
 
-            <!-- Course title -->
             <div class="rm-chapter-sidebar-header">
                 <a asp-controller="Courses"
                        asp-action="Details"
                        asp-route-id="@Model.CourseId"
-                       class="rm-chapter-back-link">
+                       class="btn btn-outline-secondary btn-rm-back mb-2"
+                       style="color:var(--rm-red);border-color:var(--rm-red);">
                     <i class="bi bi-arrow-left"></i> Înapoi la Curs
                 </a>
                 <p class="rm-chapter-course-name">@Model.Course.Title</p>
@@ -39,7 +75,6 @@
                 </div>
             </div>
 
-            <!-- Chapter list -->
             <nav class="rm-chapter-nav">
                 @foreach (var ch in orderedChapters)
                 {
@@ -67,80 +102,85 @@
     </aside>
 
     <!-- ===================== -->
-    <!-- MAIN CONTENT -->
+    <!-- MAIN CONTENT          -->
     <!-- ===================== -->
     <main class="rm-chapter-main">
 
-        <!-- Chapter Header -->
-        <div class="rm-chapter-header">
-            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-                <span class="rm-badge rm-badge-order" style="font-size:0.85rem;padding:6px 12px;">@Model.Order</span>
-                <h1 class="rm-chapter-title">@Model.Title</h1>
-                @if (!isAdmin && isCompleted)
-                {
-                    <span class="rm-status-badge rm-status-green ms-auto">
-                        <i class="bi bi-check-circle-fill"></i> Finalizat
-                    </span>
-                }
-            </div>
-        </div>
+        <!-- Scrollable area: header + content + attachments -->
+        <div class="rm-chapter-scroll-area">
 
-        <!-- Content -->
-        <div class="rm-form-card mb-4">
-            <div class="rm-form-card-body">
-                <div class="rm-chapter-content">
-                    @Html.Raw(Model.Content?.Replace("\n", "<br />"))
-                </div>
-            </div>
-        </div>
-
-        <!-- Attachments -->
-        @if (Model.Attachments != null && Model.Attachments.Any())
-        {
-            <div class="rm-form-card mb-4">
-                <div class="rm-form-card-header">
-                    <i class="bi bi-paperclip" style="color:var(--rm-red);"></i>
-                    Atașamente
-                    <span class="rm-count-badge" style="background:#f0f0f0;color:#666;">@Model.Attachments.Count</span>
-                </div>
-                <div class="rm-form-card-body" style="display:flex;flex-direction:column;gap:20px;">
-                    @foreach (var att in Model.Attachments)
+            <!-- Chapter Header -->
+            <div class="rm-chapter-header">
+                <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+                    <span class="rm-badge rm-badge-order" style="font-size:0.85rem;padding:6px 12px;">@Model.Order</span>
+                    <h1 class="rm-chapter-title">@Model.Title</h1>
+                    @if (!isAdmin && isCompleted)
                     {
-                        @if (att.Type == AttachmentType.Image)
-                        {
-                            <img src="@att.FilePath"
-                                 style="width:100%;max-height:500px;object-fit:contain;border-radius:var(--rm-radius-sm);border:1px solid var(--rm-border);"
-                                 alt="@att.FileName" />
-                        }
-                        else if (att.Type == AttachmentType.Video)
-                        {
-                            <video controls
-                                   style="width:100%;max-height:500px;border-radius:var(--rm-radius-sm);"
-                                   preload="metadata">
-                                <source src="@att.FilePath" type="video/mp4" />
-                                Browserul tău nu suportă redarea video.
-                            </video>
-                        }
-                        else if (att.Type == AttachmentType.Pdf)
-                        {
-                            <div class="rm-attachment-item">
-                                <div style="display:flex;align-items:center;gap:10px;">
-                                    <div style="width:36px;height:36px;border-radius:10px;background:#fdf0f2;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                                        <i class="bi bi-file-earmark-pdf" style="color:var(--rm-red);font-size:1.1rem;"></i>
-                                    </div>
-                                    <span style="font-weight:600;font-size:0.875rem;">@att.FileName</span>
-                                </div>
-                                <a href="@att.FilePath" target="_blank" class="btn-rm-outline" style="font-size:0.82rem;">
-                                    <i class="bi bi-box-arrow-up-right"></i> Deschide PDF
-                                </a>
-                            </div>
-                        }
+                        <span class="rm-status-badge rm-status-green ms-auto">
+                            <i class="bi bi-check-circle-fill"></i> Finalizat
+                        </span>
                     }
                 </div>
             </div>
-        }
 
-        <!-- Bottom Navigation -->
+            <!-- Content -->
+            <div class="rm-form-card mb-4">
+                <div class="rm-form-card-body">
+                    <div class="rm-chapter-content">
+                        @Html.Raw(Model.Content?.Replace("\n", "<br />"))
+                    </div>
+                </div>
+            </div>
+
+            <!-- Attachments -->
+            @if (Model.Attachments != null && Model.Attachments.Any())
+            {
+                <div class="rm-form-card mb-4">
+                    <div class="rm-form-card-header">
+                        <i class="bi bi-paperclip" style="color:var(--rm-red);"></i>
+                        Atașamente
+                        <span class="rm-count-badge" style="background:#f0f0f0;color:#666;">@Model.Attachments.Count</span>
+                    </div>
+                    <div class="rm-form-card-body" style="display:flex;flex-direction:column;gap:20px;">
+                        @foreach (var att in Model.Attachments)
+                        {
+                            @if (att.Type == AttachmentType.Image)
+                            {
+                                <img src="@att.FilePath"
+                                     style="width:100%;max-height:500px;object-fit:contain;border-radius:var(--rm-radius-sm);border:1px solid var(--rm-border);"
+                                     alt="@att.FileName" />
+                            }
+                            else if (att.Type == AttachmentType.Video)
+                            {
+                                <video controls
+                                       style="width:100%;max-height:500px;border-radius:var(--rm-radius-sm);"
+                                       preload="metadata">
+                                    <source src="@att.FilePath" type="video/mp4" />
+                                    Browserul tău nu suportă redarea video.
+                                </video>
+                            }
+                            else if (att.Type == AttachmentType.Pdf)
+                            {
+                                <div class="rm-attachment-item">
+                                    <div style="display:flex;align-items:center;gap:10px;">
+                                        <div style="width:36px;height:36px;border-radius:10px;background:#fdf0f2;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                            <i class="bi bi-file-earmark-pdf" style="color:var(--rm-red);font-size:1.1rem;"></i>
+                                        </div>
+                                        <span style="font-weight:600;font-size:0.875rem;">@att.FileName</span>
+                                    </div>
+                                    <a href="@att.FilePath" target="_blank" class="btn-rm-outline" style="font-size:0.82rem;">
+                                        <i class="bi bi-box-arrow-up-right"></i> Deschide PDF
+                                    </a>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            }
+
+        </div>
+        <!-- end .rm-chapter-scroll-area -->
+        <!-- Bottom Navigation — pinned outside scroll area -->
         <div class="rm-chapter-nav-footer">
             <div>
                 @if (previousChapter != null)
@@ -215,7 +255,6 @@
                         btn.setAttribute('onclick', `toggleComplete(${chapterId}, false)`);
                         if (headerBadge) headerBadge.remove();
 
-                        // update sidebar dot
                         const sidebarItem = document.querySelector('.rm-chapter-nav-item--active .rm-chapter-nav-dot');
                         if (sidebarItem) {
                             sidebarItem.innerHTML = '<span>@Model.Order</span>';
@@ -233,7 +272,6 @@
                             titleRow.appendChild(badge);
                         }
 
-                        // update sidebar dot
                         const sidebarItem = document.querySelector('.rm-chapter-nav-item--active .rm-chapter-nav-dot');
                         if (sidebarItem) {
                             sidebarItem.innerHTML = '<i class="bi bi-check-lg"></i>';

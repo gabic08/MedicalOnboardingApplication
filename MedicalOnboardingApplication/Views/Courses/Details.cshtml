@@ -3,15 +3,21 @@
 @{
     ViewData["Title"] = Model.Title;
     bool isAdmin = User.IsInRole("Admin");
-    string backUrl = isAdmin
+    string backUrlCourses = isAdmin
         ? Url.Action("Index", "AdminCourses")
         : Url.Action("Index", "Courses");
+
+    string backUrlDashboard = isAdmin
+        ? Url.Action("Index", "Admin")
+        : Url.Action("Index", "Dashoard");
 
     var completedIds = ViewBag.CompletedChapterIds as List<int> ?? new List<int>();
     var totalChapters = Model.Chapters?.Count ?? 0;
     var completedCount = !isAdmin ? completedIds.Count : 0;
     var isCourseCompleted = !isAdmin && totalChapters > 0 && completedCount == totalChapters;
     var progressPct = totalChapters > 0 ? completedCount * 100 / totalChapters : 0;
+
+    var coursesController = isAdmin ? "AdminCourses" : "Courses";
 }
 
 <!-- Page Header -->
@@ -19,12 +25,25 @@
     <div class="d-flex align-items-start justify-content-between flex-wrap gap-3">
         <div>
             <div class="breadcrumb-label">
-                <a href="@backUrl" class="text-decoration-none" style="color:inherit;">
+                <a href="@backUrlDashboard" class="text-decoration-none" style="color:inherit;">
+                    @(isAdmin ? "Panou Admin" : "Panou")
+                </a>
+                <i class="bi bi-chevron-right mx-1" style="font-size:0.65rem;"></i>
+                <a href="@backUrlCourses" class="text-decoration-none" style="color:inherit;">
                     @(isAdmin ? "Cursuri Admin" : "Cursuri")
                 </a>
                 <i class="bi bi-chevron-right mx-1" style="font-size:0.65rem;"></i>
                 Detalii Curs
             </div>
+
+            <a asp-controller="@coursesController"
+                   asp-action="Index"
+                   class="btn btn-outline-secondary btn-rm-back mb-2"
+                   style="color:var(--rm-red);border-color:var(--rm-red);">
+                <i class="bi bi-arrow-left"></i> Înapoi la Cursuri
+            </a>
+
+
             <h1>@Model.Title</h1>
             @if (!string.IsNullOrEmpty(Model.Description))
             {

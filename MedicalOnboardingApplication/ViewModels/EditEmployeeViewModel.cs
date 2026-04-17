@@ -19,7 +19,6 @@ public class EditEmployeeViewModel
     [Display(Name = "Email")]
     public string Email { get; set; }
 
-    [Required(ErrorMessage = "Tipul de angajat este obligatoriu")]
     [Display(Name = "Tip Angajat")]
     public int? EmployeeTypeId { get; set; }
 

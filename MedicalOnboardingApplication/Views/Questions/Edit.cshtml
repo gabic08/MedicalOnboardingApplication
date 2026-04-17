@@ -19,6 +19,13 @@
                 <i class="bi bi-chevron-right mx-1" style="font-size:0.65rem;"></i>
                 Editare Întrebare
             </div>
+            <a asp-controller="AdminCourses"
+                   asp-action="Manage"
+                   asp-route-id="@Model.CourseId"
+                   class="btn btn-outline-secondary btn-rm-back mb-2"
+                   style="color:var(--rm-red);border-color:var(--rm-red);">
+                <i class="bi bi-arrow-left"></i> Înapoi la Gestionare Curs
+            </a>
             <h1>Editează Întrebarea</h1>
             <p>Modifică textul, dificultatea și răspunsurile întrebării</p>
         </div>

@@ -21,7 +21,10 @@ public class RegisterAdminViewModel
 
     [Required(ErrorMessage = "Parola este obligatorie")]
     [DataType(DataType.Password)]
-    [StringLength(100, MinimumLength = 8, ErrorMessage = "Parola trebuie să aibă cel puțin 8 caractere")]
+    [StringLength(100, MinimumLength = 6, ErrorMessage = "Parola trebuie să aibă cel puțin 6 caractere")]
+    [RegularExpression(
+    @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).{6,}$",
+    ErrorMessage = "Parola trebuie să conțină cel puțin o literă mică, o literă mare, o cifră și un caracter special.")]
     [Display(Name = "Parolă")]
     public string Password { get; set; }
 
