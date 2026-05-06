@@ -5,6 +5,7 @@
     var employeeTypes = ViewBag.EmployeeTypes as List<MedicalOnboardingApplication.Models.EmployeeType>;
     var selectedTypeId = ViewBag.SelectedEmployeeTypeId as int?;
     var search = ViewBag.Search as string;
+    var status = ViewBag.Status as string;
 }
 
 <!-- Page Header -->
@@ -43,7 +44,7 @@
                    value="@search"
                    class="form-control"
                    style="padding-left:36px;"
-                   placeholder="Caută după titlu sau descriere..." />
+                   placeholder="Caută după titlu..." />
         </div>
     </div>
     <div style="min-width:200px;">
@@ -57,10 +58,17 @@
             }
         </select>
     </div>
+    <div style="min-width:160px;">
+        <select name="status" class="form-select">
+            <option value="" selected="@(string.IsNullOrEmpty(status))">Toate Statusurile</option>
+            <option value="draft" selected="@(status == "draft")">Ciornă</option>
+            <option value="published" selected="@(status == "published")">Publicat</option>
+        </select>
+    </div>
     <button type="submit" class="btn-rm-primary">
         <i class="bi bi-search"></i> Caută
     </button>
-    @if (!string.IsNullOrEmpty(search) || selectedTypeId.HasValue)
+    @if (!string.IsNullOrEmpty(search) || selectedTypeId.HasValue || !string.IsNullOrEmpty(status))
     {
         <a asp-action="Index" class="btn-rm-secondary">
             <i class="bi bi-x"></i> Resetează

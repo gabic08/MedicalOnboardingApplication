@@ -1,8 +1,10 @@
-﻿using MedicalOnboardingApplication.Data;
+using MedicalOnboardingApplication.Data;
 using MedicalOnboardingApplication.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
+namespace MedicalOnboardingApplication.Controllers;
 
 [Authorize(Roles = "Admin")]
 public class EmployeeTypesController : Controller
@@ -26,7 +28,6 @@ public class EmployeeTypesController : Controller
 
         var types = await query.OrderBy(e => e.Name).ToListAsync();
 
-        // Build a set of IDs that are in use (by users or courses)
         var allIds = types.Select(t => t.Id).ToList();
 
         var usedByUsers = await _context.Users
@@ -109,7 +110,8 @@ public class EmployeeTypesController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Delete(int id)
+    [ActionName("Delete")]
+    public async Task<IActionResult> DeleteConfirmed(int id)
     {
         var type = await _context.EmployeeTypes.FindAsync(id);
         if (type == null) return NotFound();

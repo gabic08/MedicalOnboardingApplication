@@ -1,4 +1,4 @@
-﻿@model IEnumerable<MedicalOnboardingApplication.Models.EmployeeType>
+@model IEnumerable<MedicalOnboardingApplication.Models.EmployeeType>
 
 @{
     ViewData["Title"] = "Tipuri de Angajați";
@@ -43,7 +43,7 @@
         Adaugă Tip Nou
     </div>
     <div class="rm-form-card-body" style="padding: 20px 24px;">
-        <form asp-action="Create" method="post">
+        <form asp-controller="EmployeeTypes" asp-action="Create" method="post">
             @Html.AntiForgeryToken()
             <div style="display:flex; align-items:flex-end; gap:12px; flex-wrap:wrap;">
                 <div class="rm-field" style="flex:1; min-width:220px;">
@@ -77,7 +77,7 @@
         </button>
         @if (!string.IsNullOrEmpty(search))
         {
-            <a asp-action="Index" class="btn-rm-secondary" style="height:40px; display:inline-flex; align-items:center;">
+            <a asp-controller="EmployeeTypes" asp-action="Index" class="btn-rm-secondary" style="height:40px; display:inline-flex; align-items:center;">
                 <i class="bi bi-x"></i> Resetează
             </a>
         }
@@ -109,7 +109,7 @@
                     <td>
                         @if (editId == type.Id)
                         {
-                            <form asp-action="Edit" method="post" style="display:flex; gap:8px; align-items:center;">
+                            <form asp-controller="EmployeeTypes" asp-action="Edit" method="post" style="display:flex; gap:8px; align-items:center;">
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" name="id" value="@type.Id" />
                                 <input name="name"
@@ -120,7 +120,7 @@
                                 <button type="submit" class="btn-rm-primary" style="padding:7px 14px;">
                                     <i class="bi bi-save"></i> Salvează
                                 </button>
-                                <a asp-action="Index" class="btn-rm-secondary" style="padding:7px 14px;">
+                                <a asp-controller="EmployeeTypes" asp-action="Index" class="btn-rm-secondary" style="padding:7px 14px;">
                                     <i class="bi bi-x"></i> Anulează
                                 </a>
                             </form>
@@ -147,14 +147,14 @@
                         @if (editId != type.Id)
                         {
                             <div class="rm-table-actions">
-                                <a asp-action="Index"
-                                       asp-route-editId="@type.Id"
-                                       class="btn-rm-outline">
+                                <a asp-controller="EmployeeTypes"
+                                   asp-action="Index"
+                                   asp-route-editId="@type.Id"
+                                   class="btn-rm-outline">
                                     <i class="bi bi-pencil"></i> Editează
                                 </a>
                                 @if (isUsed)
                                 {
-                                    <!-- Disabled delete button with tooltip -->
                                     <button type="button"
                                             class="btn-rm-outline btn-rm-outline-danger"
                                             style="opacity:0.4; cursor:not-allowed;"
@@ -165,14 +165,15 @@
                                 }
                                 else
                                 {
-                                    <button type="button"
-                                            class="btn-rm-outline btn-rm-outline-danger"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#deleteTypeModal"
-                                            data-type-id="@type.Id"
-                                            data-type-name="@type.Name">
-                                        <i class="bi bi-trash"></i> Șterge
-                                    </button>
+                                    <form asp-controller="EmployeeTypes" asp-action="Delete" method="post" style="display:inline;">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@type.Id" />
+                                        <button type="submit"
+                                                class="btn-rm-outline btn-rm-outline-danger"
+                                                onclick="return confirm('Ești sigur că vrei să ștergi tipul \'@type.Name\'? Această acțiune nu poate fi anulată.');">
+                                            <i class="bi bi-trash"></i> Șterge
+                                        </button>
+                                    </form>
                                 }
                             </div>
                         }
@@ -202,50 +203,3 @@
         </tbody>
     </table>
 </div>
-
-<!-- Hidden Delete Form -->
-<form id="deleteTypeForm" asp-action="Delete" method="post" class="d-none">
-    @Html.AntiForgeryToken()
-    <input type="hidden" name="id" id="deleteTypeId" />
-</form>
-
-<!-- Delete Modal -->
-<div class="modal fade" id="deleteTypeModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="rm-modal-content">
-            <div class="rm-modal-header">
-                <div class="rm-modal-icon rm-modal-icon-danger">
-                    <i class="bi bi-exclamation-triangle-fill"></i>
-                </div>
-                <button type="button" class="rm-modal-close" data-bs-dismiss="modal">
-                    <i class="bi bi-x-lg"></i>
-                </button>
-            </div>
-            <div class="rm-modal-body">
-                <h5 class="rm-modal-title">Șterge Tipul de Angajat</h5>
-                <p class="rm-modal-text">Ești sigur că vrei să ștergi tipul <strong id="deleteTypeName"></strong>?</p>
-                <div class="rm-modal-warning">
-                    <i class="bi bi-info-circle"></i>
-                    Această acțiune nu poate fi anulată.
-                </div>
-            </div>
-            <div class="rm-modal-footer">
-                <button type="button" class="btn-rm-secondary" data-bs-dismiss="modal">Anulează</button>
-                <button type="button" class="btn-rm-danger"
-                        onclick="document.getElementById('deleteTypeForm').submit();">
-                    <i class="bi bi-trash"></i> Da, Șterge
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-@section Scripts {
-    <script>
-        document.getElementById('deleteTypeModal').addEventListener('show.bs.modal', function (e) {
-            const btn = e.relatedTarget;
-            document.getElementById('deleteTypeId').value = btn.getAttribute('data-type-id');
-            document.getElementById('deleteTypeName').innerText = btn.getAttribute('data-type-name');
-        });
-    </script>
-}

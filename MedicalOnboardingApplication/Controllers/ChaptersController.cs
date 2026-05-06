@@ -187,8 +187,8 @@ public class ChaptersController : Controller
         return View(chapter);
     }
 
-    // POST: Chapters/DeleteConfirmed/5
-    [HttpPost, ActionName("DeleteConfirmed")]
+    // POST: Chapters/Delete/5
+    [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {

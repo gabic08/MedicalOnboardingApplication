@@ -24,7 +24,7 @@ namespace MedicalOnboardingApplication.Controllers
         }
 
         // GET: Courses
-        public async Task<IActionResult> Index(int? employeeTypeId, string search)
+        public async Task<IActionResult> Index(int? employeeTypeId, string search, string status)
         {
             var clinicId = await GetCurrentClinicId();
 
@@ -48,10 +48,13 @@ namespace MedicalOnboardingApplication.Controllers
             {
                 var term = search.Trim();
 
-                coursesQuery = coursesQuery.Where(c =>
-                    c.Title.Contains(term) ||
-                    (c.Description != null && c.Description.Contains(term)));
+                coursesQuery = coursesQuery.Where(c => c.Title.Contains(term));
             }
+
+            if (status == "draft")
+                coursesQuery = coursesQuery.Where(c => c.Status == CourseStatus.Draft);
+            else if (status == "published")
+                coursesQuery = coursesQuery.Where(c => c.Status == CourseStatus.Published);
 
             var courses = await coursesQuery
                 .OrderBy(c => c.Order)
@@ -60,6 +63,7 @@ namespace MedicalOnboardingApplication.Controllers
             ViewBag.EmployeeTypes = await _context.EmployeeTypes.ToListAsync();
             ViewBag.SelectedEmployeeTypeId = employeeTypeId;
             ViewBag.Search = search;
+            ViewBag.Status = status;
 
             return View(courses);
         }
@@ -350,7 +354,8 @@ namespace MedicalOnboardingApplication.Controllers
         // POST: Courses/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(int id)
+        [ActionName("Delete")]
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var clinicId = await GetCurrentClinicId();
             if (clinicId == null)
@@ -361,6 +366,12 @@ namespace MedicalOnboardingApplication.Controllers
 
             if (course == null)
                 return RedirectToAction(nameof(Index));
+
+            if (course.Status == CourseStatus.Published)
+            {
+                TempData["Error"] = "Cursurile publicate nu pot fi șterse.";
+                return RedirectToAction(nameof(Manage), new { id });
+            }
 
             var deletedOrder = course.Order;
 
@@ -419,6 +430,8 @@ namespace MedicalOnboardingApplication.Controllers
                 return Forbid();
 
             var course = await _context.Courses
+                .Include(c => c.Chapters)
+                .Include(c => c.CourseEmployeeTypes)
                 .FirstOrDefaultAsync(c => c.Id == id && c.ClinicId == clinicId);
 
             if (course == null)
@@ -426,6 +439,18 @@ namespace MedicalOnboardingApplication.Controllers
 
             if (course.Status == CourseStatus.Draft)
             {
+                if (!course.CourseEmployeeTypes.Any())
+                {
+                    TempData["Error"] = "Cursul trebuie să aibă cel puțin un tip de angajat înainte de a fi publicat.";
+                    return RedirectToAction(nameof(Manage), new { id });
+                }
+
+                if (!course.Chapters.Any())
+                {
+                    TempData["Error"] = "Cursul trebuie să aibă cel puțin un capitol înainte de a fi publicat.";
+                    return RedirectToAction(nameof(Manage), new { id });
+                }
+
                 course.Status = CourseStatus.Published;
                 await _context.SaveChangesAsync();
             }

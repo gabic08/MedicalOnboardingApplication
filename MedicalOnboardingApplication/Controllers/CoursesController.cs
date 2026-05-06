@@ -39,9 +39,7 @@ public class CoursesController : Controller
         if (!string.IsNullOrWhiteSpace(search))
         {
             var term = search.Trim().ToLower();
-            query = query.Where(c =>
-                c.Title.ToLower().Contains(term) ||
-                c.Description.ToLower().Contains(term));
+            query = query.Where(c => c.Title.ToLower().Contains(term));
         }
 
         var courses = await query.OrderBy(c => c.Order).ToListAsync();

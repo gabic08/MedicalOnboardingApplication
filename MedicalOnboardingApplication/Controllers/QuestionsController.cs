@@ -192,7 +192,8 @@ public class QuestionsController : Controller
     // POST: Questions/Delete
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Delete(int id, int courseId)
+    [ActionName("Delete")]
+    public async Task<IActionResult> DeleteConfirmed(int id, int courseId)
     {
         var clinicId = await GetCurrentClinicId();
 

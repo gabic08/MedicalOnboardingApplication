@@ -41,22 +41,33 @@
                 <span class="rm-badge" style="background:#fff3cd;color:#856404;font-weight:600;font-size:0.85rem;padding:6px 12px;">
                     <i class="bi bi-pencil-fill"></i> Ciornă
                 </span>
-                <form asp-action="Publish" asp-route-id="@course.Id" method="post" class="d-inline">
+                <button type="button" class="btn-rm-success"
+                        data-bs-toggle="modal" data-bs-target="#publishCourseModal">
+                    <i class="bi bi-send-fill"></i> Publică Cursul
+                </button>
+            }
+            @if (!isPublished)
+            {
+                <form asp-controller="AdminCourses" asp-action="Delete" method="post" style="display:inline;">
                     @Html.AntiForgeryToken()
-                    <button type="submit" class="btn-rm-success">
-                        <i class="bi bi-send-fill"></i> Publică Cursul
+                    <input type="hidden" name="id" value="@course.Id" />
+                    <button type="submit" class="btn-rm-danger"
+                            onclick="return confirm('Ești sigur că vrei să ștergi cursul \'@course.Title\'?\n\nAceasta va șterge și toate capitolele, atașamentele și întrebările.\nAceastă acțiune nu poate fi anulată.');">
+                        <i class="bi bi-trash"></i> Șterge Cursul
                     </button>
                 </form>
             }
-            <button type="button"
-                    class="btn-rm-danger"
-                    data-bs-toggle="modal"
-                    data-bs-target="#deleteCourseModal">
-                <i class="bi bi-trash"></i> Șterge Cursul
-            </button>
         </div>
     </div>
 </div>
+
+@if (TempData["Error"] != null)
+{
+    <div class="rm-alert rm-alert-error mb-4">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        @TempData["Error"]
+    </div>
+}
 
 <!-- ===================== -->
 <!-- COURSE EDIT FORM -->
@@ -356,23 +367,6 @@
     </div>
 </div>
 
-<!-- Hidden Forms -->
-<form id="deleteCourseForm" asp-controller="AdminCourses" asp-action="Delete"
-      asp-route-id="@course.Id" method="post" class="d-none">
-    @Html.AntiForgeryToken()
-</form>
-<form id="deleteChapterForm" asp-controller="Chapters" asp-action="DeleteConfirmed"
-      method="post" class="d-none">
-    @Html.AntiForgeryToken()
-    <input type="hidden" name="id" id="deleteChapterId" />
-</form>
-<form id="deleteQuestionForm" asp-controller="Questions" asp-action="Delete"
-      method="post" class="d-none">
-    @Html.AntiForgeryToken()
-    <input type="hidden" name="id" id="deleteQuestionId" />
-    <input type="hidden" name="courseId" id="deleteQuestionCourseId" />
-</form>
-
 <!-- Delete Question Modal -->
 <div class="modal fade" id="deleteQuestionModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -395,10 +389,14 @@
             </div>
             <div class="rm-modal-footer">
                 <button type="button" class="btn-rm-secondary" data-bs-dismiss="modal">Anulează</button>
-                <button type="button" class="btn-rm-danger"
-                        onclick="document.getElementById('deleteQuestionForm').submit();">
-                    <i class="bi bi-trash"></i> Da, Șterge
-                </button>
+                <form asp-controller="Questions" asp-action="Delete" method="post" style="display:inline;">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" id="deleteQuestionId" />
+                    <input type="hidden" name="courseId" id="deleteQuestionCourseId" />
+                    <button type="submit" class="btn-rm-danger">
+                        <i class="bi bi-trash"></i> Da, Șterge
+                    </button>
+                </form>
             </div>
         </div>
     </div>
@@ -426,45 +424,51 @@
             </div>
             <div class="rm-modal-footer">
                 <button type="button" class="btn-rm-secondary" data-bs-dismiss="modal">Anulează</button>
-                <button type="button" class="btn-rm-danger"
-                        onclick="document.getElementById('deleteChapterForm').submit();">
-                    <i class="bi bi-trash"></i> Da, Șterge
-                </button>
+                <form asp-controller="Chapters" asp-action="Delete" method="post" style="display:inline;">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" id="deleteChapterId" />
+                    <button type="submit" class="btn-rm-danger">
+                        <i class="bi bi-trash"></i> Da, Șterge
+                    </button>
+                </form>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Delete Course Modal -->
-<div class="modal fade" id="deleteCourseModal" tabindex="-1" aria-hidden="true">
+<!-- Publish Course Modal -->
+<div class="modal fade" id="publishCourseModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="rm-modal-content">
             <div class="rm-modal-header">
-                <div class="rm-modal-icon rm-modal-icon-danger">
-                    <i class="bi bi-exclamation-triangle-fill"></i>
+                <div class="rm-modal-icon" style="background:#e6f4ea;color:#1a7f37;">
+                    <i class="bi bi-send-fill"></i>
                 </div>
                 <button type="button" class="rm-modal-close" data-bs-dismiss="modal">
                     <i class="bi bi-x-lg"></i>
                 </button>
             </div>
             <div class="rm-modal-body">
-                <h5 class="rm-modal-title">Șterge Cursul</h5>
-                <p class="rm-modal-text">Ești sigur că vrei să ștergi <strong>@course.Title</strong>?</p>
+                <h5 class="rm-modal-title">Publică Cursul</h5>
+                <p class="rm-modal-text">Ești sigur că vrei să publici <strong>@course.Title</strong>?</p>
                 <div class="rm-modal-warning">
-                    <i class="bi bi-info-circle"></i>
-                    Aceasta va șterge și toate capitolele, atașamentele și întrebările. Această acțiune nu poate fi anulată.
+                    <i class="bi bi-lock-fill"></i>
+                    După publicare, cursul <strong>nu mai poate fi editat</strong>. Capitolele, întrebările și tipurile de angajați vor rămâne fixate.
                 </div>
             </div>
             <div class="rm-modal-footer">
                 <button type="button" class="btn-rm-secondary" data-bs-dismiss="modal">Anulează</button>
-                <button type="button" class="btn-rm-danger"
-                        onclick="document.getElementById('deleteCourseForm').submit();">
-                    <i class="bi bi-trash"></i> Da, Șterge
-                </button>
+                <form asp-action="Publish" asp-route-id="@course.Id" method="post" class="d-inline">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn-rm-success">
+                        <i class="bi bi-send-fill"></i> Da, Publică
+                    </button>
+                </form>
             </div>
         </div>
     </div>
 </div>
+
 
 @section Scripts {
     @{
