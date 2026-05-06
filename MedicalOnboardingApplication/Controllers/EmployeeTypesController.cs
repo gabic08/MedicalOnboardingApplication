@@ -35,7 +35,13 @@ public class EmployeeTypesController : Controller
             .Distinct()
             .ToListAsync();
 
-        var usedIds = usedByUsers.ToHashSet();
+        var usedByCourses = await _context.CourseEmployeeTypes
+            .Where(cet => allIds.Contains(cet.EmployeeTypeId))
+            .Select(cet => cet.EmployeeTypeId)
+            .Distinct()
+            .ToListAsync();
+
+        var usedIds = usedByUsers.Concat(usedByCourses).ToHashSet();
 
         ViewBag.Search = search;
         ViewBag.EditId = editId;
@@ -111,9 +117,12 @@ public class EmployeeTypesController : Controller
         var usedByUsers = await _context.Users
             .AnyAsync(u => u.EmployeeTypeId == id);
 
-        if (usedByUsers)
+        var usedByCourses = await _context.CourseEmployeeTypes
+            .AnyAsync(cet => cet.EmployeeTypeId == id);
+
+        if (usedByUsers || usedByCourses)
         {
-            TempData["Error"] = $"Tipul '{type.Name}' nu poate fi șters deoarece este atribuit unor angajați.";
+            TempData["Error"] = $"Tipul '{type.Name}' nu poate fi șters deoarece este atribuit unor angajați sau cursuri.";
             return RedirectToAction(nameof(Index));
         }
 

@@ -1,4 +1,5 @@
 ﻿using MedicalOnboardingApplication.Data;
+using MedicalOnboardingApplication.Enums;
 using MedicalOnboardingApplication.Filters;
 using MedicalOnboardingApplication.Models;
 using MedicalOnboardingApplication.ViewModels;
@@ -199,7 +200,8 @@ namespace MedicalOnboardingApplication.Controllers
                 Title = model.Title,
                 Description = model.Description,
                 Order = requestedOrder,
-                ClinicId = clinicId.Value
+                ClinicId = clinicId.Value,
+                Status = CourseStatus.Draft
             };
 
             _context.Courses.Add(course);
@@ -277,6 +279,12 @@ namespace MedicalOnboardingApplication.Controllers
 
             if (course == null)
                 return NotFound();
+
+            if (course.Status == CourseStatus.Published)
+            {
+                TempData["Error"] = "Cursul publicat nu poate fi editat.";
+                return RedirectToAction(nameof(Manage), new { id });
+            }
 
             var oldOrder = course.Order;
 
@@ -399,6 +407,30 @@ namespace MedicalOnboardingApplication.Controllers
             await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
+        }
+
+        // POST: AdminCourses/Publish/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Publish(int id)
+        {
+            var clinicId = await GetCurrentClinicId();
+            if (clinicId == null)
+                return Forbid();
+
+            var course = await _context.Courses
+                .FirstOrDefaultAsync(c => c.Id == id && c.ClinicId == clinicId);
+
+            if (course == null)
+                return NotFound();
+
+            if (course.Status == CourseStatus.Draft)
+            {
+                course.Status = CourseStatus.Published;
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction(nameof(Manage), new { id });
         }
 
         private async Task<int?> GetCurrentClinicId()

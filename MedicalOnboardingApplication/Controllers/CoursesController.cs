@@ -1,4 +1,5 @@
 ﻿using MedicalOnboardingApplication.Data;
+using MedicalOnboardingApplication.Enums;
 using MedicalOnboardingApplication.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -32,7 +33,8 @@ public class CoursesController : Controller
             .Include(c => c.CourseEmployeeTypes)
                 .ThenInclude(cet => cet.EmployeeType)
             .Include(c => c.Chapters)
-            .Where(c => c.CourseEmployeeTypes.Any(cet => cet.EmployeeTypeId == user.EmployeeTypeId));
+            .Where(c => c.Status == CourseStatus.Published &&
+                        c.CourseEmployeeTypes.Any(cet => cet.EmployeeTypeId == user.EmployeeTypeId));
 
         if (!string.IsNullOrWhiteSpace(search))
         {
@@ -99,6 +101,9 @@ public class CoursesController : Controller
         // Employees must also be assigned to this course via their employee type
         if (!User.IsInRole("Admin"))
         {
+            if (course.Status != CourseStatus.Published)
+                return NotFound();
+
             bool isAssigned = course.CourseEmployeeTypes
                 .Any(cet => cet.EmployeeTypeId == currentUser.EmployeeTypeId);
 

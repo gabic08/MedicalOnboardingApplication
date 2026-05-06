@@ -1,4 +1,6 @@
-﻿namespace MedicalOnboardingApplication.Models;
+﻿using MedicalOnboardingApplication.Enums;
+
+namespace MedicalOnboardingApplication.Models;
 
 public class Course
 {
@@ -6,6 +8,7 @@ public class Course
     public string Title { get; set; }
     public string Description { get; set; }
     public int Order { get; set; }
+    public CourseStatus Status { get; set; } = CourseStatus.Draft;
     public ICollection<Chapter> Chapters { get; set; }
     public ICollection<Question> Questions { get; set; }
     public ICollection<CourseEmployeeType> CourseEmployeeTypes { get; set; }

@@ -6,6 +6,7 @@
 @{
     ViewData["Title"] = "Gestionare Curs";
     var course = ViewBag.Course as Course;
+    var isPublished = course?.Status == CourseStatus.Published;
 }
 
 <!-- Page Header -->
@@ -28,12 +29,32 @@
             <h1>@course.Title</h1>
             <p>Editează detaliile, capitolele și întrebările cursului</p>
         </div>
-        <button type="button"
-                class="btn-rm-danger align-self-end"
-                data-bs-toggle="modal"
-                data-bs-target="#deleteCourseModal">
-            <i class="bi bi-trash"></i> Șterge Cursul
-        </button>
+        <div class="d-flex align-items-center gap-2 align-self-end flex-wrap">
+            @if (isPublished)
+            {
+                <span class="rm-badge" style="background:var(--rm-green-light,#e6f4ea);color:#1a7f37;font-weight:600;font-size:0.85rem;padding:6px 12px;">
+                    <i class="bi bi-check-circle-fill"></i> Publicat — doar citire
+                </span>
+            }
+            else
+            {
+                <span class="rm-badge" style="background:#fff3cd;color:#856404;font-weight:600;font-size:0.85rem;padding:6px 12px;">
+                    <i class="bi bi-pencil-fill"></i> Ciornă
+                </span>
+                <form asp-action="Publish" asp-route-id="@course.Id" method="post" class="d-inline">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn-rm-success">
+                        <i class="bi bi-send-fill"></i> Publică Cursul
+                    </button>
+                </form>
+            }
+            <button type="button"
+                    class="btn-rm-danger"
+                    data-bs-toggle="modal"
+                    data-bs-target="#deleteCourseModal">
+                <i class="bi bi-trash"></i> Șterge Cursul
+            </button>
+        </div>
     </div>
 </div>
 
@@ -46,6 +67,13 @@
         Detalii Curs
     </div>
     <div class="rm-form-card-body">
+        @if (isPublished)
+        {
+            <div class="rm-modal-warning mb-4" style="background:#e6f4ea;border-color:#1a7f37;color:#1a7f37;">
+                <i class="bi bi-lock-fill"></i>
+                Cursul este publicat și nu mai poate fi editat.
+            </div>
+        }
         <form asp-action="Edit" method="post">
             @Html.AntiForgeryToken()
             <input type="hidden" asp-for="Id" />
@@ -62,21 +90,21 @@
                 <div class="col-md-5">
                     <div class="rm-field">
                         <label asp-for="Title" class="rm-label"></label>
-                        <input asp-for="Title" class="rm-input" />
+                        <input asp-for="Title" class="rm-input" readonly="@isPublished" />
                         <span asp-validation-for="Title" class="rm-field-error"></span>
                     </div>
                 </div>
                 <div class="col-md-5">
                     <div class="rm-field">
                         <label asp-for="Description" class="rm-label"></label>
-                        <input asp-for="Description" class="rm-input" />
+                        <input asp-for="Description" class="rm-input" readonly="@isPublished" />
                         <span asp-validation-for="Description" class="rm-field-error"></span>
                     </div>
                 </div>
                 <div class="col-md-2">
                     <div class="rm-field">
                         <label asp-for="Order" class="rm-label"></label>
-                        <input asp-for="Order" class="rm-input" />
+                        <input asp-for="Order" class="rm-input" readonly="@isPublished" />
                         <span asp-validation-for="Order" class="rm-field-error"></span>
                     </div>
                 </div>
@@ -95,7 +123,8 @@
                                    class="rm-btn-check emp-type-check"
                                    asp-for="EmployeeTypes[i].IsSelected"
                                    id="@checkId"
-                                   autocomplete="off" />
+                                   autocomplete="off"
+                                   disabled="@isPublished" />
                             <label class="rm-toggle-btn" for="@checkId">
                                 <i class="bi bi-person-badge"></i>
                                 @Model.EmployeeTypes[i].Name
@@ -105,19 +134,25 @@
                     }
                 </div>
 
-                <div id="noTypeWarning"
-                     class="rm-modal-warning mt-3"
-                     style="display:@(Model.EmployeeTypes.Any(e => e.IsSelected) ? "none" : "flex");">
-                    <i class="bi bi-exclamation-triangle"></i>
-                    Niciun tip de angajat selectat. Cursul nu va fi vizibil pentru niciun angajat până când nu adaugi cel puțin un tip.
-                </div>
+                @if (!isPublished)
+                {
+                    <div id="noTypeWarning"
+                         class="rm-modal-warning mt-3"
+                         style="display:@(Model.EmployeeTypes.Any(e => e.IsSelected) ? "none" : "flex");">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        Niciun tip de angajat selectat. Cursul nu va fi vizibil pentru niciun angajat până când nu adaugi cel puțin un tip.
+                    </div>
+                }
             </div>
 
-            <div class="d-flex justify-content-end">
-                <button type="submit" class="btn-rm-primary">
-                    <i class="bi bi-save"></i> Salvează Modificările
-                </button>
-            </div>
+            @if (!isPublished)
+            {
+                <div class="d-flex justify-content-end">
+                    <button type="submit" class="btn-rm-primary">
+                        <i class="bi bi-save"></i> Salvează Modificările
+                    </button>
+                </div>
+            }
         </form>
     </div>
 </div>
@@ -132,12 +167,15 @@
             Capitole
             <span class="rm-count-badge rm-count-green">@(course.Chapters?.Count ?? 0)</span>
         </div>
-        <a asp-controller="Chapters"
-               asp-action="Create"
-               asp-route-courseId="@course.Id"
-               class="btn-rm-success" style="font-size:0.78rem;padding:6px 14px;">
-            <i class="bi bi-plus-lg"></i> Adaugă Capitol
-        </a>
+        @if (!isPublished)
+        {
+            <a asp-controller="Chapters"
+                   asp-action="Create"
+                   asp-route-courseId="@course.Id"
+                   class="btn-rm-success" style="font-size:0.78rem;padding:6px 14px;">
+                <i class="bi bi-plus-lg"></i> Adaugă Capitol
+            </a>
+        }
     </div>
     <div class="rm-form-card-body">
         @if (course.Chapters == null || !course.Chapters.Any())
@@ -180,22 +218,25 @@
                                     }
                                 </p>
 
-                                <div class="d-flex gap-2 mb-4">
-                                    <a asp-controller="Chapters"
-                                           asp-action="Edit"
-                                           asp-route-id="@chapter.Id"
-                                           class="btn-rm-outline">
-                                        <i class="bi bi-pencil"></i> Editează
-                                    </a>
-                                    <button type="button"
-                                            class="btn-rm-outline btn-rm-outline-danger"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#deleteChapterModal"
-                                            data-chapter-id="@chapter.Id"
-                                            data-chapter-title="@chapter.Title">
-                                        <i class="bi bi-trash"></i> Șterge
-                                    </button>
-                                </div>
+                                @if (!isPublished)
+                                {
+                                    <div class="d-flex gap-2 mb-4">
+                                        <a asp-controller="Chapters"
+                                               asp-action="Edit"
+                                               asp-route-id="@chapter.Id"
+                                               class="btn-rm-outline">
+                                            <i class="bi bi-pencil"></i> Editează
+                                        </a>
+                                        <button type="button"
+                                                class="btn-rm-outline btn-rm-outline-danger"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#deleteChapterModal"
+                                                data-chapter-id="@chapter.Id"
+                                                data-chapter-title="@chapter.Title">
+                                            <i class="bi bi-trash"></i> Șterge
+                                        </button>
+                                    </div>
+                                }
 
                                 @if (chapter.Attachments != null && chapter.Attachments.Any())
                                 {
@@ -253,12 +294,15 @@
             Întrebări
             <span class="rm-count-badge rm-count-yellow">@(course.Questions?.Count ?? 0)</span>
         </div>
-        <a asp-controller="Questions"
-               asp-action="Create"
-               asp-route-courseId="@course.Id"
-               class="btn-rm-warning" style="font-size:0.78rem;padding:6px 14px;">
-            <i class="bi bi-plus-lg"></i> Adaugă Întrebare
-        </a>
+        @if (!isPublished)
+        {
+            <a asp-controller="Questions"
+                   asp-action="Create"
+                   asp-route-courseId="@course.Id"
+                   class="btn-rm-warning" style="font-size:0.78rem;padding:6px 14px;">
+                <i class="bi bi-plus-lg"></i> Adaugă Întrebare
+            </a>
+        }
     </div>
     <div class="rm-form-card-body">
         @if (course.Questions == null || !course.Questions.Any())
@@ -285,23 +329,26 @@
                                 </span>
                             </div>
                         </div>
-                        <div class="d-flex gap-2 flex-shrink-0">
-                            <a asp-controller="Questions"
-                                   asp-action="Edit"
-                                   asp-route-id="@q.Id"
-                                   class="btn-rm-outline">
-                                <i class="bi bi-pencil"></i> Editează
-                            </a>
-                            <button type="button"
-                                    class="btn-rm-outline btn-rm-outline-danger"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#deleteQuestionModal"
-                                    data-question-id="@q.Id"
-                                    data-question-text="@q.Text"
-                                    data-course-id="@course.Id">
-                                <i class="bi bi-trash"></i> Șterge
-                            </button>
-                        </div>
+                        @if (!isPublished)
+                        {
+                            <div class="d-flex gap-2 flex-shrink-0">
+                                <a asp-controller="Questions"
+                                       asp-action="Edit"
+                                       asp-route-id="@q.Id"
+                                       class="btn-rm-outline">
+                                    <i class="bi bi-pencil"></i> Editează
+                                </a>
+                                <button type="button"
+                                        class="btn-rm-outline btn-rm-outline-danger"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#deleteQuestionModal"
+                                        data-question-id="@q.Id"
+                                        data-question-text="@q.Text"
+                                        data-course-id="@course.Id">
+                                    <i class="bi bi-trash"></i> Șterge
+                                </button>
+                            </div>
+                        }
                     </div>
                 }
             </div>

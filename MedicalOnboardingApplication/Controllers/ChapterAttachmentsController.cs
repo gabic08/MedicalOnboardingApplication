@@ -42,10 +42,14 @@ public class ChapterAttachmentsController : Controller
     public async Task<IActionResult> Create(int chapterId, IFormFile file)
     {
         var chapter = await _context.Chapters
+            .Include(c => c.Course)
             .FirstOrDefaultAsync(c => c.Id == chapterId);
 
         if (chapter == null)
             return NotFound();
+
+        if (chapter.Course?.Status == CourseStatus.Published)
+            return RedirectToAction("Edit", "Chapters", new { id = chapterId });
 
         if (file == null || file.Length == 0)
         {
@@ -136,10 +140,14 @@ public class ChapterAttachmentsController : Controller
     {
         var attachment = await _context.ChapterAttachments
             .Include(a => a.Chapter)
+                .ThenInclude(c => c.Course)
             .FirstOrDefaultAsync(a => a.Id == id);
 
         if (attachment == null)
             return NotFound();
+
+        if (attachment.Chapter?.Course?.Status == CourseStatus.Published)
+            return RedirectToAction("Edit", "Chapters", new { id = attachment.Chapter.Id });
 
         // Delete file from disk
         if (!string.IsNullOrWhiteSpace(attachment.FilePath))

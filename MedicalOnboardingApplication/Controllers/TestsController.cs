@@ -1,4 +1,5 @@
 ﻿using MedicalOnboardingApplication.Data;
+using MedicalOnboardingApplication.Enums;
 using MedicalOnboardingApplication.Filters;
 using MedicalOnboardingApplication.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -42,8 +43,9 @@ public class TestsController : Controller
             .ToListAsync();
 
         var questionCount = await _context.Questions
-            .Where(q => q.Course.CourseEmployeeTypes
-                .Any(cet => cet.EmployeeTypeId == user.EmployeeTypeId))
+            .Where(q => q.Course.Status == CourseStatus.Published &&
+                        q.Course.CourseEmployeeTypes
+                            .Any(cet => cet.EmployeeTypeId == user.EmployeeTypeId))
             .CountAsync();
 
         var activeSession = sessions.FirstOrDefault(s => !s.IsCompleted);
@@ -75,8 +77,9 @@ public class TestsController : Controller
 
         var allQuestions = await _context.Questions
             .Include(q => q.Answers)
-            .Where(q => q.Course.CourseEmployeeTypes
-                .Any(cet => cet.EmployeeTypeId == user.EmployeeTypeId))
+            .Where(q => q.Course.Status == CourseStatus.Published &&
+                        q.Course.CourseEmployeeTypes
+                            .Any(cet => cet.EmployeeTypeId == user.EmployeeTypeId))
             .ToListAsync();
 
         if (allQuestions.Count < TotalQuestions)

@@ -1,4 +1,5 @@
 ﻿using MedicalOnboardingApplication.Data;
+using MedicalOnboardingApplication.Enums;
 using MedicalOnboardingApplication.Filters;
 using MedicalOnboardingApplication.Models;
 using MedicalOnboardingApplication.ViewModels;
@@ -43,6 +44,10 @@ public class ChaptersController : Controller
     {
         if (!ModelState.IsValid)
             return View(vm);
+
+        var course = await _context.Courses.FindAsync(vm.CourseId);
+        if (course?.Status == CourseStatus.Published)
+            return RedirectToAction("Manage", "AdminCourses", new { id = vm.CourseId });
 
         var maxOrder = await _context.Chapters
             .Where(c => c.CourseId == vm.CourseId)
@@ -114,10 +119,14 @@ public class ChaptersController : Controller
             return View(vm);
 
         var existing = await _context.Chapters
+            .Include(c => c.Course)
             .FirstOrDefaultAsync(c => c.Id == id);
 
         if (existing == null)
             return NotFound();
+
+        if (existing.Course?.Status == CourseStatus.Published)
+            return RedirectToAction("Manage", "AdminCourses", new { id = existing.CourseId });
 
         var oldOrder = existing.Order;
 
@@ -184,10 +193,14 @@ public class ChaptersController : Controller
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
         var chapter = await _context.Chapters
+            .Include(c => c.Course)
             .FirstOrDefaultAsync(c => c.Id == id);
 
         if (chapter == null)
             return NotFound();
+
+        if (chapter.Course?.Status == CourseStatus.Published)
+            return RedirectToAction("Manage", "AdminCourses", new { id = chapter.CourseId });
 
         var deletedOrder = chapter.Order;
         var courseId = chapter.CourseId;
