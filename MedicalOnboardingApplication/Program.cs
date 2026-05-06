@@ -13,7 +13,7 @@ builder.WebHost.UseUrls("http://localtest.me:5000");
 
 // Database
 builder.Services.AddDbContext<MedicalOnboardingApplicationContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
