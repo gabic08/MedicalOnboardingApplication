@@ -190,11 +190,29 @@ public class QuestionsController : Controller
         var clinicId = await GetCurrentClinicId();
 
         var question = await _context.Questions
-            .Include(q => q.Answers)
             .FirstOrDefaultAsync(q => q.Id == id && q.Course.ClinicId == clinicId);
 
         if (question != null)
         {
+            // Null out SelectedAnswerId on TestSessionQuestions referencing this question's
+            // answers before deleting — otherwise the NO ACTION FK fires while those rows
+            // still exist, since EF Core or SQL Server may delete Answers before cascading
+            // TestSessionQuestions via QuestionId.
+            var answerIds = await _context.Answers
+                .Where(a => a.QuestionId == id)
+                .Select(a => a.Id)
+                .ToListAsync();
+
+            if (answerIds.Any())
+            {
+                var affected = await _context.TestSessionQuestions
+                    .Where(tsq => tsq.SelectedAnswerId.HasValue && answerIds.Contains(tsq.SelectedAnswerId.Value))
+                    .ToListAsync();
+
+                foreach (var tsq in affected)
+                    tsq.SelectedAnswerId = null;
+            }
+
             _context.Questions.Remove(question);
             await _context.SaveChangesAsync();
         }

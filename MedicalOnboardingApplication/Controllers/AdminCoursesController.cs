@@ -356,6 +356,32 @@ namespace MedicalOnboardingApplication.Controllers
 
             var deletedOrder = course.Order;
 
+            // Null out SelectedAnswerId on TestSessionQuestions that reference this course's
+            // answers — SQL Server would otherwise fail the NO ACTION FK check when the
+            // Answers cascade fires before TestSessionQuestions finish cascading.
+            var questionIds = await _context.Questions
+                .Where(q => q.CourseId == id)
+                .Select(q => q.Id)
+                .ToListAsync();
+
+            if (questionIds.Any())
+            {
+                var answerIds = await _context.Answers
+                    .Where(a => questionIds.Contains(a.QuestionId))
+                    .Select(a => a.Id)
+                    .ToListAsync();
+
+                if (answerIds.Any())
+                {
+                    var affected = await _context.TestSessionQuestions
+                        .Where(tsq => tsq.SelectedAnswerId.HasValue && answerIds.Contains(tsq.SelectedAnswerId.Value))
+                        .ToListAsync();
+
+                    foreach (var tsq in affected)
+                        tsq.SelectedAnswerId = null;
+                }
+            }
+
             // Delete course
             _context.Courses.Remove(course);
 

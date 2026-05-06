@@ -1,0 +1,353 @@
+-- ============================================================
+-- Date de test in limba romana
+-- Clinica cu Id = 1 trebuie sa existe deja
+-- Rolurile "Admin" si "Employee" trebuie sa existe deja (create de IdentitySeeder)
+-- Utilizatorii sunt inserati fara PasswordHash (null) - reseteaza parola prin "Am uitat parola"
+-- ============================================================
+
+-- ============================================================
+-- Tipuri de angajati
+-- ============================================================
+INSERT INTO EmployeeTypes (Name) VALUES ('Medic');
+INSERT INTO EmployeeTypes (Name) VALUES ('Asistenta Medicala');
+INSERT INTO EmployeeTypes (Name) VALUES ('Receptionist');
+INSERT INTO EmployeeTypes (Name) VALUES ('Farmacist');
+
+-- ============================================================
+-- Cursuri
+-- ============================================================
+INSERT INTO Courses (Title, Description, [Order], ClinicId) VALUES
+('Siguranta la Locul de Munca', 'Protocoale esentiale de siguranta si raspuns in situatii de urgenta pentru tot personalul.', 1, 1);
+
+INSERT INTO Courses (Title, Description, [Order], ClinicId) VALUES
+('Ingrijirea Pacientilor', 'Principii fundamentale de comunicare, interactiune si ingrijire a pacientilor.', 2, 1);
+
+INSERT INTO Courses (Title, Description, [Order], ClinicId) VALUES
+('Controlul Infectiilor si Igiena', 'Bune practici pentru prevenirea infectiilor asociate asistentei medicale.', 3, 1);
+
+INSERT INTO Courses (Title, Description, [Order], ClinicId) VALUES
+('Documentatie Medicala si Conformitate', 'Gestionarea corecta a dosarelor medicale, GDPR si reglementari legale.', 4, 1);
+
+-- CourseEmployeeTypes (toate cursurile pentru toate tipurile de angajati)
+INSERT INTO CourseEmployeeTypes (CourseId, EmployeeTypeId)
+SELECT c.Id, et.Id FROM Courses c CROSS JOIN EmployeeTypes et WHERE c.ClinicId = 1;
+
+-- ============================================================
+-- Capitole
+-- ============================================================
+
+-- Cursul 1: Siguranta
+INSERT INTO Chapters (CourseId, Title, Content, [Order])
+SELECT Id, 'Siguranta in caz de incendiu si evacuare',
+'<p>In caz de incendiu, urmati protocolul <strong>RACE</strong>: <strong>Rescue</strong> (Salvare) - evacuati persoanele aflate in pericol iminent, <strong>Alarm</strong> (Alarma) - actionati cel mai apropiat buton de alarma, <strong>Contain</strong> (Limitare) - inchideti usile pentru a limita raspandirea focului, <strong>Evacuate</strong> (Evacuare) - parasiti cladirea prin iesirile de urgenta.</p><p>Cunoasteti locatia tuturor iesirilor de urgenta, extinctoarele si punctele de adunare din sectia dumneavoastra.</p>',
+1 FROM Courses WHERE Title = 'Siguranta la Locul de Munca';
+
+INSERT INTO Chapters (CourseId, Title, Content, [Order])
+SELECT Id, 'Identificarea pericolelor la locul de munca',
+'<p>Pericolele intr-un mediu medical includ: <strong>biologice</strong> (agenti patogeni, sange), <strong>chimice</strong> (substante de curatenie, medicamente), <strong>fizice</strong> (instrumente ascutite, echipamente grele) si <strong>ergonomice</strong> (efort repetitiv, pozitii incorecte).</p><p>Raportati orice pericol imediat superiorului dumneavoastra si documentati incidentul in registrul de accidente.</p>',
+2 FROM Courses WHERE Title = 'Siguranta la Locul de Munca';
+
+-- Cursul 2: Ingrijirea pacientilor
+INSERT INTO Chapters (CourseId, Title, Content, [Order])
+SELECT Id, 'Comunicarea eficienta cu pacientii',
+'<p>Comunicarea clara este fundamentul ingrijirii de calitate. Intotdeauna prezentati-va, explicati procedurile inainte de a le efectua si folositi un limbaj simplu, evitand termenii medicali complicati in discutia cu pacientii.</p><p>Ascultarea activa, contactul vizual si empatia imbunatatesc semnificativ increderea pacientului si cooperarea acestuia cu personalul medical.</p>',
+1 FROM Courses WHERE Title = 'Ingrijirea Pacientilor';
+
+INSERT INTO Chapters (CourseId, Title, Content, [Order])
+SELECT Id, 'Confidentialitatea si demnitatea pacientului',
+'<p>Fiecare pacient are dreptul la confidentialitate si demnitate. Bateti intotdeauna la usa inainte de a intra, folositi paravanele in timpul examinarii si nu discutati niciodata informatii personale in spatii publice.</p><p>Respectati regulamentul GDPR si politicile interne ale clinicii privind gestionarea datelor cu caracter personal.</p>',
+2 FROM Courses WHERE Title = 'Ingrijirea Pacientilor';
+
+-- Cursul 3: Controlul infectiilor
+INSERT INTO Chapters (CourseId, Title, Content, [Order])
+SELECT Id, 'Protocoale de igiena a mainilor',
+'<p>Igiena mainilor este cea mai eficienta masura de prevenire a infectiilor. Respectati cele <strong>5 momente OMS</strong> pentru igiena mainilor: inainte de contactul cu pacientul, inainte de o procedura aseptica, dupa expunerea la fluide corporale, dupa contactul cu pacientul si dupa contactul cu mediul pacientului.</p><p>Folositi apa si sapun cand mainile sunt vizibil murdare; in rest, utilizati solutie hidroalcoolica.</p>',
+1 FROM Courses WHERE Title = 'Controlul Infectiilor si Igiena';
+
+INSERT INTO Chapters (CourseId, Title, Content, [Order])
+SELECT Id, 'Echipamentul individual de protectie (EIP)',
+'<p>EIP trebuie ales in functie de nivelul de risc al procedurii. EIP standard include manusi, sort si masca chirurgicala. Pentru proceduri cu risc crescut se adauga halat impermeabil si respirator FFP2/FFP3.</p><p>Echipati-va intotdeauna inainte de a intra in zona pacientului si dezechipati-va cu atentie pentru a evita autocontaminarea. Eliminati EIP de unica folosinta imediat dupa utilizare.</p>',
+2 FROM Courses WHERE Title = 'Controlul Infectiilor si Igiena';
+
+-- Cursul 4: Documentatie
+INSERT INTO Chapters (CourseId, Title, Content, [Order])
+SELECT Id, 'Completarea corecta a dosarului medical',
+'<p>Dosarul medical este un document legal. Fiecare inregistrare trebuie sa fie lizibila, datata, semnata si sa contina informatii exacte. Nu modificati niciodata o inregistrare anterioara - adaugati o corectie datata.</p><p>Datele incomplete sau incorecte pot duce la erori medicale grave si la raspundere juridica.</p>',
+1 FROM Courses WHERE Title = 'Documentatie Medicala si Conformitate';
+
+INSERT INTO Chapters (CourseId, Title, Content, [Order])
+SELECT Id, 'GDPR si protectia datelor pacientilor',
+'<p>Conform GDPR, datele medicale sunt date cu caracter special si necesita un nivel ridicat de protectie. Accesati datele pacientilor doar atunci cand este necesar pentru ingrijirea acestora si nu le transmiteti unor terti fara consimtamant explicit.</p><p>Raportati orice incalcare a securitatii datelor responsabilului cu protectia datelor (DPO) in termen de 72 de ore.</p>',
+2 FROM Courses WHERE Title = 'Documentatie Medicala si Conformitate';
+
+-- ============================================================
+-- Intrebari si Raspunsuri
+-- Dificultate: FoarteUsor=1, Usor=2, Mediu=3, Dificil=4, FoarteDificil=5
+-- ============================================================
+
+-- Cursul 1: Siguranta
+
+INSERT INTO Questions (Text, Difficulty, CourseId)
+SELECT 'Ce inseamna litera "R" din protocolul RACE?', 1, Id FROM Courses WHERE Title = 'Siguranta la Locul de Munca';
+INSERT INTO Answers (Text, IsCorrect, QuestionId) VALUES ('Salvarea persoanelor aflate in pericol', 1, SCOPE_IDENTITY());
+INSERT INTO Answers (Text, IsCorrect, QuestionId) VALUES ('Raportarea incidentului', 0, SCOPE_IDENTITY());
+INSERT INTO Answers (Text, IsCorrect, QuestionId) VALUES ('Restrictionarea accesului', 0, SCOPE_IDENTITY());
+INSERT INTO Answers (Text, IsCorrect, QuestionId) VALUES ('Raspuns la urgenta', 0, SCOPE_IDENTITY());
+
+INSERT INTO Questions (Text, Difficulty, CourseId)
+SELECT 'Care dintre urmatoarele reprezinta un pericol biologic intr-un mediu medical?', 2, Id FROM Courses WHERE Title = 'Siguranta la Locul de Munca';
+INSERT INTO Answers (Text, IsCorrect, QuestionId) VALUES ('Agenti patogeni transmisi prin sange', 1, SCOPE_IDENTITY());
+INSERT INTO Answers (Text, IsCorrect, QuestionId) VALUES ('Podele alunecoase', 0, SCOPE_IDENTITY());
+INSERT INTO Answers (Text, IsCorrect, QuestionId) VALUES ('Zgomotul echipamentelor', 0, SCOPE_IDENTITY());
+INSERT INTO Answers (Text, IsCorrect, QuestionId) VALUES ('Ridicarea greutatilor', 0, SCOPE_IDENTITY());
+
+INSERT INTO Questions (Text, Difficulty, CourseId)
+SELECT 'Ce trebuie sa faceti imediat ce descoperiti un incendiu?', 3, Id FROM Courses WHERE Title = 'Siguranta la Locul de Munca';
+INSERT INTO Answers (Text, IsCorrect, QuestionId) VALUES ('Activati alarma, apoi evacuati pacientii in pericol iminent', 1, SCOPE_IDENTITY());
+INSERT INTO Answers (Text, IsCorrect, QuestionId) VALUES ('Incercati sa stingeti focul inainte de a alerta pe cineva', 0, SCOPE_IDENTITY());
+INSERT INTO Answers (Text, IsCorrect, QuestionId) VALUES ('Asteptati instructiunile superiorului inainte de orice actiune', 0, SCOPE_IDENTITY());
+INSERT INTO Answers (Text, IsCorrect, QuestionId) VALUES ('Deschideti ferestrele pentru a permite fumului sa iasa', 0, SCOPE_IDENTITY());
+
+-- Cursul 2: Ingrijirea pacientilor
+
+INSERT INTO Questions (Text, Difficulty, CourseId)
+SELECT 'Ce trebuie sa faceti intotdeauna inainte de a efectua o procedura asupra pacientului?', 1, Id FROM Courses WHERE Title = 'Ingrijirea Pacientilor';
+INSERT INTO Answers (Text, IsCorrect, QuestionId) VALUES ('Explicati clar procedura pacientului si obtineti consimtamantul', 1, SCOPE_IDENTITY());
+INSERT INTO Answers (Text, IsCorrect, QuestionId) VALUES ('Procedati fara intrerupere pentru a economisi timp', 0, SCOPE_IDENTITY());
+INSERT INTO Answers (Text, IsCorrect, QuestionId) VALUES ('Rugati un coleg sa informeze pacientul in locul dvs.', 0, SCOPE_IDENTITY());
+INSERT INTO Answers (Text, IsCorrect, QuestionId) VALUES ('Documentati procedura mai intai, apoi efectuati-o', 0, SCOPE_IDENTITY());
+
+INSERT INTO Questions (Text, Difficulty, CourseId)
+SELECT 'Ce reglementare guverneaza prelucrarea datelor personale ale pacientilor in UE?', 2, Id FROM Courses WHERE Title = 'Ingrijirea Pacientilor';
+INSERT INTO Answers (Text, IsCorrect, QuestionId) VALUES ('GDPR (Regulamentul General privind Protectia Datelor)', 1, SCOPE_IDENTITY());
+INSERT INTO Answers (Text, IsCorrect, QuestionId) VALUES ('HIPAA', 0, SCOPE_IDENTITY());
+INSERT INTO Answers (Text, IsCorrect, QuestionId) VALUES ('ISO 9001', 0, SCOPE_IDENTITY());
+INSERT INTO Answers (Text, IsCorrect, QuestionId) VALUES ('ICD-10', 0, SCOPE_IDENTITY());
+
+INSERT INTO Questions (Text, Difficulty, CourseId)
+SELECT 'Un pacient pare suparat si nu doreste sa comunice. Care este abordarea corecta?', 3, Id FROM Courses WHERE Title = 'Ingrijirea Pacientilor';
+INSERT INTO Answers (Text, IsCorrect, QuestionId) VALUES ('Recunoasteti sentimentele sale si oferiti-i spatiu, ramanand disponibil', 1, SCOPE_IDENTITY());
+INSERT INTO Answers (Text, IsCorrect, QuestionId) VALUES ('Plecati si nu reveniti pana nu sunteti chemat', 0, SCOPE_IDENTITY());
+INSERT INTO Answers (Text, IsCorrect, QuestionId) VALUES ('Insistati sa va explice ce s-a intamplat', 0, SCOPE_IDENTITY());
+INSERT INTO Answers (Text, IsCorrect, QuestionId) VALUES ('Continuati procedura indiferent de starea pacientului', 0, SCOPE_IDENTITY());
+
+-- Cursul 3: Controlul infectiilor
+
+INSERT INTO Questions (Text, Difficulty, CourseId)
+SELECT 'Cate momente de igiena a mainilor sunt recomandate de OMS?', 1, Id FROM Courses WHERE Title = 'Controlul Infectiilor si Igiena';
+INSERT INTO Answers (Text, IsCorrect, QuestionId) VALUES ('5', 1, SCOPE_IDENTITY());
+INSERT INTO Answers (Text, IsCorrect, QuestionId) VALUES ('3', 0, SCOPE_IDENTITY());
+INSERT INTO Answers (Text, IsCorrect, QuestionId) VALUES ('7', 0, SCOPE_IDENTITY());
+INSERT INTO Answers (Text, IsCorrect, QuestionId) VALUES ('2', 0, SCOPE_IDENTITY());
+
+INSERT INTO Questions (Text, Difficulty, CourseId)
+SELECT 'Cand este preferata spalarea cu apa si sapun in locul solutiei hidroalcoolice?', 2, Id FROM Courses WHERE Title = 'Controlul Infectiilor si Igiena';
+INSERT INTO Answers (Text, IsCorrect, QuestionId) VALUES ('Cand mainile sunt vizibil murdare sau contaminate cu fluide corporale', 1, SCOPE_IDENTITY());
+INSERT INTO Answers (Text, IsCorrect, QuestionId) VALUES ('Dupa fiecare contact cu un pacient', 0, SCOPE_IDENTITY());
+INSERT INTO Answers (Text, IsCorrect, QuestionId) VALUES ('Doar in timpul interventiilor chirurgicale', 0, SCOPE_IDENTITY());
+INSERT INTO Answers (Text, IsCorrect, QuestionId) VALUES ('Solutia hidroalcoolica este intotdeauna preferata', 0, SCOPE_IDENTITY());
+
+INSERT INTO Questions (Text, Difficulty, CourseId)
+SELECT 'Care este ordinea corecta de dezechipare a EIP pentru a evita autocontaminarea?', 4, Id FROM Courses WHERE Title = 'Controlul Infectiilor si Igiena';
+INSERT INTO Answers (Text, IsCorrect, QuestionId) VALUES ('Manusi, sort, masca, igiena mainilor', 1, SCOPE_IDENTITY());
+INSERT INTO Answers (Text, IsCorrect, QuestionId) VALUES ('Masca, manusi, sort, igiena mainilor', 0, SCOPE_IDENTITY());
+INSERT INTO Answers (Text, IsCorrect, QuestionId) VALUES ('Sort, masca, manusi, igiena mainilor', 0, SCOPE_IDENTITY());
+INSERT INTO Answers (Text, IsCorrect, QuestionId) VALUES ('Ordinea nu conteaza', 0, SCOPE_IDENTITY());
+
+-- Cursul 4: Documentatie
+
+INSERT INTO Questions (Text, Difficulty, CourseId)
+SELECT 'Ce trebuie sa contina obligatoriu o inregistrare in dosarul medical?', 2, Id FROM Courses WHERE Title = 'Documentatie Medicala si Conformitate';
+INSERT INTO Answers (Text, IsCorrect, QuestionId) VALUES ('Data, semnatura si informatii exacte si lizibile', 1, SCOPE_IDENTITY());
+INSERT INTO Answers (Text, IsCorrect, QuestionId) VALUES ('Doar numele pacientului si procedura efectuata', 0, SCOPE_IDENTITY());
+INSERT INTO Answers (Text, IsCorrect, QuestionId) VALUES ('Semnatura este optionala daca procedura este simpla', 0, SCOPE_IDENTITY());
+INSERT INTO Answers (Text, IsCorrect, QuestionId) VALUES ('Inregistrarile se pot face a doua zi dupa procedura', 0, SCOPE_IDENTITY());
+
+INSERT INTO Questions (Text, Difficulty, CourseId)
+SELECT 'In cat timp trebuie raportata o incalcare a securitatii datelor conform GDPR?', 3, Id FROM Courses WHERE Title = 'Documentatie Medicala si Conformitate';
+INSERT INTO Answers (Text, IsCorrect, QuestionId) VALUES ('72 de ore de la identificarea incalcarii', 1, SCOPE_IDENTITY());
+INSERT INTO Answers (Text, IsCorrect, QuestionId) VALUES ('24 de ore', 0, SCOPE_IDENTITY());
+INSERT INTO Answers (Text, IsCorrect, QuestionId) VALUES ('7 zile lucratoare', 0, SCOPE_IDENTITY());
+INSERT INTO Answers (Text, IsCorrect, QuestionId) VALUES ('Nu exista termen legal', 0, SCOPE_IDENTITY());
+
+INSERT INTO Questions (Text, Difficulty, CourseId)
+SELECT 'Ce faceti daca ati facut o greseala intr-o inregistrare din dosarul medical?', 3, Id FROM Courses WHERE Title = 'Documentatie Medicala si Conformitate';
+INSERT INTO Answers (Text, IsCorrect, QuestionId) VALUES ('Adaugati o corectie datata si semnata, fara a sterge originalul', 1, SCOPE_IDENTITY());
+INSERT INTO Answers (Text, IsCorrect, QuestionId) VALUES ('Stergeti inregistrarea gresita si rescrieti-o corect', 0, SCOPE_IDENTITY());
+INSERT INTO Answers (Text, IsCorrect, QuestionId) VALUES ('Lasati eroarea si informati verbal colegul urmator', 0, SCOPE_IDENTITY());
+INSERT INTO Answers (Text, IsCorrect, QuestionId) VALUES ('Solicitati crearea unui dosar nou pentru pacient', 0, SCOPE_IDENTITY());
+
+-- ============================================================
+-- Utilizatori (parola = null, resetati prin "Am uitat parola")
+-- ============================================================
+INSERT INTO Users (FirstName, LastName, Email, NormalizedEmail, UserName, NormalizedUserName,
+    EmailConfirmed, PasswordHash, SecurityStamp, ConcurrencyStamp,
+    PhoneNumberConfirmed, TwoFactorEnabled, LockoutEnabled, AccessFailedCount,
+    ClinicId, EmployeeTypeId)
+SELECT 'Ion', 'Popescu', 'ion.popescu@clinica.ro', 'ION.POPESCU@CLINICA.RO',
+    'ion.popescu@clinica.ro', 'ION.POPESCU@CLINICA.RO',
+    1, NULL, NEWID(), NEWID(),
+    0, 0, 0, 0,
+    1, (SELECT Id FROM EmployeeTypes WHERE Name = 'Medic');
+
+INSERT INTO Users (FirstName, LastName, Email, NormalizedEmail, UserName, NormalizedUserName,
+    EmailConfirmed, PasswordHash, SecurityStamp, ConcurrencyStamp,
+    PhoneNumberConfirmed, TwoFactorEnabled, LockoutEnabled, AccessFailedCount,
+    ClinicId, EmployeeTypeId)
+SELECT 'Maria', 'Ionescu', 'maria.ionescu@clinica.ro', 'MARIA.IONESCU@CLINICA.RO',
+    'maria.ionescu@clinica.ro', 'MARIA.IONESCU@CLINICA.RO',
+    1, NULL, NEWID(), NEWID(),
+    0, 0, 0, 0,
+    1, (SELECT Id FROM EmployeeTypes WHERE Name = 'Asistenta Medicala');
+
+INSERT INTO Users (FirstName, LastName, Email, NormalizedEmail, UserName, NormalizedUserName,
+    EmailConfirmed, PasswordHash, SecurityStamp, ConcurrencyStamp,
+    PhoneNumberConfirmed, TwoFactorEnabled, LockoutEnabled, AccessFailedCount,
+    ClinicId, EmployeeTypeId)
+SELECT 'Ana', 'Constantin', 'ana.constantin@clinica.ro', 'ANA.CONSTANTIN@CLINICA.RO',
+    'ana.constantin@clinica.ro', 'ANA.CONSTANTIN@CLINICA.RO',
+    1, NULL, NEWID(), NEWID(),
+    0, 0, 0, 0,
+    1, (SELECT Id FROM EmployeeTypes WHERE Name = 'Receptionist');
+
+INSERT INTO Users (FirstName, LastName, Email, NormalizedEmail, UserName, NormalizedUserName,
+    EmailConfirmed, PasswordHash, SecurityStamp, ConcurrencyStamp,
+    PhoneNumberConfirmed, TwoFactorEnabled, LockoutEnabled, AccessFailedCount,
+    ClinicId, EmployeeTypeId)
+SELECT 'Gheorghe', 'Dumitrescu', 'gheorghe.dumitrescu@clinica.ro', 'GHEORGHE.DUMITRESCU@CLINICA.RO',
+    'gheorghe.dumitrescu@clinica.ro', 'GHEORGHE.DUMITRESCU@CLINICA.RO',
+    1, NULL, NEWID(), NEWID(),
+    0, 0, 0, 0,
+    1, (SELECT Id FROM EmployeeTypes WHERE Name = 'Farmacist');
+
+-- UserRoles (toti utilizatorii au rolul "Employee")
+INSERT INTO UserRoles (UserId, RoleId)
+SELECT u.Id, r.Id FROM Users u
+CROSS JOIN Roles r
+WHERE u.Email IN ('ion.popescu@clinica.ro','maria.ionescu@clinica.ro','ana.constantin@clinica.ro','gheorghe.dumitrescu@clinica.ro')
+AND r.Name = 'Employee';
+
+-- ============================================================
+-- Program de lucru
+-- ============================================================
+INSERT INTO WorkSchedules (UserId, Day, StartTime, EndTime)
+SELECT Id, 1, '08:00', '16:00' FROM Users WHERE Email = 'ion.popescu@clinica.ro';        -- Luni
+INSERT INTO WorkSchedules (UserId, Day, StartTime, EndTime)
+SELECT Id, 3, '08:00', '16:00' FROM Users WHERE Email = 'ion.popescu@clinica.ro';        -- Miercuri
+INSERT INTO WorkSchedules (UserId, Day, StartTime, EndTime)
+SELECT Id, 5, '08:00', '14:00' FROM Users WHERE Email = 'ion.popescu@clinica.ro';        -- Vineri
+
+INSERT INTO WorkSchedules (UserId, Day, StartTime, EndTime)
+SELECT Id, 1, '07:00', '15:00' FROM Users WHERE Email = 'maria.ionescu@clinica.ro';
+INSERT INTO WorkSchedules (UserId, Day, StartTime, EndTime)
+SELECT Id, 2, '07:00', '15:00' FROM Users WHERE Email = 'maria.ionescu@clinica.ro';
+INSERT INTO WorkSchedules (UserId, Day, StartTime, EndTime)
+SELECT Id, 4, '07:00', '15:00' FROM Users WHERE Email = 'maria.ionescu@clinica.ro';
+
+INSERT INTO WorkSchedules (UserId, Day, StartTime, EndTime)
+SELECT Id, 1, '09:00', '17:00' FROM Users WHERE Email = 'ana.constantin@clinica.ro';
+INSERT INTO WorkSchedules (UserId, Day, StartTime, EndTime)
+SELECT Id, 2, '09:00', '17:00' FROM Users WHERE Email = 'ana.constantin@clinica.ro';
+INSERT INTO WorkSchedules (UserId, Day, StartTime, EndTime)
+SELECT Id, 3, '09:00', '17:00' FROM Users WHERE Email = 'ana.constantin@clinica.ro';
+INSERT INTO WorkSchedules (UserId, Day, StartTime, EndTime)
+SELECT Id, 4, '09:00', '17:00' FROM Users WHERE Email = 'ana.constantin@clinica.ro';
+INSERT INTO WorkSchedules (UserId, Day, StartTime, EndTime)
+SELECT Id, 5, '09:00', '13:00' FROM Users WHERE Email = 'ana.constantin@clinica.ro';
+
+INSERT INTO WorkSchedules (UserId, Day, StartTime, EndTime)
+SELECT Id, 2, '10:00', '18:00' FROM Users WHERE Email = 'gheorghe.dumitrescu@clinica.ro';
+INSERT INTO WorkSchedules (UserId, Day, StartTime, EndTime)
+SELECT Id, 4, '10:00', '18:00' FROM Users WHERE Email = 'gheorghe.dumitrescu@clinica.ro';
+
+-- ============================================================
+-- Progres capitole si cursuri
+-- ============================================================
+
+-- Ion Popescu a finalizat toate capitolele de la cursul 1
+INSERT INTO UserChapterProgress (UserId, ChapterId, CompletedAt)
+SELECT u.Id, c.Id, '2025-02-10 10:30:00'
+FROM Users u, Chapters c
+WHERE u.Email = 'ion.popescu@clinica.ro'
+AND c.CourseId = (SELECT Id FROM Courses WHERE Title = 'Siguranta la Locul de Munca');
+
+INSERT INTO UserCourseProgress (UserId, CourseId, CompletedAt)
+SELECT u.Id, c.Id, '2025-02-10 10:45:00'
+FROM Users u, Courses c
+WHERE u.Email = 'ion.popescu@clinica.ro'
+AND c.Title = 'Siguranta la Locul de Munca';
+
+-- Maria Ionescu a finalizat capitolele de la cursul 3
+INSERT INTO UserChapterProgress (UserId, ChapterId, CompletedAt)
+SELECT u.Id, c.Id, '2025-02-12 09:00:00'
+FROM Users u, Chapters c
+WHERE u.Email = 'maria.ionescu@clinica.ro'
+AND c.CourseId = (SELECT Id FROM Courses WHERE Title = 'Controlul Infectiilor si Igiena');
+
+INSERT INTO UserCourseProgress (UserId, CourseId, CompletedAt)
+SELECT u.Id, c.Id, '2025-02-12 09:20:00'
+FROM Users u, Courses c
+WHERE u.Email = 'maria.ionescu@clinica.ro'
+AND c.Title = 'Controlul Infectiilor si Igiena';
+
+-- ============================================================
+-- Sesiuni de test
+-- ============================================================
+
+-- Sesiune finalizata: Ion Popescu - Siguranta la locul de munca (3 intrebari, 2 corecte)
+INSERT INTO TestSessions (UserId, StartedAt, CompletedAt, IsCompleted, TotalQuestions, CorrectAnswers, AverageDifficulty)
+SELECT Id, '2025-02-10 10:00:00', '2025-02-10 10:12:00', 1, 3, 2, 2.0
+FROM Users WHERE Email = 'ion.popescu@clinica.ro';
+
+INSERT INTO TestSessionQuestions (TestSessionId, QuestionId, SelectedAnswerId, IsCorrect, [Order], DifficultyAtTime, AnswerOrder)
+SELECT
+    (SELECT TOP 1 Id FROM TestSessions WHERE UserId = (SELECT Id FROM Users WHERE Email = 'ion.popescu@clinica.ro')),
+    q.Id,
+    (SELECT TOP 1 Id FROM Answers WHERE QuestionId = q.Id AND IsCorrect = 1),
+    1, 1, q.Difficulty, '1,2,3,4'
+FROM Questions q WHERE q.Text = 'Ce inseamna litera "R" din protocolul RACE?';
+
+INSERT INTO TestSessionQuestions (TestSessionId, QuestionId, SelectedAnswerId, IsCorrect, [Order], DifficultyAtTime, AnswerOrder)
+SELECT
+    (SELECT TOP 1 Id FROM TestSessions WHERE UserId = (SELECT Id FROM Users WHERE Email = 'ion.popescu@clinica.ro')),
+    q.Id,
+    (SELECT TOP 1 Id FROM Answers WHERE QuestionId = q.Id AND IsCorrect = 1),
+    1, 2, q.Difficulty, '1,2,3,4'
+FROM Questions q WHERE q.Text = 'Care dintre urmatoarele reprezinta un pericol biologic intr-un mediu medical?';
+
+INSERT INTO TestSessionQuestions (TestSessionId, QuestionId, SelectedAnswerId, IsCorrect, [Order], DifficultyAtTime, AnswerOrder)
+SELECT
+    (SELECT TOP 1 Id FROM TestSessions WHERE UserId = (SELECT Id FROM Users WHERE Email = 'ion.popescu@clinica.ro')),
+    q.Id,
+    (SELECT TOP 1 Id FROM Answers WHERE QuestionId = q.Id AND IsCorrect = 0),
+    0, 3, q.Difficulty, '1,2,3,4'
+FROM Questions q WHERE q.Text = 'Ce trebuie sa faceti imediat ce descoperiti un incendiu?';
+
+-- Sesiune finalizata: Maria Ionescu - Controlul infectiilor (3 intrebari, 3 corecte)
+INSERT INTO TestSessions (UserId, StartedAt, CompletedAt, IsCompleted, TotalQuestions, CorrectAnswers, AverageDifficulty)
+SELECT Id, '2025-02-12 08:30:00', '2025-02-12 08:45:00', 1, 3, 3, 2.33
+FROM Users WHERE Email = 'maria.ionescu@clinica.ro';
+
+INSERT INTO TestSessionQuestions (TestSessionId, QuestionId, SelectedAnswerId, IsCorrect, [Order], DifficultyAtTime, AnswerOrder)
+SELECT
+    (SELECT TOP 1 Id FROM TestSessions WHERE UserId = (SELECT Id FROM Users WHERE Email = 'maria.ionescu@clinica.ro')),
+    q.Id,
+    (SELECT TOP 1 Id FROM Answers WHERE QuestionId = q.Id AND IsCorrect = 1),
+    1, 1, q.Difficulty, '1,2,3,4'
+FROM Questions q WHERE q.Text = 'Cate momente de igiena a mainilor sunt recomandate de OMS?';
+
+INSERT INTO TestSessionQuestions (TestSessionId, QuestionId, SelectedAnswerId, IsCorrect, [Order], DifficultyAtTime, AnswerOrder)
+SELECT
+    (SELECT TOP 1 Id FROM TestSessions WHERE UserId = (SELECT Id FROM Users WHERE Email = 'maria.ionescu@clinica.ro')),
+    q.Id,
+    (SELECT TOP 1 Id FROM Answers WHERE QuestionId = q.Id AND IsCorrect = 1),
+    1, 2, q.Difficulty, '1,2,3,4'
+FROM Questions q WHERE q.Text = 'Cand este preferata spalarea cu apa si sapun in locul solutiei hidroalcoolice?';
+
+INSERT INTO TestSessionQuestions (TestSessionId, QuestionId, SelectedAnswerId, IsCorrect, [Order], DifficultyAtTime, AnswerOrder)
+SELECT
+    (SELECT TOP 1 Id FROM TestSessions WHERE UserId = (SELECT Id FROM Users WHERE Email = 'maria.ionescu@clinica.ro')),
+    q.Id,
+    (SELECT TOP 1 Id FROM Answers WHERE QuestionId = q.Id AND IsCorrect = 1),
+    1, 3, q.Difficulty, '1,2,3,4'
+FROM Questions q WHERE q.Text = 'Care este ordinea corecta de dezechipare a EIP pentru a evita autocontaminarea?';
