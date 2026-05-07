@@ -348,7 +348,7 @@ namespace MedicalOnboardingApplication.Controllers
 
             await _context.SaveChangesAsync();
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Manage), new { id });
         }
 
         // POST: Courses/Delete/5
@@ -441,7 +441,7 @@ namespace MedicalOnboardingApplication.Controllers
             {
                 if (!course.CourseEmployeeTypes.Any())
                 {
-                    TempData["Error"] = "Cursul trebuie să aibă cel puțin un tip de angajat înainte de a fi publicat.";
+                    TempData["Error"] = "Cursul trebuie să aibă cel puțin un tip de angajat înainte de a fi publicat. Salvează modificările mai întâi, apoi publică.";
                     return RedirectToAction(nameof(Manage), new { id });
                 }
 

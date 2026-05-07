@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MedicalOnboardingApplication.Migrations
 {
     [DbContext(typeof(MedicalOnboardingApplicationContext))]
-    [Migration("20260506185649_Initial")]
+    [Migration("20260507174359_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -89,6 +89,9 @@ namespace MedicalOnboardingApplication.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("integer");
 
+                    b.Property<DateTime?>("ArchivedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<int?>("ClinicId")
                         .HasColumnType("integer");
 
@@ -108,6 +111,9 @@ namespace MedicalOnboardingApplication.Migrations
 
                     b.Property<string>("FirstName")
                         .HasColumnType("text");
+
+                    b.Property<bool>("IsArchived")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("LastName")
                         .HasColumnType("text");

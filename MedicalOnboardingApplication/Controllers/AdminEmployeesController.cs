@@ -34,7 +34,8 @@ public class AdminEmployeesController : Controller
         var query = _userManager.Users
             .Include(u => u.EmployeeType)
             .Where(u => u.ClinicId == currentAdmin.ClinicId
-                     && u.UserRoles.Any(ur => ur.Role.Name != "Admin"));
+                     && u.UserRoles.Any(ur => ur.Role.Name != "Admin")
+                     && !u.IsArchived);
 
         if (!string.IsNullOrWhiteSpace(search))
         {
@@ -140,7 +141,10 @@ public class AdminEmployeesController : Controller
         var existingUser = await _userManager.FindByEmailAsync(vm.Email);
         if (existingUser != null)
         {
-            ModelState.AddModelError("Email", "Un cont cu această adresă de email există deja.");
+            var errorMsg = existingUser.IsArchived
+                ? "Un angajat arhivat cu această adresă de email există deja și nu poate fi refolosit."
+                : "Un cont cu această adresă de email există deja.";
+            ModelState.AddModelError("Email", errorMsg);
             ViewBag.EmployeeTypes = new SelectList(_context.EmployeeTypes, "Id", "Name", vm.EmployeeTypeId);
             ViewBag.DayNames = DayNames;
             return View(vm);
@@ -311,17 +315,44 @@ public class AdminEmployeesController : Controller
     }
 
 
-    [HttpPost, ActionName("Delete")]
+    [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(string id)
+    [ActionName("Archive")]
+    public async Task<IActionResult> ArchiveConfirmed(int id)
     {
-        var user = await _userManager.FindByIdAsync(id);
+        var admin = await _userManager.GetUserAsync(User);
+
+        var user = await _userManager.Users
+            .Include(u => u.WorkSchedules)
+            .FirstOrDefaultAsync(u => u.Id == id && u.ClinicId == admin.ClinicId);
+
         if (user == null)
             return NotFound();
 
-        await _userManager.DeleteAsync(user);
+        if (await IsEmployeeCurrentlyWorking(user))
+        {
+            TempData["Error"] = $"Angajatul {user.FirstName} {user.LastName} nu poate fi arhivat în timpul programului de lucru.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        user.IsArchived = true;
+        user.ArchivedAt = DateTime.UtcNow;
+        await _userManager.UpdateAsync(user);
 
         return RedirectToAction(nameof(Index));
+    }
+
+    private Task<bool> IsEmployeeCurrentlyWorking(ApplicationUser user)
+    {
+        var now = DateTime.Now;
+        var currentTime = TimeOnly.FromDateTime(now);
+
+        var isWorking = user.WorkSchedules != null && user.WorkSchedules.Any(ws =>
+            ws.Day == now.DayOfWeek &&
+            currentTime >= ws.StartTime &&
+            currentTime <= ws.EndTime);
+
+        return Task.FromResult(isWorking);
     }
 
     public async Task<IActionResult> Report(int id)

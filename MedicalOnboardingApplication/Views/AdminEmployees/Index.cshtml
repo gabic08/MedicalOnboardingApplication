@@ -70,6 +70,14 @@
     }
 </form>
 
+@if (TempData["Error"] != null)
+{
+    <div class="rm-alert rm-alert-error mb-4">
+        <i class="bi bi-exclamation-circle-fill"></i>
+        @TempData["Error"]
+    </div>
+}
+
 <!-- Results summary -->
 @if (Model.Any())
 {
@@ -131,14 +139,15 @@
                             <a asp-action="Schedule" asp-route-id="@emp.Id" class="btn-rm-outline">
                                 <i class="bi bi-calendar-week"></i> Program
                             </a>
-                            <button type="button"
-                                    class="btn-rm-outline btn-rm-outline-danger"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#deleteEmployeeModal"
-                                    data-employee-id="@emp.Id"
-                                    data-employee-name="@emp.FirstName @emp.LastName">
-                                <i class="bi bi-trash"></i>
-                            </button>
+                            <form asp-controller="AdminEmployees" asp-action="Archive" method="post" style="display:inline;">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@emp.Id" />
+                                <button type="submit"
+                                        class="btn-rm-outline btn-rm-outline-danger"
+                                        onclick="return confirm('Ești sigur că vrei să arhivezi angajatul \'@emp.FirstName @emp.LastName\'?\n\nAngajatul nu va mai putea accesa aplicația. Această acțiune nu poate fi anulată.');">
+                                    <i class="bi bi-archive"></i> Arhivează
+                                </button>
+                            </form>
                         </div>
                     </td>
                 </tr>
@@ -158,49 +167,3 @@
     </table>
 </div>
 
-<!-- Hidden Form -->
-<form id="deleteEmployeeForm" asp-action="Delete" method="post" class="d-none">
-    @Html.AntiForgeryToken()
-    <input type="hidden" name="id" id="deleteEmployeeId" />
-</form>
-
-<!-- Delete Employee Modal -->
-<div class="modal fade" id="deleteEmployeeModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="rm-modal-content">
-            <div class="rm-modal-header">
-                <div class="rm-modal-icon rm-modal-icon-danger">
-                    <i class="bi bi-exclamation-triangle-fill"></i>
-                </div>
-                <button type="button" class="rm-modal-close" data-bs-dismiss="modal">
-                    <i class="bi bi-x-lg"></i>
-                </button>
-            </div>
-            <div class="rm-modal-body">
-                <h5 class="rm-modal-title">Șterge Angajatul</h5>
-                <p class="rm-modal-text">Ești sigur că vrei să ștergi <strong id="deleteEmployeeName"></strong>?</p>
-                <div class="rm-modal-warning">
-                    <i class="bi bi-info-circle"></i>
-                    Această acțiune nu poate fi anulată.
-                </div>
-            </div>
-            <div class="rm-modal-footer">
-                <button type="button" class="btn-rm-secondary" data-bs-dismiss="modal">Anulează</button>
-                <button type="button" class="btn-rm-danger"
-                        onclick="document.getElementById('deleteEmployeeForm').submit();">
-                    <i class="bi bi-trash"></i> Da, Șterge
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-@section Scripts {
-    <script>
-        document.getElementById('deleteEmployeeModal').addEventListener('show.bs.modal', function (e) {
-            const btn = e.relatedTarget;
-            document.getElementById('deleteEmployeeId').value = btn.getAttribute('data-employee-id');
-            document.getElementById('deleteEmployeeName').innerText = btn.getAttribute('data-employee-name');
-        });
-    </script>
-}

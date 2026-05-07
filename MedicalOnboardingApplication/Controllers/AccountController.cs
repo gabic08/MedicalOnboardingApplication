@@ -74,6 +74,12 @@ namespace MedicalOnboardingApplication.Controllers
                 return View(vm);
             }
 
+            if (user.IsArchived)
+            {
+                ModelState.AddModelError("", "Contul tău a fost arhivat. Contactează administratorul clinicii.");
+                return View(vm);
+            }
+
             var result = await _signInManager.PasswordSignInAsync(
                 user.UserName,
                 vm.Password,

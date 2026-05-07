@@ -95,6 +95,8 @@ namespace MedicalOnboardingApplication.Migrations
                     LastName = table.Column<string>(type: "text", nullable: true),
                     ClinicId = table.Column<int>(type: "integer", nullable: true),
                     ProfileImagePath = table.Column<string>(type: "text", nullable: true),
+                    IsArchived = table.Column<bool>(type: "boolean", nullable: false),
+                    ArchivedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),

@@ -1,0 +1,643 @@
+-- =============================================================================
+-- SEED DATA — Clinic ID 1
+-- MedicalOnboardingApplication — PostgreSQL
+-- =============================================================================
+-- Conține:
+--   • 3 tipuri de angajați
+--   • 12 angajați (cu program Mon-Fri 08:00-16:00)
+--   • 3 cursuri publicate cu capitole, întrebări și răspunsuri
+--   • 5 sesiuni de test cu rezultate
+--   • Progres cursuri și capitole pentru angajații cu teste finalizate
+--
+-- Parola tuturor angajaților: P@ssw0rd
+-- Hash-urile sunt generate cu PasswordHasher<object> din Identity 10.0.2
+-- (PBKDF2-HMACSHA512, 100.000 iterații — format implicit .NET 10)
+-- =============================================================================
+
+BEGIN;
+
+-- =============================================================================
+-- 1. TIPURI DE ANGAJAȚI (IDs 100-102)
+-- =============================================================================
+INSERT INTO "EmployeeTypes" ("Id", "Name") VALUES
+  (100, 'Asistent Medical'),
+  (101, 'Medic'),
+  (102, 'Infirmier');
+
+
+-- =============================================================================
+-- 2. ANGAJAȚI (IDs 100-111)
+-- Parola: P@ssw0rd
+-- =============================================================================
+INSERT INTO "Users" (
+    "Id", "UserName", "NormalizedUserName",
+    "Email", "NormalizedEmail",
+    "EmailConfirmed", "PasswordHash",
+    "SecurityStamp", "ConcurrencyStamp",
+    "PhoneNumber", "PhoneNumberConfirmed",
+    "TwoFactorEnabled", "LockoutEnd",
+    "LockoutEnabled", "AccessFailedCount",
+    "FirstName", "LastName",
+    "ClinicId", "EmployeeTypeId",
+    "IsArchived", "ArchivedAt", "ProfileImagePath"
+) VALUES
+(100,
+ 'ana.ionescu@clinica.ro',    'ANA.IONESCU@CLINICA.RO',
+ 'ana.ionescu@clinica.ro',    'ANA.IONESCU@CLINICA.RO',
+ true,
+ 'AQAAAAIAAYagAAAAEGS9GLLOcMdzGHjnA283N67e4I1nDTKOfL0Ta8s92W2ZpYuuckVbnsosmxPunYZnNQ==',
+ '3QSEED100SECURITYSTAMP00000000000000', '3b1a2c00-0000-0000-0000-000000000100',
+ NULL, false, false, NULL, true, 0,
+ 'Ana', 'Ionescu', 1, 100, false, NULL, NULL),
+
+(101,
+ 'mihai.popescu@clinica.ro',  'MIHAI.POPESCU@CLINICA.RO',
+ 'mihai.popescu@clinica.ro',  'MIHAI.POPESCU@CLINICA.RO',
+ true,
+ 'AQAAAAIAAYagAAAAEEcsxmbF0kZuyumyIh6l68mZg1KD0CIH6LifPv4F1ZSzHbyKCNkv7AZ/cnHlnv9Row==',
+ '3QSEED101SECURITYSTAMP00000000000000', '3b1a2c00-0000-0000-0000-000000000101',
+ NULL, false, false, NULL, true, 0,
+ 'Mihai', 'Popescu', 1, 101, false, NULL, NULL),
+
+(102,
+ 'gheorghe.andrei@clinica.ro','GHEORGHE.ANDREI@CLINICA.RO',
+ 'gheorghe.andrei@clinica.ro','GHEORGHE.ANDREI@CLINICA.RO',
+ true,
+ 'AQAAAAIAAYagAAAAENallpSRpYRRzIwOgynjQdIHAfC23IAR+mFvCP/+pOtHrTLtcp3J4mw4nA9JVXQM2A==',
+ '3QSEED102SECURITYSTAMP00000000000000', '3b1a2c00-0000-0000-0000-000000000102',
+ NULL, false, false, NULL, true, 0,
+ 'Gheorghe', 'Andrei', 1, 100, false, NULL, NULL),
+
+(103,
+ 'maria.vasile@clinica.ro',   'MARIA.VASILE@CLINICA.RO',
+ 'maria.vasile@clinica.ro',   'MARIA.VASILE@CLINICA.RO',
+ true,
+ 'AQAAAAIAAYagAAAAEPD2CDPjdV2a5k4tYz05FeCLm1jyOlaWbKZKSfzT7DupIGpK2zbfp0N+h1a5GkCJ3Q==',
+ '3QSEED103SECURITYSTAMP00000000000000', '3b1a2c00-0000-0000-0000-000000000103',
+ NULL, false, false, NULL, true, 0,
+ 'Maria', 'Vasile', 1, 101, false, NULL, NULL),
+
+(104,
+ 'elena.dumitrescu@clinica.ro','ELENA.DUMITRESCU@CLINICA.RO',
+ 'elena.dumitrescu@clinica.ro','ELENA.DUMITRESCU@CLINICA.RO',
+ true,
+ 'AQAAAAIAAYagAAAAECgeH0awbWrOUjkCcuEiIbNI691RH5+Cy2Leu0hev4U/I4dfknSUVwo1iCiTxK9HJQ==',
+ '3QSEED104SECURITYSTAMP00000000000000', '3b1a2c00-0000-0000-0000-000000000104',
+ NULL, false, false, NULL, true, 0,
+ 'Elena', 'Dumitrescu', 1, 102, false, NULL, NULL),
+
+(105,
+ 'ion.popa@clinica.ro',       'ION.POPA@CLINICA.RO',
+ 'ion.popa@clinica.ro',       'ION.POPA@CLINICA.RO',
+ true,
+ 'AQAAAAIAAYagAAAAEDbO4wNkZ60fjF0RUJYXGZa4jVRV+XGwXneXeP+B5WRg6gxoGrrg9mw1DJbvDBxugw==',
+ '3QSEED105SECURITYSTAMP00000000000000', '3b1a2c00-0000-0000-0000-000000000105',
+ NULL, false, false, NULL, true, 0,
+ 'Ion', 'Popa', 1, 100, false, NULL, NULL),
+
+(106,
+ 'cristina.munteanu@clinica.ro','CRISTINA.MUNTEANU@CLINICA.RO',
+ 'cristina.munteanu@clinica.ro','CRISTINA.MUNTEANU@CLINICA.RO',
+ true,
+ 'AQAAAAIAAYagAAAAECKMXW4tG30G+K8Ole9B8PeMiUMOtqKJEczo+KkdOTsfUUsT3THpf6aeSfWNilmCWg==',
+ '3QSEED106SECURITYSTAMP00000000000000', '3b1a2c00-0000-0000-0000-000000000106',
+ NULL, false, false, NULL, true, 0,
+ 'Cristina', 'Munteanu', 1, 102, false, NULL, NULL),
+
+(107,
+ 'alexandru.stan@clinica.ro', 'ALEXANDRU.STAN@CLINICA.RO',
+ 'alexandru.stan@clinica.ro', 'ALEXANDRU.STAN@CLINICA.RO',
+ true,
+ 'AQAAAAIAAYagAAAAEB0hzFBbnhO9+62nFKmroSn0Wzo0WcWED+jB2X9hc7WHNDszHUrVGizE2Vm4/XUtuQ==',
+ '3QSEED107SECURITYSTAMP00000000000000', '3b1a2c00-0000-0000-0000-000000000107',
+ NULL, false, false, NULL, true, 0,
+ 'Alexandru', 'Stan', 1, 101, false, NULL, NULL),
+
+(108,
+ 'raluca.dima@clinica.ro',    'RALUCA.DIMA@CLINICA.RO',
+ 'raluca.dima@clinica.ro',    'RALUCA.DIMA@CLINICA.RO',
+ true,
+ 'AQAAAAIAAYagAAAAEJnvYOVjxX5+m4Qp08h0PhjfTrkB4WrkyJdF9pYHvFDqAiQtsYMwlY6RzDu5Bddpbg==',
+ '3QSEED108SECURITYSTAMP00000000000000', '3b1a2c00-0000-0000-0000-000000000108',
+ NULL, false, false, NULL, true, 0,
+ 'Raluca', 'Dima', 1, 100, false, NULL, NULL),
+
+(109,
+ 'bogdan.neagu@clinica.ro',   'BOGDAN.NEAGU@CLINICA.RO',
+ 'bogdan.neagu@clinica.ro',   'BOGDAN.NEAGU@CLINICA.RO',
+ true,
+ 'AQAAAAIAAYagAAAAEFJStSA9Qc32SB0lO9OTBarX2WGVyHfQseLiOHgpjYne7JW8QQc2/a9ejWLwBzUVgQ==',
+ '3QSEED109SECURITYSTAMP00000000000000', '3b1a2c00-0000-0000-0000-000000000109',
+ NULL, false, false, NULL, true, 0,
+ 'Bogdan', 'Neagu', 1, 102, false, NULL, NULL),
+
+(110,
+ 'simona.luca@clinica.ro',    'SIMONA.LUCA@CLINICA.RO',
+ 'simona.luca@clinica.ro',    'SIMONA.LUCA@CLINICA.RO',
+ true,
+ 'AQAAAAIAAYagAAAAED5G0stT0U4g5zJak3MgBOJzDiThJKGt3yC6RQDBRkBdiHvLo6RyBmgAtgheIPPDng==',
+ '3QSEED110SECURITYSTAMP00000000000000', '3b1a2c00-0000-0000-0000-000000000110',
+ NULL, false, false, NULL, true, 0,
+ 'Simona', 'Luca', 1, 101, false, NULL, NULL),
+
+(111,
+ 'florin.costea@clinica.ro',  'FLORIN.COSTEA@CLINICA.RO',
+ 'florin.costea@clinica.ro',  'FLORIN.COSTEA@CLINICA.RO',
+ true,
+ 'AQAAAAIAAYagAAAAEPlN/ETTdKDz1zgtJ8aTG0amYeKmLOSP4SsVkV14ex5vG4dvbwzi7tdjX4D0wY/n8g==',
+ '3QSEED111SECURITYSTAMP00000000000000', '3b1a2c00-0000-0000-0000-000000000111',
+ NULL, false, false, NULL, true, 0,
+ 'Florin', 'Costea', 1, 100, false, NULL, NULL);
+
+
+-- =============================================================================
+-- 3. ROLURI ANGAJAȚI — asociere cu rolul "Employee"
+-- =============================================================================
+INSERT INTO "UserRoles" ("UserId", "RoleId")
+SELECT u."Id", r."Id"
+FROM (VALUES
+  (100),(101),(102),(103),(104),(105),(106),(107),(108),(109),(110),(111)
+) AS u("Id")
+CROSS JOIN (SELECT "Id" FROM "Roles" WHERE "Name" = 'Employee') AS r;
+
+
+-- =============================================================================
+-- 4. PROGRAM DE LUCRU — Luni-Vineri 08:00-16:00 (IDs 100-159)
+-- DayOfWeek: Monday=1, Tuesday=2, Wednesday=3, Thursday=4, Friday=5
+-- =============================================================================
+INSERT INTO "WorkSchedules" ("Id", "UserId", "Day", "StartTime", "EndTime") VALUES
+-- Ana Ionescu (100)
+(100, 100, 1, '08:00', '16:00'), (101, 100, 2, '08:00', '16:00'),
+(102, 100, 3, '08:00', '16:00'), (103, 100, 4, '08:00', '16:00'),
+(104, 100, 5, '08:00', '16:00'),
+-- Mihai Popescu (101)
+(105, 101, 1, '08:00', '16:00'), (106, 101, 2, '08:00', '16:00'),
+(107, 101, 3, '08:00', '16:00'), (108, 101, 4, '08:00', '16:00'),
+(109, 101, 5, '08:00', '16:00'),
+-- Gheorghe Andrei (102)
+(110, 102, 1, '08:00', '16:00'), (111, 102, 2, '08:00', '16:00'),
+(112, 102, 3, '08:00', '16:00'), (113, 102, 4, '08:00', '16:00'),
+(114, 102, 5, '08:00', '16:00'),
+-- Maria Vasile (103)
+(115, 103, 1, '08:00', '16:00'), (116, 103, 2, '08:00', '16:00'),
+(117, 103, 3, '08:00', '16:00'), (118, 103, 4, '08:00', '16:00'),
+(119, 103, 5, '08:00', '16:00'),
+-- Elena Dumitrescu (104)
+(120, 104, 1, '08:00', '16:00'), (121, 104, 2, '08:00', '16:00'),
+(122, 104, 3, '08:00', '16:00'), (123, 104, 4, '08:00', '16:00'),
+(124, 104, 5, '08:00', '16:00'),
+-- Ion Popa (105)
+(125, 105, 1, '08:00', '16:00'), (126, 105, 2, '08:00', '16:00'),
+(127, 105, 3, '08:00', '16:00'), (128, 105, 4, '08:00', '16:00'),
+(129, 105, 5, '08:00', '16:00'),
+-- Cristina Munteanu (106)
+(130, 106, 1, '08:00', '16:00'), (131, 106, 2, '08:00', '16:00'),
+(132, 106, 3, '08:00', '16:00'), (133, 106, 4, '08:00', '16:00'),
+(134, 106, 5, '08:00', '16:00'),
+-- Alexandru Stan (107)
+(135, 107, 1, '08:00', '16:00'), (136, 107, 2, '08:00', '16:00'),
+(137, 107, 3, '08:00', '16:00'), (138, 107, 4, '08:00', '16:00'),
+(139, 107, 5, '08:00', '16:00'),
+-- Raluca Dima (108)
+(140, 108, 1, '08:00', '16:00'), (141, 108, 2, '08:00', '16:00'),
+(142, 108, 3, '08:00', '16:00'), (143, 108, 4, '08:00', '16:00'),
+(144, 108, 5, '08:00', '16:00'),
+-- Bogdan Neagu (109)
+(145, 109, 1, '08:00', '16:00'), (146, 109, 2, '08:00', '16:00'),
+(147, 109, 3, '08:00', '16:00'), (148, 109, 4, '08:00', '16:00'),
+(149, 109, 5, '08:00', '16:00'),
+-- Simona Luca (110)
+(150, 110, 1, '08:00', '16:00'), (151, 110, 2, '08:00', '16:00'),
+(152, 110, 3, '08:00', '16:00'), (153, 110, 4, '08:00', '16:00'),
+(154, 110, 5, '08:00', '16:00'),
+-- Florin Costea (111)
+(155, 111, 1, '08:00', '16:00'), (156, 111, 2, '08:00', '16:00'),
+(157, 111, 3, '08:00', '16:00'), (158, 111, 4, '08:00', '16:00'),
+(159, 111, 5, '08:00', '16:00');
+
+
+-- =============================================================================
+-- 5. CURSURI (IDs 10-12) — Status: 1=Published
+-- =============================================================================
+INSERT INTO "Courses" ("Id", "Title", "Description", "Order", "Status", "ClinicId") VALUES
+(10,
+ 'Igiena și Controlul Infecțiilor',
+ 'Curs fundamental privind principiile de igienă, tehnicile de sterilizare și prevenirea infecțiilor în mediul medical.',
+ 1, 1, 1),
+(11,
+ 'Siguranța Pacientului',
+ 'Protocoale și bune practici pentru identificarea corectă a pacientului, comunicarea eficientă și prevenirea erorilor medicale.',
+ 2, 1, 1),
+(12,
+ 'Urgențe Medicale',
+ 'Evaluarea și managementul situațiilor de urgență: resuscitare cardiopulmonară, triaj și intervenții de primă linie.',
+ 3, 1, 1);
+
+
+-- =============================================================================
+-- 6. CURSURI — TIPURI DE ANGAJAȚI
+-- Curs 10 → Asistent Medical, Infirmier
+-- Curs 11 → Asistent Medical, Medic
+-- Curs 12 → Asistent Medical, Medic, Infirmier
+-- =============================================================================
+INSERT INTO "CourseEmployeeTypes" ("CourseId", "EmployeeTypeId") VALUES
+(10, 100), (10, 102),
+(11, 100), (11, 101),
+(12, 100), (12, 101), (12, 102);
+
+
+-- =============================================================================
+-- 7. CAPITOLE (IDs 100-106)
+-- =============================================================================
+INSERT INTO "Chapters" ("Id", "CourseId", "Title", "Content", "Order") VALUES
+-- Curs 10: Igiena și Controlul Infecțiilor
+(100, 10,
+ 'Principii de Igienă',
+ '<p>Igiena în mediul medical reprezintă fundamentul prevenirii infecțiilor asociate asistenței medicale (IAAM). '
+ 'Spălarea mâinilor, conform tehnicii OMS, durează minimum 20-30 de secunde și include frecare interdigitală, '
+ 'frecare dorsală și frecare cu degetele înlănțuite.</p>'
+ '<p><strong>Momente cheie ale igienei mâinilor (OMS):</strong></p>'
+ '<ul><li>Înainte de contactul cu pacientul</li>'
+ '<li>Înainte de proceduri aseptice</li>'
+ '<li>După expunerea la fluide corporale</li>'
+ '<li>După contactul cu pacientul</li>'
+ '<li>După contactul cu mediul pacientului</li></ul>'
+ '<p>Dezinfecția cu soluție alcoolică (etanol 70% sau izopropanol 60-70%) este recomandată pentru igiena rapidă '
+ 'a mâinilor atunci când mâinile nu sunt vizibil contaminate.</p>',
+ 1),
+(101, 10,
+ 'Tehnici de Sterilizare',
+ '<p>Sterilizarea este procesul prin care sunt distruse toate formele de microorganisme, inclusiv sporii bacterieni. '
+ 'Clasificarea Spaulding împarte dispozitivele medicale în trei categorii:</p>'
+ '<ul><li><strong>Critice</strong> – intră în contact cu țesuturi sterile (sterilizare obligatorie)</li>'
+ '<li><strong>Semi-critice</strong> – contactează mucoase (dezinfecție de nivel înalt)</li>'
+ '<li><strong>Necritice</strong> – contactează doar pielea intactă (dezinfecție de nivel scăzut/mediu)</li></ul>'
+ '<p>Autoclavarea (sterilizare cu abur sub presiune) la 121°C/15 min sau 134°C/7 min este metoda standard. '
+ 'Pentru instrumentele termosensibile se utilizează oxid de etilenă (EtO) sau plasmă de peroxid de hidrogen.</p>',
+ 2),
+
+-- Curs 11: Siguranța Pacientului
+(102, 11,
+ 'Identificarea Riscurilor',
+ '<p>Siguranța pacientului presupune identificarea proactivă a riscurilor și implementarea de bariere de prevenție. '
+ 'Un eveniment advers reprezintă orice vătămare cauzată de îngrijirea medicală, nu de boala de bază.</p>'
+ '<p><strong>Tipuri de evenimente:</strong></p>'
+ '<ul><li><em>Near miss</em> – incident fără vătămare, depistat la timp</li>'
+ '<li><em>Eveniment advers</em> – vătămare care necesită tratament suplimentar</li>'
+ '<li><em>Eveniment santinelă</em> – vătămare gravă sau deces evitabil</li></ul>'
+ '<p>Identificarea corectă a pacientului se realizează prin verificarea a cel puțin 2 identificatori unici: '
+ 'numele complet și CNP-ul sau brățara de identificare.</p>',
+ 1),
+(103, 11,
+ 'Protocoale de Siguranță',
+ '<p>Regula celor 5 corecturi (5R) la administrarea medicamentelor:</p>'
+ '<ol><li><strong>Pacientul corect</strong> – verificați identitatea</li>'
+ '<li><strong>Medicamentul corect</strong> – verificați denumirea și forma</li>'
+ '<li><strong>Doza corectă</strong> – calculați și verificați</li>'
+ '<li><strong>Calea corectă</strong> – orală, IV, IM etc.</li>'
+ '<li><strong>Momentul corect</strong> – intervalul din schemă</li></ol>'
+ '<p>Comunicarea în buclă (closed-loop): receptorul repetă informația înapoi emițătorului pentru confirmare. '
+ 'Exemplu: "Administrează 5mg Midazolam IV" → "Confirmă: 5mg Midazolam IV".</p>',
+ 2),
+(104, 11,
+ 'Gestionarea Incidentelor',
+ '<p>Raportarea incidentelor este esențială pentru o cultură de siguranță non-punitivă. '
+ 'Sistemele de raportare (CIRS, RCA) permit analiza cauzelor profunde și prevenirea recurenței.</p>'
+ '<p>Analiza cauzelor profunde (Root Cause Analysis – RCA) identifică factorii sistemici, '
+ 'nu individuali, care au contribuit la incident.</p>'
+ '<p><strong>Briefing-ul preoperator</strong> (conform listei de verificare chirurgicală OMS) include:</p>'
+ '<ul><li>Verificarea identității pacientului și a intervenției planificate</li>'
+ '<li>Confirmarea disponibilității echipamentelor și implantelor</li>'
+ '<li>Discutarea anticipărilor critice de către chirurg, anestezist și asistente</li></ul>',
+ 3),
+
+-- Curs 12: Urgențe Medicale
+(105, 12,
+ 'Evaluarea Primară',
+ '<p>Abordarea sistematică a pacientului critic urmează modelul <strong>ABCDE</strong>:</p>'
+ '<ul><li><strong>A – Airway</strong>: permeabilitatea căilor aeriene</li>'
+ '<li><strong>B – Breathing</strong>: ventilație și oxigenare</li>'
+ '<li><strong>C – Circulation</strong>: control hemoragic, puls, TA</li>'
+ '<li><strong>D – Disability</strong>: status neurologic (AVPU / GCS)</li>'
+ '<li><strong>E – Exposure</strong>: examinare completă, temperatura</li></ul>'
+ '<p><strong>Scala Glasgow (GCS)</strong> evaluează nivelul de conștiență pe 3 parametri '
+ '(deschiderea ochilor, răspuns verbal, răspuns motor), cu valori între 3 (comă profundă) și 15 (normal).</p>'
+ '<p><strong>AVPU</strong>: Alert / Voice (răspuns la voce) / Pain (răspuns la durere) / Unresponsive.</p>',
+ 1),
+(106, 12,
+ 'Intervenții de Urgență',
+ '<p><strong>CPR (Resuscitare Cardiopulmonară)</strong> conform ghidurilor AHA/ERC:</p>'
+ '<ul><li>Verificați siguranța scenei și răspunsul pacientului</li>'
+ '<li>Chemați ajutor și activați serviciul de urgență (112)</li>'
+ '<li>Începeți compresii toracice: <strong>100-120/min</strong>, adâncime 5-6 cm</li>'
+ '<li>Raport compresii:ventilații: <strong>30:2</strong> (1 sau 2 salvatori adulți)</li>'
+ '<li>Utilizați DEA cât mai repede posibil</li></ul>'
+ '<p><strong>Anafilaxie severă</strong>: prima linie = adrenalină (epinefrină) 0,5 mg IM '
+ 'în coapsă anterolaterală, urmată de poziționare, oxigen și acces IV.</p>'
+ '<p><strong>Triajul START</strong> (Simple Triage and Rapid Treatment) clasifică victimele multiple '
+ 'în: Imediat (roșu), Întârziat (galben), Minor (verde), Decedat/expectativ (negru).</p>',
+ 2);
+
+
+-- =============================================================================
+-- 8. ÎNTREBĂRI (IDs 100-123 — 8 per curs)
+-- Difficulty: VeryEasy=1, Easy=2, Medium=3, Hard=4, VeryHard=5
+-- =============================================================================
+INSERT INTO "Questions" ("Id", "CourseId", "Text", "Difficulty") VALUES
+-- Curs 10 — Igiena și Controlul Infecțiilor
+(100, 10, 'Care este scopul principal al dezinfecției mediului spitalicesc?', 1),
+(101, 10, 'Care este durata minimă recomandată pentru spălarea mâinilor cu apă și săpun?', 2),
+(102, 10, 'Când este obligatorie utilizarea mănușilor de unică folosință?', 2),
+(103, 10, 'Ce reprezintă infecția nosocomială (asociată asistenței medicale)?', 3),
+(104, 10, 'La ce temperatură funcționează autoclavarea standard pentru sterilizare?', 3),
+(105, 10, 'Câte categorii include clasificarea Spaulding a dispozitivelor medicale?', 3),
+(106, 10, 'Ce metodă de sterilizare este recomandată pentru instrumente sensibile la căldură?', 4),
+(107, 10, 'Ce substanță este utilizată cel mai frecvent pentru dezinfecția rapidă a mâinilor?', 2),
+
+-- Curs 11 — Siguranța Pacientului
+(108, 11, 'Ce reprezintă un eveniment advers în îngrijirea medicală?', 2),
+(109, 11, 'Care este protocolul de identificare corectă a pacientului conform standardelor OMS?', 3),
+(110, 11, 'Ce înseamnă comunicarea în buclă (closed-loop communication)?', 4),
+(111, 11, 'Care este regula celor 5 corecturi (5R) la administrarea medicamentelor?', 2),
+(112, 11, 'Principalele obiective ale clasificării OMS pentru siguranța pacientului includ:', 3),
+(113, 11, 'Ce sistem standardizat este utilizat pentru raportarea incidentelor medicale?', 3),
+(114, 11, 'Care este scopul principal al briefing-ului preoperator?', 4),
+(115, 11, 'Ce reprezintă cultura de siguranță non-punitivă?', 1),
+
+-- Curs 12 — Urgențe Medicale
+(116, 12, 'Care este primul pas în evaluarea unui pacient inconștient?', 1),
+(117, 12, 'Ce reprezintă scala Glasgow (GCS) și care este intervalul ei de valori?', 3),
+(118, 12, 'Care este rata corectă de compresii toracice în CPR pentru adulți?', 2),
+(119, 12, 'Ce semnifică acronimul AVPU în evaluarea nivelului de conștiență?', 3),
+(120, 12, 'Care este prima intervenție în caz de anafilaxie severă?', 4),
+(121, 12, 'Ce reprezintă triajul START în situații cu victime multiple?', 4),
+(122, 12, 'Care este raportul compresii:ventilații în CPR pentru adulți (1 sau 2 salvatori)?', 2),
+(123, 12, 'Care este succesiunea corectă de evaluare conform modelului ABCDE?', 3);
+
+
+-- =============================================================================
+-- 9. RĂSPUNSURI (IDs 400-495 — 4 per întrebare; un singur răspuns corect)
+-- =============================================================================
+INSERT INTO "Answers" ("Id", "QuestionId", "Text", "IsCorrect") VALUES
+-- Q100
+(400, 100, 'Prevenirea infecțiilor asociate asistenței medicale (IAAM)',                    true),
+(401, 100, 'Reducerea costurilor spitalicești',                                             false),
+(402, 100, 'Îmbunătățirea aspectului estetic al spațiilor',                                 false),
+(403, 100, 'Respectarea normelor administrative de igienă',                                 false),
+-- Q101
+(404, 101, '5-10 secunde',                                                                  false),
+(405, 101, '20-30 secunde',                                                                 true),
+(406, 101, '1-2 minute',                                                                    false),
+(407, 101, '30-60 secunde',                                                                 false),
+-- Q102
+(408, 102, 'Doar la intervențiile chirurgicale',                                            false),
+(409, 102, 'La orice contact cu fluide biologice sau mucoase',                              true),
+(410, 102, 'Numai la pacienții cu boli infecțioase confirmate',                             false),
+(411, 102, 'Doar la recoltarea probelor de laborator',                                      false),
+-- Q103
+(412, 103, 'Infecție dobândită în comunitate, înainte de internare',                        false),
+(413, 103, 'Infecție dobândită în unitatea sanitară, legată de actul medical',              true),
+(414, 103, 'Infecție cauzată exclusiv de virusuri respiratorii',                            false),
+(415, 103, 'Infecție transmisă prin vectori (insecte, rozătoare)',                          false),
+-- Q104
+(416, 104, '80°C',                                                                          false),
+(417, 104, '121-134°C (abur sub presiune)',                                                 true),
+(418, 104, '100°C (fierbere)',                                                              false),
+(419, 104, '150°C',                                                                         false),
+-- Q105
+(420, 105, '2 categorii (sterile și non-sterile)',                                          false),
+(421, 105, '4 categorii (critice, semi-critice, necritice și de unică folosință)',          false),
+(422, 105, '3 categorii (critice, semi-critice, necritice)',                                true),
+(423, 105, '5 categorii (în funcție de risc)',                                              false),
+-- Q106
+(424, 106, 'Autoclavare la temperaturi ridicate (>150°C)',                                  false),
+(425, 106, 'Sterilizare cu oxid de etilenă (EtO) sau plasmă de peroxid de hidrogen',       true),
+(426, 106, 'Fierbere în apă bidistilată la 100°C',                                         false),
+(427, 106, 'Iradiere UV timp de 30 de minute',                                              false),
+-- Q107
+(428, 107, 'Clorhexidina în soluție apoasă 0,5%',                                          false),
+(429, 107, 'Soluție alcoolică (etanol 70% sau izopropanol 60-70%)',                         true),
+(430, 107, 'Apă oxigenată diluată 3%',                                                      false),
+(431, 107, 'Soluție iodată (Betadine) diluată',                                             false),
+
+-- Q108
+(432, 108, 'O complicație inevitabilă a bolii de bază',                                     false),
+(433, 108, 'Un rezultat nedorit cauzat de îngrijirea medicală, nu de boala de bază',        true),
+(434, 108, 'Orice deces survenit în unitatea spitalicească',                                false),
+(435, 108, 'O plângere oficială a pacientului față de personalul medical',                  false),
+-- Q109
+(436, 109, 'Verificarea numelui și a numărului salonului',                                  false),
+(437, 109, 'Verificarea a cel puțin 2 identificatori unici (ex: nume complet + CNP/brățară)', true),
+(438, 109, 'Confirmarea verbală a numelui, fără verificare suplimentară',                   false),
+(439, 109, 'Verificarea exclusivă a CNP pe cardul de sănătate',                             false),
+-- Q110
+(440, 110, 'Comunicarea prin sistem informatic securizat',                                  false),
+(441, 110, 'Receptorul confirmă mesajul repetând informația înapoi emițătorului',           true),
+(442, 110, 'Comunicarea în grup, fără intermediari ierarhici',                              false),
+(443, 110, 'Transmiterea informațiilor exclusiv în scris',                                  false),
+-- Q111
+(444, 111, 'Rețetă, formă farmaceutică, depozitare, administrare, monitorizare',            false),
+(445, 111, 'Pacient corect, medicament corect, doză corectă, cale corectă, moment corect', true),
+(446, 111, 'Indicație, contraindicație, doză, cale de administrare, durată',                false),
+(447, 111, 'Pacient, medic prescriptor, farmacie, administrare, supraveghere',              false),
+-- Q112
+(448, 112, 'Reducerea costurilor și a timpilor de spitalizare',                             false),
+(449, 112, 'Identificare corectă, comunicare eficientă, securitatea medicamentelor, prevenirea infecțiilor', true),
+(450, 112, 'Creșterea satisfacției pacienților prin servicii hoteliere',                    false),
+(451, 112, 'Reducerea personalului medical prin automatizare',                              false),
+-- Q113
+(452, 113, 'Raportare verbală ierarhică, fără documentare formală',                         false),
+(453, 113, 'Sistem standardizat de raportare (CIRS/RCA) cu analiză a cauzelor profunde',   true),
+(454, 113, 'Notificare directă a pacientului și familiei',                                  false),
+(455, 113, 'Completarea fișei de observație clinică curente',                               false),
+-- Q114
+(456, 114, 'Completarea documentației medicale preoperatorii',                              false),
+(457, 114, 'Verificarea echipei, echipamentelor și protocolului înainte de intervenție',    true),
+(458, 114, 'Administrarea premedicației anestezice',                                        false),
+(459, 114, 'Programarea listei operatorii pentru ziua următoare',                           false),
+-- Q115
+(460, 115, 'O cultură în care greșelile sunt sancționate exemplar pentru descurajare',     false),
+(461, 115, 'O cultură în care raportarea erorilor este încurajată fără teama de pedeapsă', true),
+(462, 115, 'O cultură în care pacienții nu sunt informați despre incidente',                false),
+(463, 115, 'O cultură în care managementul ignoră incidentele de gravitate mică',           false),
+
+-- Q116
+(464, 116, 'Verificarea pulsului periferic (radial)',                                       false),
+(465, 116, 'Verificarea siguranței scenei și a răspunsului pacientului (ABCDE)',            true),
+(466, 116, 'Aplicarea imediată a oxigenului pe mască',                                      false),
+(467, 116, 'Apelarea imediată a medicului specialist',                                      false),
+-- Q117
+(468, 117, 'Scală de evaluare a funcției respiratorii, valori 0-15',                        false),
+(469, 117, 'Scală de evaluare a nivelului de conștiență, valori 3-15',                     true),
+(470, 117, 'Scală de evaluare a intensității durerii, valori 1-10',                         false),
+(471, 117, 'Scală de evaluare hemodinamică, valori 0-20',                                   false),
+-- Q118
+(472, 118, '60-80 compresii/minut',                                                         false),
+(473, 118, '100-120 compresii/minut',                                                       true),
+(474, 118, '80-90 compresii/minut',                                                         false),
+(475, 118, '140-160 compresii/minut',                                                       false),
+-- Q119
+(476, 119, 'Alerted, Vigilant, Partially conscious, Unconscious',                           false),
+(477, 119, 'Alert, Voice, Pain, Unresponsive',                                              true),
+(478, 119, 'Awake, Verbal, Pulse, Unconscious',                                             false),
+(479, 119, 'Active, Verbal, Passive, Unresponsive',                                         false),
+-- Q120
+(480, 120, 'Administrarea de antihistaminice intravenos ca primă linie',                    false),
+(481, 120, 'Administrarea de adrenalină 0,5 mg IM în coapsă anterolaterală',               true),
+(482, 120, 'Administrarea de hidrocortizon intravenos ca primă linie',                      false),
+(483, 120, 'Plasarea imediată a pacientului în poziție șezândă',                            false),
+-- Q121
+(484, 121, 'Simple Triage and Rapid Treatment — sistem de triaj pentru victime multiple',   true),
+(485, 121, 'Sistem de triaj exclusiv pentru urgențe individuale în UPU',                    false),
+(486, 121, 'Protocol de stabilizare și transport pentru victime izolate',                   false),
+(487, 121, 'Standard Treatment and Rapid Triage — protocol OMS',                           false),
+-- Q122
+(488, 122, '15:1',                                                                          false),
+(489, 122, '30:2',                                                                          true),
+(490, 122, '15:2',                                                                          false),
+(491, 122, '20:1',                                                                          false),
+-- Q123
+(492, 123, 'Airway, Breathing, Circulation, Disability, Exposure',                         true),
+(493, 123, 'Alert, Breathing, Circulation, Disability, Evaluation',                        false),
+(494, 123, 'Airway, Blood pressure, Circulation, Diagnosis, Exposure',                     false),
+(495, 123, 'Assessment, Breathing, Compression, Disability, Examination',                  false);
+
+
+-- =============================================================================
+-- 10. SESIUNI DE TEST (IDs 100-104)
+-- =============================================================================
+-- Session 100: Ana Ionescu (100) — Curs 10 — 7/8 corecte (87.5%) — PASSED
+-- Session 101: Ana Ionescu (100) — Curs 11 — 8/8 corecte (100%)  — PASSED
+-- Session 102: Mihai Popescu (101) — Curs 11 — 6/8 corecte (75%) — PASSED
+-- Session 103: Maria Vasile (103) — Curs 12 — 4/8 corecte (50%)  — FAILED
+-- Session 104: Gheorghe Andrei (102) — Curs 10 — 7/8 corecte (87.5%) — PASSED
+-- AverageDifficulty Curs 10: (1+2+2+3+3+3+4+2)/8 = 2.5
+-- AverageDifficulty Curs 11: (2+3+4+2+3+3+4+1)/8 = 2.75
+-- AverageDifficulty Curs 12: (1+3+2+3+4+4+2+3)/8 = 2.75
+-- =============================================================================
+INSERT INTO "TestSessions" (
+    "Id", "UserId", "StartedAt", "CompletedAt",
+    "IsCompleted", "TotalQuestions", "CorrectAnswers", "AverageDifficulty"
+) VALUES
+(100, 100, '2024-01-15 09:00:00+02', '2024-01-15 09:28:00+02', true, 8, 7, 2.5),
+(101, 100, '2024-01-22 10:00:00+02', '2024-01-22 10:22:00+02', true, 8, 8, 2.75),
+(102, 101, '2024-01-20 14:00:00+02', '2024-01-20 14:19:00+02', true, 8, 6, 2.75),
+(103, 103, '2024-01-25 11:00:00+02', '2024-01-25 11:38:00+02', true, 8, 4, 2.75),
+(104, 102, '2024-01-18 09:00:00+02', '2024-01-18 09:26:00+02', true, 8, 7, 2.5);
+
+
+-- =============================================================================
+-- 11. ÎNTREBĂRI SESIUNI TEST (IDs 100-139)
+-- AnswerOrder: ordinea în care s-au afișat răspunsurile (shuffled)
+-- =============================================================================
+INSERT INTO "TestSessionQuestions" (
+    "Id", "TestSessionId", "QuestionId",
+    "SelectedAnswerId", "IsCorrect",
+    "Order", "DifficultyAtTime", "AnswerOrder"
+) VALUES
+-- Session 100: Ana Ionescu, Curs 10, 7/8 (greșit Q106 — Hard)
+(100, 100, 100, 400, true,  1, 1, '400,401,402,403'),
+(101, 100, 101, 405, true,  2, 2, '404,405,406,407'),
+(102, 100, 102, 409, true,  3, 2, '408,409,410,411'),
+(103, 100, 103, 413, true,  4, 3, '412,413,414,415'),
+(104, 100, 104, 417, true,  5, 3, '416,417,418,419'),
+(105, 100, 105, 422, true,  6, 3, '420,421,422,423'),
+(106, 100, 106, 424, false, 7, 4, '424,425,426,427'),  -- greșit: a ales A424 în loc de A425
+(107, 100, 107, 429, true,  8, 2, '428,429,430,431'),
+
+-- Session 101: Ana Ionescu, Curs 11, 8/8 (toate corecte)
+(108, 101, 108, 433, true,  1, 2, '432,433,434,435'),
+(109, 101, 109, 437, true,  2, 3, '436,437,438,439'),
+(110, 101, 110, 441, true,  3, 4, '440,441,442,443'),
+(111, 101, 111, 445, true,  4, 2, '444,445,446,447'),
+(112, 101, 112, 449, true,  5, 3, '448,449,450,451'),
+(113, 101, 113, 453, true,  6, 3, '452,453,454,455'),
+(114, 101, 114, 457, true,  7, 4, '456,457,458,459'),
+(115, 101, 115, 461, true,  8, 1, '460,461,462,463'),
+
+-- Session 102: Mihai Popescu, Curs 11, 6/8 (greșit Q110 și Q114 — ambele Hard)
+(116, 102, 108, 433, true,  1, 2, '432,433,434,435'),
+(117, 102, 109, 437, true,  2, 3, '436,437,438,439'),
+(118, 102, 110, 440, false, 3, 4, '440,441,442,443'),  -- greșit: a ales A440
+(119, 102, 111, 445, true,  4, 2, '444,445,446,447'),
+(120, 102, 112, 449, true,  5, 3, '448,449,450,451'),
+(121, 102, 113, 453, true,  6, 3, '452,453,454,455'),
+(122, 102, 114, 456, false, 7, 4, '456,457,458,459'),  -- greșit: a ales A456
+(123, 102, 115, 461, true,  8, 1, '460,461,462,463'),
+
+-- Session 103: Maria Vasile, Curs 12, 4/8 (greșit Q120, Q121, Q118, Q119)
+(124, 103, 116, 465, true,  1, 1, '464,465,466,467'),
+(125, 103, 117, 469, true,  2, 3, '468,469,470,471'),
+(126, 103, 118, 472, false, 3, 2, '472,473,474,475'),  -- greșit: a ales A472
+(127, 103, 119, 476, false, 4, 3, '476,477,478,479'),  -- greșit: a ales A476
+(128, 103, 120, 480, false, 5, 4, '480,481,482,483'),  -- greșit: a ales A480
+(129, 103, 121, 486, false, 6, 4, '484,485,486,487'),  -- greșit: a ales A486
+(130, 103, 122, 489, true,  7, 2, '488,489,490,491'),
+(131, 103, 123, 492, true,  8, 3, '492,493,494,495'),
+
+-- Session 104: Gheorghe Andrei, Curs 10, 7/8 (greșit Q103 — Medium)
+(132, 104, 100, 400, true,  1, 1, '400,401,402,403'),
+(133, 104, 101, 405, true,  2, 2, '404,405,406,407'),
+(134, 104, 102, 409, true,  3, 2, '408,409,410,411'),
+(135, 104, 103, 412, false, 4, 3, '412,413,414,415'),  -- greșit: a ales A412
+(136, 104, 104, 417, true,  5, 3, '416,417,418,419'),
+(137, 104, 105, 422, true,  6, 3, '420,421,422,423'),
+(138, 104, 106, 425, true,  7, 4, '424,425,426,427'),
+(139, 104, 107, 429, true,  8, 2, '428,429,430,431');
+
+
+-- =============================================================================
+-- 12. PROGRES CURSURI
+-- =============================================================================
+INSERT INTO "UserCourseProgress" ("Id", "UserId", "CourseId", "CompletedAt") VALUES
+(100, 100, 10, '2024-01-15 09:30:00+02'),  -- Ana: Curs 10
+(101, 100, 11, '2024-01-22 10:25:00+02'),  -- Ana: Curs 11
+(102, 101, 11, '2024-01-20 14:20:00+02'),  -- Mihai: Curs 11
+(103, 102, 10, '2024-01-18 09:28:00+02');  -- Gheorghe: Curs 10
+
+
+-- =============================================================================
+-- 13. PROGRES CAPITOLE
+-- =============================================================================
+INSERT INTO "UserChapterProgress" ("Id", "UserId", "ChapterId", "CompletedAt") VALUES
+-- Ana Ionescu (100) — Curs 10: Cap 100, 101
+(100, 100, 100, '2024-01-14 10:00:00+02'),
+(101, 100, 101, '2024-01-14 11:00:00+02'),
+-- Ana Ionescu (100) — Curs 11: Cap 102, 103, 104
+(102, 100, 102, '2024-01-20 09:00:00+02'),
+(103, 100, 103, '2024-01-20 10:30:00+02'),
+(104, 100, 104, '2024-01-21 09:00:00+02'),
+-- Mihai Popescu (101) — Curs 11: Cap 102, 103, 104
+(105, 101, 102, '2024-01-18 09:00:00+02'),
+(106, 101, 103, '2024-01-18 11:00:00+02'),
+(107, 101, 104, '2024-01-19 09:00:00+02'),
+-- Gheorghe Andrei (102) — Curs 10: Cap 100, 101
+(108, 102, 100, '2024-01-17 09:00:00+02'),
+(109, 102, 101, '2024-01-17 11:00:00+02');
+
+
+-- =============================================================================
+-- 14. AVANSARE SECVENȚE — previne conflicte la inserturi viitoare
+-- =============================================================================
+SELECT setval(pg_get_serial_sequence('"EmployeeTypes"', 'Id'), 110);
+SELECT setval(pg_get_serial_sequence('"Users"',          'Id'), 120);
+SELECT setval(pg_get_serial_sequence('"WorkSchedules"',  'Id'), 170);
+SELECT setval(pg_get_serial_sequence('"Courses"',        'Id'), 20);
+SELECT setval(pg_get_serial_sequence('"Chapters"',       'Id'), 115);
+SELECT setval(pg_get_serial_sequence('"Questions"',      'Id'), 130);
+SELECT setval(pg_get_serial_sequence('"Answers"',        'Id'), 510);
+SELECT setval(pg_get_serial_sequence('"TestSessions"',   'Id'), 110);
+SELECT setval(pg_get_serial_sequence('"TestSessionQuestions"', 'Id'), 150);
+SELECT setval(pg_get_serial_sequence('"UserCourseProgress"',   'Id'), 115);
+SELECT setval(pg_get_serial_sequence('"UserChapterProgress"',  'Id'), 125);
+
+COMMIT;
+
+-- =============================================================================
+-- NOTE: Dacă pg_get_serial_sequence returnează NULL pentru un tabel
+-- (ex. dacă coloana folosește GENERATED ALWAYS AS IDENTITY în loc de SERIAL),
+-- înlocuiește cu:
+--   ALTER SEQUENCE "TableName_Id_seq" RESTART WITH <valoare>;
+-- sau verifică numele secvenței cu:
+--   SELECT pg_get_serial_sequence('"TableName"', 'Id');
+-- =============================================================================

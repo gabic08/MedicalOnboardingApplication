@@ -2,6 +2,7 @@
 @using MedicalOnboardingApplication.Enums
 @using MedicalOnboardingApplication.Models
 @using MedicalOnboardingApplication.ViewModels
+@using Microsoft.AspNetCore.Mvc.Rendering
 
 @{
     ViewData["Title"] = "Gestionare Curs";
@@ -21,9 +22,9 @@
                 Gestionare
             </div>
             <a asp-controller="AdminCourses"
-                   asp-action="Index"
-                   class="btn btn-outline-secondary btn-rm-back mb-2"
-                   style="color:var(--rm-red);border-color:var(--rm-red);">
+               asp-action="Index"
+               class="btn btn-outline-secondary btn-rm-back mb-2"
+               style="color:var(--rm-red);border-color:var(--rm-red);">
                 <i class="bi bi-arrow-left"></i> Înapoi la Cursuri
             </a>
             <h1>@course.Title</h1>
@@ -41,13 +42,14 @@
                 <span class="rm-badge" style="background:#fff3cd;color:#856404;font-weight:600;font-size:0.85rem;padding:6px 12px;">
                     <i class="bi bi-pencil-fill"></i> Ciornă
                 </span>
-                <button type="button" class="btn-rm-success"
-                        data-bs-toggle="modal" data-bs-target="#publishCourseModal">
-                    <i class="bi bi-send-fill"></i> Publică Cursul
-                </button>
-            }
-            @if (!isPublished)
-            {
+                <span style="font-size:0.8rem;color:var(--rm-text-muted);"><i class="bi bi-eye-slash me-1"></i>Doar tu poți vedea acest curs până când este publicat.</span>
+                <form action="/AdminCourses/Publish/@course.Id" method="post" style="display:inline;">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn-rm-success"
+                            onclick="return confirm('Ești sigur că vrei să publici cursul \'@course.Title\'?\n\nDupă publicare, cursul nu mai poate fi editat. Capitolele, întrebările și tipurile de angajați vor rămâne fixate.');">
+                        <i class="bi bi-send-fill"></i> Publică Cursul
+                    </button>
+                </form>
                 <form asp-controller="AdminCourses" asp-action="Delete" method="post" style="display:inline;">
                     @Html.AntiForgeryToken()
                     <input type="hidden" name="id" value="@course.Id" />
@@ -84,39 +86,25 @@
                 <i class="bi bi-lock-fill"></i>
                 Cursul este publicat și nu mai poate fi editat.
             </div>
-        }
-        <form asp-action="Edit" method="post">
-            @Html.AntiForgeryToken()
-            <input type="hidden" asp-for="Id" />
 
-            @if (ViewData.ModelState.ErrorCount > 0)
-            {
-                <div class="rm-alert rm-alert-error mb-4">
-                    <i class="bi bi-exclamation-circle-fill"></i>
-                    <div asp-validation-summary="ModelOnly"></div>
-                </div>
-            }
-
+            <!-- Read-only display when published — no form needed -->
             <div class="row g-3 mb-4">
                 <div class="col-md-5">
                     <div class="rm-field">
-                        <label asp-for="Title" class="rm-label"></label>
-                        <input asp-for="Title" class="rm-input" readonly="@isPublished" />
-                        <span asp-validation-for="Title" class="rm-field-error"></span>
+                        <label class="rm-label">Title</label>
+                        <input class="rm-input" value="@course.Title" readonly />
                     </div>
                 </div>
                 <div class="col-md-5">
                     <div class="rm-field">
-                        <label asp-for="Description" class="rm-label"></label>
-                        <input asp-for="Description" class="rm-input" readonly="@isPublished" />
-                        <span asp-validation-for="Description" class="rm-field-error"></span>
+                        <label class="rm-label">Description</label>
+                        <input class="rm-input" value="@course.Description" readonly />
                     </div>
                 </div>
                 <div class="col-md-2">
                     <div class="rm-field">
-                        <label asp-for="Order" class="rm-label"></label>
-                        <input asp-for="Order" class="rm-input" readonly="@isPublished" />
-                        <span asp-validation-for="Order" class="rm-field-error"></span>
+                        <label class="rm-label">Order</label>
+                        <input class="rm-input" value="@course.Order" readonly />
                     </div>
                 </div>
             </div>
@@ -125,46 +113,87 @@
                 <p class="rm-section-sublabel">
                     <i class="bi bi-people me-1"></i> Tipuri de Angajați
                 </p>
-                <div class="d-flex flex-wrap gap-2" id="employeeTypeContainer">
-                    @for (int i = 0; i < Model.EmployeeTypes.Count; i++)
+                <div class="d-flex flex-wrap gap-2">
+                    @foreach (var et in Model.EmployeeTypes.Where(e => e.IsSelected))
                     {
-                        var checkId = $"empType_{i}";
-                        <div>
-                            <input type="checkbox"
-                                   class="rm-btn-check emp-type-check"
-                                   asp-for="EmployeeTypes[i].IsSelected"
-                                   id="@checkId"
-                                   autocomplete="off"
-                                   disabled="@isPublished" />
-                            <label class="rm-toggle-btn" for="@checkId">
-                                <i class="bi bi-person-badge"></i>
-                                @Model.EmployeeTypes[i].Name
-                            </label>
-                            <input type="hidden" asp-for="EmployeeTypes[i].Id" />
-                        </div>
+                        <span class="rm-toggle-btn active" style="opacity:0.7;cursor:default;">
+                            <i class="bi bi-person-badge"></i>
+                            @et.Name
+                        </span>
                     }
                 </div>
+            </div>
+        }
+        else
+        {
+            <form asp-controller="AdminCourses" asp-action="Edit" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
 
-                @if (!isPublished)
+                @if (ViewData.ModelState.ErrorCount > 0)
                 {
-                    <div id="noTypeWarning"
-                         class="rm-modal-warning mt-3"
-                         style="display:@(Model.EmployeeTypes.Any(e => e.IsSelected) ? "none" : "flex");">
-                        <i class="bi bi-exclamation-triangle"></i>
-                        Niciun tip de angajat selectat. Cursul nu va fi vizibil pentru niciun angajat până când nu adaugi cel puțin un tip.
+                    <div class="rm-alert rm-alert-error mb-4">
+                        <i class="bi bi-exclamation-circle-fill"></i>
+                        <div asp-validation-summary="ModelOnly"></div>
                     </div>
                 }
-            </div>
 
-            @if (!isPublished)
-            {
+                <div class="row g-3 mb-4">
+                    <div class="col-md-5">
+                        <div class="rm-field">
+                            <label asp-for="Title" class="rm-label"></label>
+                            <input asp-for="Title" class="rm-input" />
+                            <span asp-validation-for="Title" class="rm-field-error"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="rm-field">
+                            <label asp-for="Description" class="rm-label"></label>
+                            <input asp-for="Description" class="rm-input" />
+                            <span asp-validation-for="Description" class="rm-field-error"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="rm-field">
+                            <label asp-for="Order" class="rm-label"></label>
+                            <input asp-for="Order" class="rm-input" />
+                            <span asp-validation-for="Order" class="rm-field-error"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <p class="rm-section-sublabel">
+                        <i class="bi bi-people me-1"></i> Tipuri de Angajați
+                    </p>
+                    <div class="d-flex flex-wrap gap-2" id="employeeTypeContainer">
+                        @for (int i = 0; i < Model.EmployeeTypes.Count; i++)
+                        {
+                            var checkId = $"empType_{i}";
+                            <div>
+                                <input type="checkbox"
+                                       class="rm-btn-check emp-type-check"
+                                       asp-for="EmployeeTypes[i].IsSelected"
+                                       id="@checkId"
+                                       autocomplete="off" />
+                                <label class="rm-toggle-btn" for="@checkId">
+                                    <i class="bi bi-person-badge"></i>
+                                    @Model.EmployeeTypes[i].Name
+                                </label>
+                                <input type="hidden" asp-for="EmployeeTypes[i].Id" />
+                                <input type="hidden" asp-for="EmployeeTypes[i].Name" />
+                            </div>
+                        }
+                    </div>
+                </div>
+
                 <div class="d-flex justify-content-end">
                     <button type="submit" class="btn-rm-primary">
                         <i class="bi bi-save"></i> Salvează Modificările
                     </button>
                 </div>
-            }
-        </form>
+            </form>
+        }
     </div>
 </div>
 
@@ -181,9 +210,9 @@
         @if (!isPublished)
         {
             <a asp-controller="Chapters"
-                   asp-action="Create"
-                   asp-route-courseId="@course.Id"
-                   class="btn-rm-success" style="font-size:0.78rem;padding:6px 14px;">
+               asp-action="Create"
+               asp-route-courseId="@course.Id"
+               class="btn-rm-success" style="font-size:0.78rem;padding:6px 14px;">
                 <i class="bi bi-plus-lg"></i> Adaugă Capitol
             </a>
         }
@@ -233,19 +262,20 @@
                                 {
                                     <div class="d-flex gap-2 mb-4">
                                         <a asp-controller="Chapters"
-                                               asp-action="Edit"
-                                               asp-route-id="@chapter.Id"
-                                               class="btn-rm-outline">
+                                           asp-action="Edit"
+                                           asp-route-id="@chapter.Id"
+                                           class="btn-rm-outline">
                                             <i class="bi bi-pencil"></i> Editează
                                         </a>
-                                        <button type="button"
-                                                class="btn-rm-outline btn-rm-outline-danger"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#deleteChapterModal"
-                                                data-chapter-id="@chapter.Id"
-                                                data-chapter-title="@chapter.Title">
-                                            <i class="bi bi-trash"></i> Șterge
-                                        </button>
+                                        <form asp-controller="Chapters" asp-action="Delete" method="post" style="display:inline;">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@chapter.Id" />
+                                            <button type="submit"
+                                                    class="btn-rm-outline btn-rm-outline-danger"
+                                                    onclick="return confirm('Ești sigur că vrei să ștergi capitolul \'@chapter.Title\'? Această acțiune nu poate fi anulată.');">
+                                                <i class="bi bi-trash"></i> Șterge
+                                            </button>
+                                        </form>
                                     </div>
                                 }
 
@@ -308,9 +338,9 @@
         @if (!isPublished)
         {
             <a asp-controller="Questions"
-                   asp-action="Create"
-                   asp-route-courseId="@course.Id"
-                   class="btn-rm-warning" style="font-size:0.78rem;padding:6px 14px;">
+               asp-action="Create"
+               asp-route-courseId="@course.Id"
+               class="btn-rm-warning" style="font-size:0.78rem;padding:6px 14px;">
                 <i class="bi bi-plus-lg"></i> Adaugă Întrebare
             </a>
         }
@@ -325,41 +355,71 @@
         }
         else
         {
-            <div class="rm-question-list">
+            <div class="accordion rm-accordion" id="questionsAccordion">
                 @foreach (var q in course.Questions.OrderBy(q => q.Difficulty))
                 {
-                    <div class="rm-question-item">
-                        <div class="rm-question-body">
-                            <p class="rm-question-text">@q.Text</p>
-                            <div class="d-flex gap-2 align-items-center">
-                                <span class="rm-badge">
-                                    <i class="bi bi-bar-chart" style="font-size:0.7rem;"></i> @q.Difficulty
+                    var qCollapseId = $"qcollapse_{q.Id}";
+                    <div class="rm-accordion-item">
+                        <button class="rm-accordion-btn collapsed"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#@qCollapseId">
+                            <div class="d-flex align-items-center gap-2 flex-grow-1 min-width-0">
+                                <span class="rm-badge" style="white-space:nowrap;">
+                                    <i class="bi bi-bar-chart" style="font-size:0.7rem;"></i> @Html.DisplayFor(_ => q.Difficulty)
                                 </span>
-                                <span style="font-size:0.8rem;color:var(--rm-text-muted);">
-                                    <i class="bi bi-list-check me-1"></i>@(q.Answers?.Count ?? 0) răspunsuri
-                                </span>
+                                <span class="rm-accordion-title">@q.Text</span>
+                            </div>
+                            <span style="font-size:0.75rem;color:var(--rm-text-muted);white-space:nowrap;margin-right:8px;">
+                                <i class="bi bi-list-check me-1"></i>@(q.Answers?.Count ?? 0) răspunsuri
+                            </span>
+                            <i class="bi bi-chevron-down rm-accordion-chevron"></i>
+                        </button>
+                        <div id="@qCollapseId" class="accordion-collapse collapse">
+                            <div class="rm-accordion-body">
+                                @if (q.Answers != null && q.Answers.Any())
+                                {
+                                    <ul style="list-style:none;padding:0;margin:0 0 12px 0;">
+                                        @foreach (var a in q.Answers.OrderBy(a => a.Id))
+                                        {
+                                            <li style="display:flex;align-items:center;gap:8px;padding:5px 0;font-size:0.875rem;">
+                                                @if (a.IsCorrect)
+                                                {
+                                                    <i class="bi bi-check-circle-fill" style="color:#16a34a;flex-shrink:0;"></i>
+                                                    <span style="font-weight:600;color:#16a34a;">@a.Text</span>
+                                                }
+                                                else
+                                                {
+                                                    <i class="bi bi-circle" style="color:#d1d5db;flex-shrink:0;"></i>
+                                                    <span style="color:var(--rm-text-muted);">@a.Text</span>
+                                                }
+                                            </li>
+                                        }
+                                    </ul>
+                                }
+                                @if (!isPublished)
+                                {
+                                    <div class="d-flex gap-2">
+                                        <a asp-controller="Questions"
+                                           asp-action="Edit"
+                                           asp-route-id="@q.Id"
+                                           class="btn-rm-outline">
+                                            <i class="bi bi-pencil"></i> Editează
+                                        </a>
+                                        <form asp-controller="Questions" asp-action="Delete" method="post" style="display:inline;">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@q.Id" />
+                                            <input type="hidden" name="courseId" value="@course.Id" />
+                                            <button type="submit"
+                                                    class="btn-rm-outline btn-rm-outline-danger"
+                                                    onclick="return confirm('Ești sigur că vrei să ștergi această întrebare? Această acțiune nu poate fi anulată.');">
+                                                <i class="bi bi-trash"></i> Șterge
+                                            </button>
+                                        </form>
+                                    </div>
+                                }
                             </div>
                         </div>
-                        @if (!isPublished)
-                        {
-                            <div class="d-flex gap-2 flex-shrink-0">
-                                <a asp-controller="Questions"
-                                       asp-action="Edit"
-                                       asp-route-id="@q.Id"
-                                       class="btn-rm-outline">
-                                    <i class="bi bi-pencil"></i> Editează
-                                </a>
-                                <button type="button"
-                                        class="btn-rm-outline btn-rm-outline-danger"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#deleteQuestionModal"
-                                        data-question-id="@q.Id"
-                                        data-question-text="@q.Text"
-                                        data-course-id="@course.Id">
-                                    <i class="bi bi-trash"></i> Șterge
-                                </button>
-                            </div>
-                        }
                     </div>
                 }
             </div>
@@ -367,107 +427,7 @@
     </div>
 </div>
 
-<!-- Delete Question Modal -->
-<div class="modal fade" id="deleteQuestionModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="rm-modal-content">
-            <div class="rm-modal-header">
-                <div class="rm-modal-icon rm-modal-icon-danger">
-                    <i class="bi bi-exclamation-triangle-fill"></i>
-                </div>
-                <button type="button" class="rm-modal-close" data-bs-dismiss="modal">
-                    <i class="bi bi-x-lg"></i>
-                </button>
-            </div>
-            <div class="rm-modal-body">
-                <h5 class="rm-modal-title">Șterge Întrebarea</h5>
-                <p class="rm-modal-text">Ești sigur că vrei să ștergi <strong id="deleteQuestionText"></strong>?</p>
-                <div class="rm-modal-warning">
-                    <i class="bi bi-info-circle"></i>
-                    Aceasta va șterge și toate răspunsurile. Această acțiune nu poate fi anulată.
-                </div>
-            </div>
-            <div class="rm-modal-footer">
-                <button type="button" class="btn-rm-secondary" data-bs-dismiss="modal">Anulează</button>
-                <form asp-controller="Questions" asp-action="Delete" method="post" style="display:inline;">
-                    @Html.AntiForgeryToken()
-                    <input type="hidden" name="id" id="deleteQuestionId" />
-                    <input type="hidden" name="courseId" id="deleteQuestionCourseId" />
-                    <button type="submit" class="btn-rm-danger">
-                        <i class="bi bi-trash"></i> Da, Șterge
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
 
-<!-- Delete Chapter Modal -->
-<div class="modal fade" id="deleteChapterModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="rm-modal-content">
-            <div class="rm-modal-header">
-                <div class="rm-modal-icon rm-modal-icon-danger">
-                    <i class="bi bi-exclamation-triangle-fill"></i>
-                </div>
-                <button type="button" class="rm-modal-close" data-bs-dismiss="modal">
-                    <i class="bi bi-x-lg"></i>
-                </button>
-            </div>
-            <div class="rm-modal-body">
-                <h5 class="rm-modal-title">Șterge Capitolul</h5>
-                <p class="rm-modal-text">Ești sigur că vrei să ștergi <strong id="deleteChapterTitle"></strong>?</p>
-                <div class="rm-modal-warning">
-                    <i class="bi bi-info-circle"></i>
-                    Aceasta va șterge și toate atașamentele. Această acțiune nu poate fi anulată.
-                </div>
-            </div>
-            <div class="rm-modal-footer">
-                <button type="button" class="btn-rm-secondary" data-bs-dismiss="modal">Anulează</button>
-                <form asp-controller="Chapters" asp-action="Delete" method="post" style="display:inline;">
-                    @Html.AntiForgeryToken()
-                    <input type="hidden" name="id" id="deleteChapterId" />
-                    <button type="submit" class="btn-rm-danger">
-                        <i class="bi bi-trash"></i> Da, Șterge
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Publish Course Modal -->
-<div class="modal fade" id="publishCourseModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="rm-modal-content">
-            <div class="rm-modal-header">
-                <div class="rm-modal-icon" style="background:#e6f4ea;color:#1a7f37;">
-                    <i class="bi bi-send-fill"></i>
-                </div>
-                <button type="button" class="rm-modal-close" data-bs-dismiss="modal">
-                    <i class="bi bi-x-lg"></i>
-                </button>
-            </div>
-            <div class="rm-modal-body">
-                <h5 class="rm-modal-title">Publică Cursul</h5>
-                <p class="rm-modal-text">Ești sigur că vrei să publici <strong>@course.Title</strong>?</p>
-                <div class="rm-modal-warning">
-                    <i class="bi bi-lock-fill"></i>
-                    După publicare, cursul <strong>nu mai poate fi editat</strong>. Capitolele, întrebările și tipurile de angajați vor rămâne fixate.
-                </div>
-            </div>
-            <div class="rm-modal-footer">
-                <button type="button" class="btn-rm-secondary" data-bs-dismiss="modal">Anulează</button>
-                <form asp-action="Publish" asp-route-id="@course.Id" method="post" class="d-inline">
-                    @Html.AntiForgeryToken()
-                    <button type="submit" class="btn-rm-success">
-                        <i class="bi bi-send-fill"></i> Da, Publică
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
 
 
 @section Scripts {
@@ -488,27 +448,5 @@
                 link.innerText = "Vezi mai mult";
             }
         }
-
-        document.getElementById('deleteChapterModal').addEventListener('show.bs.modal', function (e) {
-            const btn = e.relatedTarget;
-            document.getElementById('deleteChapterId').value   = btn.getAttribute('data-chapter-id');
-            document.getElementById('deleteChapterTitle').innerText = btn.getAttribute('data-chapter-title');
-        });
-
-        document.getElementById('deleteQuestionModal').addEventListener('show.bs.modal', function (e) {
-            const btn = e.relatedTarget;
-            document.getElementById('deleteQuestionId').value       = btn.getAttribute('data-question-id');
-            document.getElementById('deleteQuestionText').innerText  = btn.getAttribute('data-question-text');
-            document.getElementById('deleteQuestionCourseId').value  = btn.getAttribute('data-course-id');
-        });
-                
-        // Employee type warning
-        function updateTypeWarning() {
-            const anyChecked = [...document.querySelectorAll('.emp-type-check')].some(cb => cb.checked);
-            document.getElementById('noTypeWarning').style.display = anyChecked ? 'none' : 'flex';
-        }
-        document.querySelectorAll('.emp-type-check').forEach(cb => {
-            cb.addEventListener('change', updateTypeWarning);
-        });
     </script>
 }
