@@ -166,9 +166,9 @@
                                 <form asp-controller="AdminEmployees" asp-action="Unarchive" method="post" style="display:inline;">
                                     @Html.AntiForgeryToken()
                                     <input type="hidden" name="id" value="@emp.Id" />
-                                    <button type="button"
+                                    <button type="submit"
                                             class="btn-rm-outline"
-                                            onclick="confirmUnarchive(this, '@emp.FirstName @emp.LastName')">
+                                            onclick="return confirm('Ești sigur că vrei să dezarhivezi angajatul \'@emp.FirstName @emp.LastName\'?\n\nAngajatul va putea accesa din nou aplicația.');">
                                         <i class="bi bi-arrow-counterclockwise"></i> Dezarhivează
                                     </button>
                                 </form>
@@ -190,9 +190,9 @@
                                 <form asp-controller="AdminEmployees" asp-action="Archive" method="post" style="display:inline;">
                                     @Html.AntiForgeryToken()
                                     <input type="hidden" name="id" value="@emp.Id" />
-                                    <button type="button"
+                                    <button type="submit"
                                             class="btn-rm-outline btn-rm-outline-danger"
-                                            onclick="confirmArchive(this, '@emp.FirstName @emp.LastName')">
+                                            onclick="return confirm('Ești sigur că vrei să arhivezi angajatul \'@emp.FirstName @emp.LastName\'?\n\nAngajatul nu va mai putea accesa aplicația.');">
                                         <i class="bi bi-archive"></i> Arhivează
                                     </button>
                                 </form>
@@ -216,88 +216,3 @@
     </table>
 </div>
 
-<!-- Archive confirmation modal -->
-<div class="modal fade" id="archiveModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="rm-modal-content">
-            <div class="rm-modal-header">
-                <div class="rm-modal-icon rm-modal-icon-danger">
-                    <i class="bi bi-archive-fill"></i>
-                </div>
-                <button type="button" class="rm-modal-close" data-bs-dismiss="modal">
-                    <i class="bi bi-x-lg"></i>
-                </button>
-            </div>
-            <div class="rm-modal-body">
-                <h5 class="rm-modal-title">Arhivează Angajatul</h5>
-                <p class="rm-modal-text">Ești sigur că vrei să arhivezi <strong id="archiveEmployeeName"></strong>?</p>
-                <div class="rm-modal-warning">
-                    <i class="bi bi-info-circle"></i>
-                    Angajatul nu va mai putea accesa aplicația. Îl poți dezarhiva oricând din lista angajaților arhivați.
-                </div>
-            </div>
-            <div class="rm-modal-footer">
-                <button type="button" class="btn-rm-secondary" data-bs-dismiss="modal">Anulează</button>
-                <button type="button" class="btn-rm-danger" id="archiveConfirmBtn">
-                    <i class="bi bi-archive"></i> Da, Arhivează
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Unarchive confirmation modal -->
-<div class="modal fade" id="unarchiveModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="rm-modal-content">
-            <div class="rm-modal-header">
-                <div class="rm-modal-icon" style="background:rgba(25,135,84,0.1);color:#198754;">
-                    <i class="bi bi-arrow-counterclockwise"></i>
-                </div>
-                <button type="button" class="rm-modal-close" data-bs-dismiss="modal">
-                    <i class="bi bi-x-lg"></i>
-                </button>
-            </div>
-            <div class="rm-modal-body">
-                <h5 class="rm-modal-title">Dezarhivează Angajatul</h5>
-                <p class="rm-modal-text">Ești sigur că vrei să dezarhivezi <strong id="unarchiveEmployeeName"></strong>?</p>
-                <div class="rm-modal-warning">
-                    <i class="bi bi-info-circle"></i>
-                    Angajatul va putea accesa din nou aplicația.
-                </div>
-            </div>
-            <div class="rm-modal-footer">
-                <button type="button" class="btn-rm-secondary" data-bs-dismiss="modal">Anulează</button>
-                <button type="button" class="btn-rm-primary" id="unarchiveConfirmBtn">
-                    <i class="bi bi-arrow-counterclockwise"></i> Da, Dezarhivează
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-@section Scripts {
-    <script>
-        let pendingForm = null;
-
-        function confirmArchive(btn, name) {
-            pendingForm = btn.closest('form');
-            document.getElementById('archiveEmployeeName').innerText = name;
-            new bootstrap.Modal(document.getElementById('archiveModal')).show();
-        }
-
-        function confirmUnarchive(btn, name) {
-            pendingForm = btn.closest('form');
-            document.getElementById('unarchiveEmployeeName').innerText = name;
-            new bootstrap.Modal(document.getElementById('unarchiveModal')).show();
-        }
-
-        document.getElementById('archiveConfirmBtn').addEventListener('click', function () {
-            if (pendingForm) pendingForm.submit();
-        });
-
-        document.getElementById('unarchiveConfirmBtn').addEventListener('click', function () {
-            if (pendingForm) pendingForm.submit();
-        });
-    </script>
-}
