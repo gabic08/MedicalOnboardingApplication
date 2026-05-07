@@ -1,9 +1,10 @@
-﻿@model IEnumerable<MedicalOnboardingApplication.Models.ApplicationUser>
+@model IEnumerable<MedicalOnboardingApplication.Models.ApplicationUser>
 
 @{
     var search = ViewBag.Search as string;
     var employeeTypeId = ViewBag.EmployeeTypeId as int?;
     var employeeTypes = ViewBag.EmployeeTypes as List<MedicalOnboardingApplication.Models.EmployeeType>;
+    var showArchived = (bool)(ViewBag.ShowArchived ?? false);
 }
 
 <!-- Page Header -->
@@ -25,18 +26,34 @@
             <p>Gestionează conturile și progresul angajaților</p>
         </div>
         <div class="d-flex gap-2 align-self-end">
+            @if (showArchived)
+            {
+                <a asp-action="Index" class="btn-rm-secondary">
+                    <i class="bi bi-people"></i> Angajați Activi
+                </a>
+            }
+            else
+            {
+                <a asp-action="Index" asp-route-showArchived="true" class="btn-rm-secondary">
+                    <i class="bi bi-archive"></i> Angajați Arhivați
+                </a>
+            }
             <a asp-controller="EmployeeTypes" asp-action="Index" class="btn-rm-secondary">
                 <i class="bi bi-briefcase"></i> Tipuri de Angajați
             </a>
-            <a asp-action="Create" class="btn-rm-primary">
-                <i class="bi bi-plus-lg"></i> Adaugă Angajat
-            </a>
+            @if (!showArchived)
+            {
+                <a asp-action="Create" class="btn-rm-primary">
+                    <i class="bi bi-plus-lg"></i> Adaugă Angajat
+                </a>
+            }
         </div>
     </div>
 </div>
 
 <!-- Filter Bar -->
 <form method="get" class="rm-filter-bar">
+    <input type="hidden" name="showArchived" value="@showArchived.ToString().ToLower()" />
     <div style="flex:1;min-width:220px;">
         <div style="position:relative;">
             <i class="bi bi-search" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#bbb;font-size:0.85rem;"></i>
@@ -64,7 +81,7 @@
     </button>
     @if (!string.IsNullOrEmpty(search) || employeeTypeId.HasValue)
     {
-        <a asp-action="Index" class="btn-rm-secondary">
+        <a asp-action="Index" asp-route-showArchived="@showArchived" class="btn-rm-secondary">
             <i class="bi bi-x"></i> Resetează
         </a>
     }
@@ -78,12 +95,20 @@
     </div>
 }
 
+@if (showArchived)
+{
+    <div class="rm-alert mb-3" style="background:var(--rm-bg-muted,#f8f9fa);border:1px solid #dee2e6;border-radius:8px;padding:12px 16px;display:flex;align-items:center;gap:10px;font-size:0.875rem;color:var(--rm-text-muted);">
+        <i class="bi bi-archive" style="font-size:1rem;"></i>
+        Se afișează angajații arhivați. Poți să îi dezarhivezi pentru a le restaura accesul.
+    </div>
+}
+
 <!-- Results summary -->
 @if (Model.Any())
 {
     <div class="d-flex align-items-center mb-3">
         <p class="mb-0" style="font-size:0.85rem;color:var(--rm-text-muted);">
-            <strong style="color:var(--rm-text);">@Model.Count()</strong> angajați găsiți
+            <strong style="color:var(--rm-text);">@Model.Count()</strong> @(showArchived ? "angajați arhivați găsiți" : "angajați găsiți")
         </p>
     </div>
 }
@@ -96,7 +121,7 @@
                 <th style="width:35%;">Angajat</th>
                 <th>Email</th>
                 <th>Tip Angajat</th>
-                <th style="width:260px;text-align:right;">Acțiuni</th>
+                <th style="width:@(showArchived ? "200px" : "260px");text-align:right;">Acțiuni</th>
             </tr>
         </thead>
         <tbody>
@@ -107,8 +132,17 @@
                         <div class="d-flex align-items-center gap-3">
                             <img src="@(emp.ProfileImagePath ?? "/required/NoProfileImage.jpg")"
                                  class="rm-avatar"
-                                 alt="@emp.FirstName @emp.LastName" />
-                            <span style="font-weight:600;color:var(--rm-text);">@emp.FirstName @emp.LastName</span>
+                                 alt="@emp.FirstName @emp.LastName"
+                                 style="@(showArchived ? "opacity:0.5;" : "")" />
+                            <div>
+                                <span style="font-weight:600;color:var(--rm-text);@(showArchived ? "opacity:0.6;" : "")">@emp.FirstName @emp.LastName</span>
+                                @if (showArchived && emp.ArchivedAt.HasValue)
+                                {
+                                    <div style="font-size:0.75rem;color:var(--rm-text-muted);">
+                                        Arhivat la @emp.ArchivedAt.Value.ToLocalTime().ToString("dd MMM yyyy")
+                                    </div>
+                                }
+                            </div>
                         </div>
                     </td>
                     <td style="color:var(--rm-text-muted);font-size:0.875rem;">@emp.Email</td>
@@ -127,27 +161,42 @@
                     </td>
                     <td>
                         <div class="rm-table-actions">
-                            <a asp-controller="AdminEmployees"
-                                   asp-action="Report"
-                                   asp-route-id="@emp.Id"
-                                   class="btn-rm-outline">
-                                <i class="bi bi-file-earmark-bar-graph"></i> Raport
-                            </a>
-                            <a asp-action="Edit" asp-route-id="@emp.Id" class="btn-rm-outline">
-                                <i class="bi bi-pencil"></i> Editează
-                            </a>
-                            <a asp-action="Schedule" asp-route-id="@emp.Id" class="btn-rm-outline">
-                                <i class="bi bi-calendar-week"></i> Program
-                            </a>
-                            <form asp-controller="AdminEmployees" asp-action="Archive" method="post" style="display:inline;">
-                                @Html.AntiForgeryToken()
-                                <input type="hidden" name="id" value="@emp.Id" />
-                                <button type="submit"
-                                        class="btn-rm-outline btn-rm-outline-danger"
-                                        onclick="return confirm('Ești sigur că vrei să arhivezi angajatul \'@emp.FirstName @emp.LastName\'?\n\nAngajatul nu va mai putea accesa aplicația. Această acțiune nu poate fi anulată.');">
-                                    <i class="bi bi-archive"></i> Arhivează
-                                </button>
-                            </form>
+                            @if (showArchived)
+                            {
+                                <form asp-controller="AdminEmployees" asp-action="Unarchive" method="post" style="display:inline;">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@emp.Id" />
+                                    <button type="button"
+                                            class="btn-rm-outline"
+                                            onclick="confirmUnarchive(this, '@emp.FirstName @emp.LastName')">
+                                        <i class="bi bi-arrow-counterclockwise"></i> Dezarhivează
+                                    </button>
+                                </form>
+                            }
+                            else
+                            {
+                                <a asp-controller="AdminEmployees"
+                                       asp-action="Report"
+                                       asp-route-id="@emp.Id"
+                                       class="btn-rm-outline">
+                                    <i class="bi bi-file-earmark-bar-graph"></i> Raport
+                                </a>
+                                <a asp-action="Edit" asp-route-id="@emp.Id" class="btn-rm-outline">
+                                    <i class="bi bi-pencil"></i> Editează
+                                </a>
+                                <a asp-action="Schedule" asp-route-id="@emp.Id" class="btn-rm-outline">
+                                    <i class="bi bi-calendar-week"></i> Program
+                                </a>
+                                <form asp-controller="AdminEmployees" asp-action="Archive" method="post" style="display:inline;">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@emp.Id" />
+                                    <button type="button"
+                                            class="btn-rm-outline btn-rm-outline-danger"
+                                            onclick="confirmArchive(this, '@emp.FirstName @emp.LastName')">
+                                        <i class="bi bi-archive"></i> Arhivează
+                                    </button>
+                                </form>
+                            }
                         </div>
                     </td>
                 </tr>
@@ -157,8 +206,8 @@
                 <tr>
                     <td colspan="4">
                         <div class="rm-empty-state">
-                            <i class="bi bi-people"></i>
-                            <p>Niciun angajat găsit. Încearcă să modifici filtrele sau adaugă un angajat nou.</p>
+                            <i class="bi bi-@(showArchived ? "archive" : "people")"></i>
+                            <p>@(showArchived ? "Niciun angajat arhivat găsit." : "Niciun angajat găsit. Încearcă să modifici filtrele sau adaugă un angajat nou.")</p>
                         </div>
                     </td>
                 </tr>
@@ -167,3 +216,88 @@
     </table>
 </div>
 
+<!-- Archive confirmation modal -->
+<div class="modal fade" id="archiveModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="rm-modal-content">
+            <div class="rm-modal-header">
+                <div class="rm-modal-icon rm-modal-icon-danger">
+                    <i class="bi bi-archive-fill"></i>
+                </div>
+                <button type="button" class="rm-modal-close" data-bs-dismiss="modal">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            <div class="rm-modal-body">
+                <h5 class="rm-modal-title">Arhivează Angajatul</h5>
+                <p class="rm-modal-text">Ești sigur că vrei să arhivezi <strong id="archiveEmployeeName"></strong>?</p>
+                <div class="rm-modal-warning">
+                    <i class="bi bi-info-circle"></i>
+                    Angajatul nu va mai putea accesa aplicația. Îl poți dezarhiva oricând din lista angajaților arhivați.
+                </div>
+            </div>
+            <div class="rm-modal-footer">
+                <button type="button" class="btn-rm-secondary" data-bs-dismiss="modal">Anulează</button>
+                <button type="button" class="btn-rm-danger" id="archiveConfirmBtn">
+                    <i class="bi bi-archive"></i> Da, Arhivează
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Unarchive confirmation modal -->
+<div class="modal fade" id="unarchiveModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="rm-modal-content">
+            <div class="rm-modal-header">
+                <div class="rm-modal-icon" style="background:rgba(25,135,84,0.1);color:#198754;">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                </div>
+                <button type="button" class="rm-modal-close" data-bs-dismiss="modal">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            <div class="rm-modal-body">
+                <h5 class="rm-modal-title">Dezarhivează Angajatul</h5>
+                <p class="rm-modal-text">Ești sigur că vrei să dezarhivezi <strong id="unarchiveEmployeeName"></strong>?</p>
+                <div class="rm-modal-warning">
+                    <i class="bi bi-info-circle"></i>
+                    Angajatul va putea accesa din nou aplicația.
+                </div>
+            </div>
+            <div class="rm-modal-footer">
+                <button type="button" class="btn-rm-secondary" data-bs-dismiss="modal">Anulează</button>
+                <button type="button" class="btn-rm-primary" id="unarchiveConfirmBtn">
+                    <i class="bi bi-arrow-counterclockwise"></i> Da, Dezarhivează
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let pendingForm = null;
+
+        function confirmArchive(btn, name) {
+            pendingForm = btn.closest('form');
+            document.getElementById('archiveEmployeeName').innerText = name;
+            new bootstrap.Modal(document.getElementById('archiveModal')).show();
+        }
+
+        function confirmUnarchive(btn, name) {
+            pendingForm = btn.closest('form');
+            document.getElementById('unarchiveEmployeeName').innerText = name;
+            new bootstrap.Modal(document.getElementById('unarchiveModal')).show();
+        }
+
+        document.getElementById('archiveConfirmBtn').addEventListener('click', function () {
+            if (pendingForm) pendingForm.submit();
+        });
+
+        document.getElementById('unarchiveConfirmBtn').addEventListener('click', function () {
+            if (pendingForm) pendingForm.submit();
+        });
+    </script>
+}

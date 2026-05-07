@@ -25,7 +25,7 @@ public class AdminEmployeesController : Controller
         _context = context;
     }
 
-    public async Task<IActionResult> Index(string search, int? employeeTypeId)
+    public async Task<IActionResult> Index(string search, int? employeeTypeId, bool showArchived = false)
     {
         var currentAdmin = await _userManager.Users
             .Include(u => u.Clinic)
@@ -35,7 +35,7 @@ public class AdminEmployeesController : Controller
             .Include(u => u.EmployeeType)
             .Where(u => u.ClinicId == currentAdmin.ClinicId
                      && u.UserRoles.Any(ur => ur.Role.Name != "Admin")
-                     && !u.IsArchived);
+                     && u.IsArchived == showArchived);
 
         if (!string.IsNullOrWhiteSpace(search))
         {
@@ -56,6 +56,7 @@ public class AdminEmployeesController : Controller
 
         ViewBag.Search = search;
         ViewBag.EmployeeTypeId = employeeTypeId;
+        ViewBag.ShowArchived = showArchived;
         ViewBag.EmployeeTypes = await _context.EmployeeTypes.ToListAsync();
 
         return View(employees);
@@ -340,6 +341,25 @@ public class AdminEmployeesController : Controller
         await _userManager.UpdateAsync(user);
 
         return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Unarchive(int id)
+    {
+        var admin = await _userManager.GetUserAsync(User);
+
+        var user = await _userManager.Users
+            .FirstOrDefaultAsync(u => u.Id == id && u.ClinicId == admin.ClinicId && u.IsArchived);
+
+        if (user == null)
+            return NotFound();
+
+        user.IsArchived = false;
+        user.ArchivedAt = null;
+        await _userManager.UpdateAsync(user);
+
+        return RedirectToAction(nameof(Index), new { showArchived = true });
     }
 
     private Task<bool> IsEmployeeCurrentlyWorking(ApplicationUser user)
